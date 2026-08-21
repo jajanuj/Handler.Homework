@@ -1,0 +1,425 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FD5D997A-D7EE-41F3-A852-F604334A6FAB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ArtEQ</RootNamespace>
+    <AssemblyName>ArtEQ</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\ArtEQ.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|x86'">
+    <OutputPath>bin\x86\Debug64\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug64|x64'">
+    <OutputPath>bin\x64\Debug64\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ART.Security">
+      <HintPath>..\ArtMMI\bin\Debug\ART.Security.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ArtCommonLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ArtMMI\bin\Debug\ArtCommonLib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ArtControlLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ArtMMI\bin\Debug\ArtControlLib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ArtModuleData, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ArtMMI\bin\Debug\ArtModuleData.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ArtProcModuleLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ArtMMI\bin\Debug\ArtProcModuleLib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ArtTwinDriver">
+      <HintPath>..\ArtMMI\bin\Debug\ArtTwinDriver.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="AxInterop.WinSecsLib">
+      <HintPath>..\ArtMMI\bin\Debug\AxInterop.WinSecsLib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Interop.WinSecsLib">
+      <HintPath>..\ArtMMI\bin\Debug\Interop.WinSecsLib.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\ArtMMI\bin\Debug\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="2_Function%28流程%29\AutoRun\AR_Lane.cs" />
+    <Compile Include="2_Function%28流程%29\AutoRun\AR_HS_Lane.cs" />
+    <Compile Include="2_Function%28流程%29\AutoRun\AR_Mag_HS_Feed.cs" />
+    <Compile Include="2_Function%28流程%29\AutoRun\AR_Mag_IC_Feed.cs" />
+    <Compile Include="2_Function%28流程%29\BaseProc\BaseArm.cs" />
+    <Compile Include="2_Function%28流程%29\BaseProc\BaseAoiStation.cs" />
+    <Compile Include="2_Function%28流程%29\BaseProc\BasePressStation.cs" />
+    <Compile Include="2_Function%28流程%29\BaseProc\BaseLane.cs" />
+    <Compile Include="2_Function%28流程%29\BaseProc\BaseMagazine.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Station\Proc_AOI_Station.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Station\Proc_Press_Station.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Arm\Proc_Sort_Arm.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Arm\Proc_ASM_Arm.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Magazine\Proc_HS_Feed_Magazine.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Lane\Proc_HS_Lane.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Magazine\Proc_HS_Discharge_Magazine.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Magazine\Proc_NG_Discharge_Magazine.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Magazine\Proc_OK_Discharge_Magazine.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Magazine\Proc_NG_Feed_Magazine.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Lane\Proc_NG_Lane.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Lane\Proc_OK_Lane.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Lane\Proc_AOI_Lane.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Lane\Proc_Press_Lane.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Lane\Proc_ASM_Lane.cs" />
+    <Compile Include="2_Function%28流程%29\Proc\Magazine\Proc_IC_Feed_Magazine.cs" />
+    <Compile Include="3_UI%28介面管理%29\1_Operator%28操作模式%29\ucAutoRun.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\1_Operator%28操作模式%29\ucAutoRun.Designer.cs">
+      <DependentUpon>ucAutoRun.cs</DependentUpon>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\1_Operator%28操作模式%29\ucHost_SECS.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\1_Operator%28操作模式%29\ucHost_SECS.designer.cs">
+      <DependentUpon>ucHost_SECS.cs</DependentUpon>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucFunctionSetting.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucFunctionSetting.Designer.cs">
+      <DependentUpon>ucFunctionSetting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucManualForm.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucManualForm.Designer.cs">
+      <DependentUpon>ucManualForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucMotionTeach.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucMotionTeach.designer.cs">
+      <DependentUpon>ucMotionTeach.cs</DependentUpon>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucParameterForm.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucParameterForm.Designer.cs">
+      <DependentUpon>ucParameterForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucTimeSetting.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucTimeSetting.designer.cs">
+      <DependentUpon>ucTimeSetting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\5_Log%28紀錄%29\ucAlarmCounter.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\5_Log%28紀錄%29\ucAlarmCounter.Designer.cs">
+      <DependentUpon>ucAlarmCounter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\4_Software%28軟體設定%29\ucProcessContorl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\4_Software%28軟體設定%29\ucProcessContorl.Designer.cs">
+      <DependentUpon>ucProcessContorl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\4_Software%28軟體設定%29\ucParameterContorl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\4_Software%28軟體設定%29\ucParameterContorl.Designer.cs">
+      <DependentUpon>ucParameterContorl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="4_Class%28基本類別%29\clsAOIResult.cs" />
+    <Compile Include="4_Class%28基本類別%29\clsAssyRecord.cs" />
+    <Compile Include="4_Class%28基本類別%29\clsMagazineInfo.cs" />
+    <Compile Include="4_Class%28基本類別%29\clsMaterial.cs" />
+    <Compile Include="4_Class%28基本類別%29\clsRecipeInfo.cs" />
+    <Compile Include="4_Class%28基本類別%29\clsTrayInfo.cs" />
+    <Compile Include="B_Tools\clsTrayPositionHelper.cs" />
+    <Compile Include="B_Tools\SingletonHelper.cs" />
+    <Compile Include="C_Component%28介面元件%29\MagazineInfo.cs" />
+    <Compile Include="1_ArtMMI%28主介面功能%29\clsEditFunc.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="1_ArtMMI%28主介面功能%29\formDebug.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="1_ArtMMI%28主介面功能%29\formDebug.designer.cs">
+      <DependentUpon>formDebug.cs</DependentUpon>
+    </Compile>
+    <Compile Include="1_ArtMMI%28主介面功能%29\formLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="1_ArtMMI%28主介面功能%29\formLogin.Designer.cs">
+      <DependentUpon>formLogin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="1_ArtMMI%28主介面功能%29\Panel\ucHotkeyFunc_Panel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="1_ArtMMI%28主介面功能%29\Panel\ucHotkeyFunc_Panel.Designer.cs">
+      <DependentUpon>ucHotkeyFunc_Panel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="1_ArtMMI%28主介面功能%29\ucHotkeyFunc.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="1_ArtMMI%28主介面功能%29\ucHotkeyFunc.Designer.cs">
+      <DependentUpon>ucHotkeyFunc.cs</DependentUpon>
+    </Compile>
+    <Compile Include="1_ArtMMI%28主介面功能%29\Panel\ucTitle_Panel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="1_ArtMMI%28主介面功能%29\Panel\ucTitle_Panel.Designer.cs">
+      <DependentUpon>ucTitle_Panel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="1_ArtMMI%28主介面功能%29\ucTitle.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="1_ArtMMI%28主介面功能%29\ucTitle.Designer.cs">
+      <DependentUpon>ucTitle.cs</DependentUpon>
+    </Compile>
+    <Compile Include="1_Scenario%28核心流程%29\clsEditAlarmProc.cs" />
+    <Compile Include="1_Scenario%28核心流程%29\clsEditRunThread.cs" />
+    <Compile Include="1_Scenario%28核心流程%29\ProcAutoRun.cs" />
+    <Compile Include="1_Scenario%28核心流程%29\ProcDetectIO.cs" />
+    <Compile Include="1_Scenario%28核心流程%29\ProcInitial.cs" />
+    <Compile Include="3_UI%28介面管理%29\4_Software%28軟體設定%29\ucParameter\ucRecipe.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\4_Software%28軟體設定%29\ucParameter\ucRecipe.Designer.cs">
+      <DependentUpon>ucRecipe.cs</DependentUpon>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\4_Software%28軟體設定%29\ucParameter\ucRecipeManager.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="3_UI%28介面管理%29\4_Software%28軟體設定%29\ucParameter\ucRecipeManager.designer.cs">
+      <DependentUpon>ucRecipeManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="B_Tools\clsAlarmCodeBuilder.cs" />
+    <Compile Include="C_Component%28介面元件%29\ucMagazineDisplay.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="C_Component%28介面元件%29\ucMagazineDisplay.Designer.cs">
+      <DependentUpon>ucMagazineDisplay.cs</DependentUpon>
+    </Compile>
+    <Compile Include="C_Component%28介面元件%29\ucSignal.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="C_Component%28介面元件%29\ucSignal.Designer.cs">
+      <DependentUpon>ucSignal.cs</DependentUpon>
+    </Compile>
+    <Compile Include="C_Component%28介面元件%29\ucSignalIndicator.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="C_Component%28介面元件%29\ucSignalIndicator.Designer.cs">
+      <DependentUpon>ucSignalIndicator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="C_Component%28介面元件%29\ucTrayDisplay.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="C_Component%28介面元件%29\ucTrayDisplay.Designer.cs">
+      <DependentUpon>ucTrayDisplay.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="PublicDeclare.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="S_SECS\clsWinAPI.cs" />
+    <Compile Include="S_SECS\clsWriteLog.cs" />
+    <Compile Include="S_SECS\formSecsHostMsg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="S_SECS\formSecsHostMsg.designer.cs">
+      <DependentUpon>formSecsHostMsg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="S_SECS\GEM.cs" />
+    <Compile Include="S_SECS\PrimaryInFucntion.cs" />
+    <Compile Include="S_SECS\PrimaryOutFucntion.cs" />
+    <Compile Include="S_SECS\SecondaryInFucntion.cs" />
+    <Compile Include="S_SECS\SecondaryOutFucntion.cs" />
+    <Compile Include="S_SECS\SECSAP.cs" />
+    <Compile Include="S_SECS\SecsHost_PrimaryIn.cs" />
+    <Compile Include="S_SECS\SecsHost_SecondaryIn.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ArtData\ArtData.csproj">
+      <Project>{535F1ABB-9CF8-44C7-A431-0E54F5814091}</Project>
+      <Name>ArtData</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\ArtSystem\ArtSystem%28導入所有萬潤系統%29.csproj">
+      <Project>{62A4883D-5EE6-4297-BA1F-51A67FAEEA30}</Project>
+      <Name>ArtSystem%28導入所有萬潤系統%29</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\ArtTeach\ArtTeach%28點位教導-共用設計界面%29.csproj">
+      <Project>{52220E77-0426-427E-A9F4-3E8E86D3B574}</Project>
+      <Name>ArtTeach%28點位教導-共用設計界面%29</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="3_UI%28介面管理%29\1_Operator%28操作模式%29\ucAutoRun.resx">
+      <DependentUpon>ucAutoRun.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="3_UI%28介面管理%29\1_Operator%28操作模式%29\ucHost_SECS.resx">
+      <DependentUpon>ucHost_SECS.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucFunctionSetting.resx">
+      <DependentUpon>ucFunctionSetting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucManualForm.resx">
+      <DependentUpon>ucManualForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucMotionTeach.resx">
+      <DependentUpon>ucMotionTeach.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucParameterForm.resx">
+      <DependentUpon>ucParameterForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="3_UI%28介面管理%29\2_Manual%28手動模式%29\ucTimeSetting.resx">
+      <DependentUpon>ucTimeSetting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="3_UI%28介面管理%29\5_Log%28紀錄%29\ucAlarmCounter.resx">
+      <DependentUpon>ucAlarmCounter.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="3_UI%28介面管理%29\4_Software%28軟體設定%29\ucProcessContorl.resx">
+      <DependentUpon>ucProcessContorl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="3_UI%28介面管理%29\4_Software%28軟體設定%29\ucParameterContorl.resx">
+      <DependentUpon>ucParameterContorl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="1_ArtMMI%28主介面功能%29\formDebug.resx">
+      <DependentUpon>formDebug.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="1_ArtMMI%28主介面功能%29\formLogin.resx">
+      <DependentUpon>formLogin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="1_ArtMMI%28主介面功能%29\Panel\ucHotkeyFunc_Panel.resx">
+      <DependentUpon>ucHotkeyFunc_Panel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="1_ArtMMI%28主介面功能%29\ucHotkeyFunc.resx">
+      <DependentUpon>ucHotkeyFunc.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="1_ArtMMI%28主介面功能%29\Panel\ucTitle_Panel.resx">
+      <DependentUpon>ucTitle_Panel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="1_ArtMMI%28主介面功能%29\ucTitle.resx">
+      <DependentUpon>ucTitle.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="3_UI%28介面管理%29\4_Software%28軟體設定%29\ucParameter\ucRecipe.resx">
+      <DependentUpon>ucRecipe.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="3_UI%28介面管理%29\4_Software%28軟體設定%29\ucParameter\ucRecipeManager.resx">
+      <DependentUpon>ucRecipeManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="C_Component%28介面元件%29\ucMagazineDisplay.resx">
+      <DependentUpon>ucMagazineDisplay.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="C_Component%28介面元件%29\ucSignal.resx">
+      <DependentUpon>ucSignal.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="C_Component%28介面元件%29\ucTrayDisplay.resx">
+      <DependentUpon>ucTrayDisplay.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="S_SECS\formSecsHostMsg.resx">
+      <DependentUpon>formSecsHostMsg.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Allring.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="3_UI%28介面管理%29\3_Hardware%28硬體設定%29\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\No.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Yes.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ReadMe.txt" />
+    <Content Include="S_SECS\_ReadMe.txt" />
+    <None Include="Resources\Host_Disconnect.png" />
+    <None Include="Resources\Host_Connect.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
