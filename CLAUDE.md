@@ -54,6 +54,11 @@
 
 一句話：「這個東西存在嗎、大概在哪」拿 CodeGraph 問可以省時間；「這個東西完整長怎樣、有多複雜、找不找得全」這種需要精確度或完整覆蓋率的問題，不要信 CodeGraph 的結果，改用 Grep／手動掃描驗證（見 `LESSONS.md` L5）。
 
+## AR / Proc 架構
+
+要碰 `AutoRun`／`Scenario`／`AR_*`／`Proc_*` 相關程式碼之前，先讀 [AR_PROC_ARCHITECTURE.md](AR_PROC_ARCHITECTURE.md)——
+這是逐檔讀出來的兩層架構筆記(Proc 設備本體 vs AR 決策層)，包含四個容易漏掉的註冊點，省得每次重新逆向工程一次。
+
 ## 踩坑紀錄
 
 實戰中發現的專案特有陷阱記在 [LESSONS.md](LESSONS.md)，新條目加在最上面，固定格式：情境／錯誤做法／正確做法，每條 ≤6 行。
