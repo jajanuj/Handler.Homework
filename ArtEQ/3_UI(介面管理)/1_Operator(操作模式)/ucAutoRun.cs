@@ -1,14 +1,122 @@
-﻿using System;
-using System.Drawing;
-using ArtCommonLib;
+﻿using ArtCommonLib;
 using ArtEQ._2_Function_流程_.Proc;
 using ArtEQ.B_Tools;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
 
 namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
 {
     public partial class ucAutoRun : ucBaseUserControl
     {
+        #region Constant
+
+        private const int m_iSlotMax = 6;
+
+        #endregion
+
+        #region Fields
+
+        private Dictionary<string, BaseMagazine> m_Magazines = new Dictionary<string, BaseMagazine>();
+
+        #endregion
+
+        #region Constructors
+
+        public ucAutoRun()
+        {
+            InitializeComponent();
+            BindProcessSingleton();
+            InitMagazineView();
+            InitializeTrayView();
+        }
+
+        #endregion
+
+        #region Public Methods
+
         public static ucAutoRun GetSingleton() => GetSingletonInstance(() => new ucAutoRun());
+
+        #endregion
+
+        #region Protected Methods
+
+        protected static T GetSingletonInstance<T>(Func<T> factory) where T : class => SingletonHelper<T>.GetOrCreate(factory);
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// 綁定所有 Proc 物件的 Singleton 參照，快取到本類別的成員變數。
+        /// </summary>
+        private void BindProcessSingleton()
+        {
+            #region Magazine
+
+            m_IC_Magazine = Proc_IC_Feed_Magazine.GetSingleton();
+            m_OK_Discharge_Magazine = Proc_OK_Discharge_Magazine.GetSingleton();
+            m_HS_Feed_Magazine = Proc_HS_Feed_Magazine.GetSingleton();
+            m_HS_Discharge_Magazine = Proc_HS_Discharge_Magazine.GetSingleton();
+            m_NG_Feed_Magazine = Proc_NG_Feed_Magazine.GetSingleton();
+            m_NG_Discharge_Magazine = Proc_NG_Discharge_Magazine.GetSingleton();
+
+            #endregion
+
+            #region Lane
+
+            m_ASM_Lane = Proc_ASM_Lane.GetSingleton();
+            m_Press_Lane = Proc_Press_Lane.GetSingleton();
+            m_AOI_Lane = Proc_AOI_Lane.GetSingleton();
+            m_OK_Lane = Proc_OK_Lane.GetSingleton();
+            m_HS_Lane = Proc_HS_Lane.GetSingleton();
+            m_NG_Lane = Proc_NG_Lane.GetSingleton();
+
+            #endregion
+
+            #region Arm
+
+            m_ASM_Arm = Proc_ASM_Arm.GetSingleton();
+            m_Sort_Arm = Proc_Sort_Arm.GetSingleton();
+
+            #endregion
+
+            m_Press_Station = Proc_Press_Station.GetSingleton();
+            m_AOI_Station = Proc_AOI_Station.GetSingleton();
+        }
+
+        private void btnAddData_Click(object sender, EventArgs e)
+        {
+            foreach (var keyValueParir in m_Magazines)
+            {
+                var magazine = keyValueParir.Value;
+                var magazineName = keyValueParir.Key;
+
+                if (magazine == null)
+                    continue;
+
+                for (int slotNo = 1; slotNo <= m_iSlotMax; slotNo++)
+                {
+                    switch (magazineName)
+                    {
+                        case "IC_Feed":
+                            magazine.CreateIcTrayInfo(slotNo);
+                            break;
+                        case "HS_Feed":
+                            magazine.CreateHeatSinkTrayInfo(slotNo);
+                            break;
+                        case "NG_Feed":
+                            magazine.CreateEmptyMaterialTrayInfo(slotNo);
+                            break;
+                        default:
+                            magazine.CreateEmptyTrayInfo(slotNo);
+                            break;
+                    }
+                }
+            }
+        }
+
+        #endregion
 
         #region Process
 
@@ -34,15 +142,8 @@ namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
 
         #endregion
 
-        public ucAutoRun()
-        {
-            InitializeComponent();
-            BindProcessSingleton();
-        }
-
-        protected static T GetSingletonInstance<T>(Func<T> factory) where T : class => SingletonHelper<T>.GetOrCreate(factory);
-
         #region //=====================  UI刷新 =====================
+
         protected override void ReflashTimerFunc()
         {
             UpdateICMagazine();
@@ -63,6 +164,44 @@ namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
 
             UpdatePressStation();
             UpdateAOIStation();
+        }
+
+        /// <summary>
+        /// 初始化所有站別的 Tray 盤示意圖，將各站的 TrayInfo 綁定到對應的 ucTrayDisplay 元件。
+        /// </summary>
+        /// <remarks>
+        /// 每個 Tray 元件都必須呼叫 Initial() 才會顯示真實資料；
+        /// 若漏掉某個元件的 Initial()，該元件不會報錯，只會靜默顯示預設的 2x3 全 Pending(藍色) 畫面。
+        /// </remarks>
+        private void InitializeTrayView()
+        {
+            ucAsmTrayView.Initial(m_ASM_Lane.m_Temp_Tray_Info);
+            ucPressTrayView.Initial(m_Press_Lane.m_Temp_Tray_Info);
+            ucAOITrayView.Initial(m_AOI_Lane.m_Temp_Tray_Info);
+            ucHSTrayView.Initial(m_HS_Lane.m_Temp_Tray_Info);
+            ucOKTrayView.Initial(m_OK_Lane.m_Temp_Tray_Info);
+            ucNGTrayView.Initial(m_NG_Lane.m_Temp_Tray_Info);
+        }
+
+        /// <summary>
+        /// 初始化 IC Magazine 的料盒示意圖，綁定料盒資訊物件與連動的 Slot 選取 ComboBox。
+        /// </summary>
+        private void InitMagazineView()
+        {
+            m_Magazines.Clear();
+            m_Magazines.Add("IC_Feed", m_IC_Magazine);
+            m_Magazines.Add("OK_Discharge", m_OK_Discharge_Magazine);
+            m_Magazines.Add("HS_Feed", m_HS_Feed_Magazine);
+            m_Magazines.Add("HS_Discharge", m_HS_Discharge_Magazine);
+            m_Magazines.Add("NG_Feed", m_NG_Feed_Magazine);
+            m_Magazines.Add("NG_Discharge", m_NG_Discharge_Magazine);
+
+            ucIC_Feed_Magazine_View.Initial(m_IC_Magazine.m_MagazineInfo, cboICFeedSlot);
+            ucOK_Discharge_Magazine_View.Initial(m_OK_Discharge_Magazine.m_MagazineInfo, cboOKDischargeSlot);
+            ucHS_Feed_Magazine_View.Initial(m_HS_Feed_Magazine.m_MagazineInfo, cboHSFeedSlot);
+            ucHS_Discharge_Magazine_View.Initial(m_HS_Discharge_Magazine.m_MagazineInfo, cboHSDischargeSlot);
+            ucNG_Feed_Magazine_View.Initial(m_NG_Feed_Magazine.m_MagazineInfo, cboNGFeedSlot);
+            ucNG_Discharge_Magazine_View.Initial(m_NG_Discharge_Magazine.m_MagazineInfo, cboNGDischargeSlot);
         }
 
         private void UpdateAOIStation()
@@ -266,38 +405,5 @@ namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
         }
 
         #endregion
-
-        /// <summary>
-        /// 綁定所有 Proc 物件的 Singleton 參照，快取到本類別的成員變數。
-        /// </summary>
-        private void BindProcessSingleton()
-        {
-            #region Magazine
-            m_IC_Magazine = Proc_IC_Feed_Magazine.GetSingleton();
-            m_OK_Discharge_Magazine = Proc_OK_Discharge_Magazine.GetSingleton();
-            m_HS_Feed_Magazine = Proc_HS_Feed_Magazine.GetSingleton();
-            m_HS_Discharge_Magazine = Proc_HS_Discharge_Magazine.GetSingleton();
-            m_NG_Feed_Magazine = Proc_NG_Feed_Magazine.GetSingleton();
-            m_NG_Discharge_Magazine = Proc_NG_Discharge_Magazine.GetSingleton();
-
-            #endregion
-
-            #region Lane
-            m_ASM_Lane = Proc_ASM_Lane.GetSingleton();
-            m_Press_Lane = Proc_Press_Lane.GetSingleton();
-            m_AOI_Lane = Proc_AOI_Lane.GetSingleton();
-            m_OK_Lane = Proc_OK_Lane.GetSingleton();
-            m_HS_Lane = Proc_HS_Lane.GetSingleton();
-            m_NG_Lane = Proc_NG_Lane.GetSingleton();
-            #endregion
-
-            #region Arm
-            m_ASM_Arm = Proc_ASM_Arm.GetSingleton();
-            m_Sort_Arm = Proc_Sort_Arm.GetSingleton();
-            #endregion
-
-            m_Press_Station = Proc_Press_Station.GetSingleton();
-            m_AOI_Station = Proc_AOI_Station.GetSingleton();
-        }
     }
 }

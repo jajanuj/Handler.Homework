@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using ArtCommonLib;
+﻿using ArtCommonLib;
 using ArtControlLib;
 using ArtData;
 using ArtEQ.B_Tools;
 using ArtTeach;
+using System;
+using System.Collections.Generic;
 using static ArtData.clsEnum;
 
 
@@ -818,57 +818,6 @@ namespace ArtEQ
             }
         }
 
-        public void CreateTrayInfo(int p_iSlotNo, bool p_bIsExist, string magazineName)
-        {
-            if (!IsSlotInUseRange(p_iSlotNo))
-            {
-                clsLog.Log(nameof(enuLogName.ProcessLog), $"{strThreadLogName} : CreateTrayInfo failed. Slot[{p_iSlotNo}] out of use range.");
-                return;
-            }
-
-            EnsureMagazineInfo();
-
-            if (m_MagazineInfo == null || m_MagazineInfo.m_trayInfo == null)
-                return;
-
-            if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
-                return;
-
-            clsTrayInfo tray = m_MagazineInfo.m_trayInfo[p_iSlotNo];
-
-            var materialType = MaterialType.IC;
-            if (magazineName == "IC_Feed")
-            {
-                materialType = MaterialType.IC;
-            }
-            else if (magazineName == "HS_Feed")
-            {
-                materialType = MaterialType.HeatSink;
-            }
-
-            if (tray == null)
-            {
-                tray = new clsTrayInfo();
-                m_MagazineInfo.m_trayInfo[p_iSlotNo] = tray;
-            }
-
-            // 1. 先全部清乾淨
-            tray.Clear();
-
-            // 2. 只建立 Tray 層級的帳
-            tray.bIsExist = p_bIsExist;
-            tray.sTrayID = (m_iTestTrayID++).ToString();
-            tray.iRowID = p_iSlotNo;
-            tray.iColumnID = 1;
-            tray.bTrayDone = false;
-            tray.SetMaterialType(materialType);
-
-            m_MagazineInfo.m_trayInfo[p_iSlotNo] = tray;
-            var log = $"CreateTrayInfo slot {p_iSlotNo} trayHash={tray.GetHashCode()} bIsExist={tray.bIsExist} sTrayID={tray.sTrayID}";
-            clsLog.Log(nameof(enuLogName.ProcessLog), $"{strThreadLogName} : {log}");
-            clsLog.Log(nameof(enuLogName.ProcessLog), $"{strThreadLogName} : Create Tray Info. Slot={p_iSlotNo}, TrayID={tray.sTrayID}");
-        }
-
         public void CreateEmptyMaterialTrayInfo(int p_iSlotNo)
         {
             if (!IsSlotInUseRange(p_iSlotNo))
@@ -885,6 +834,7 @@ namespace ArtEQ
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
                 return;
 
+            m_MagazineInfo.bIsExist = true;
             clsTrayInfo tray = m_MagazineInfo.m_trayInfo[p_iSlotNo];
 
             if (tray == null)
@@ -932,6 +882,7 @@ namespace ArtEQ
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
                 return;
 
+            m_MagazineInfo.bIsExist = true;
             clsTrayInfo tray = m_MagazineInfo.m_trayInfo[p_iSlotNo];
 
             if (tray == null)
@@ -974,6 +925,7 @@ namespace ArtEQ
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
                 return;
 
+            m_MagazineInfo.bIsExist = true;
             clsTrayInfo tray = m_MagazineInfo.m_trayInfo[p_iSlotNo];
 
             if (tray == null)
@@ -1015,6 +967,7 @@ namespace ArtEQ
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
                 return;
 
+            m_MagazineInfo.bIsExist = true;
             clsTrayInfo tray = m_MagazineInfo.m_trayInfo[p_iSlotNo];
 
             if (tray == null)

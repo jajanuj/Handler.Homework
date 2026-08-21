@@ -1,9 +1,9 @@
-﻿using System;
-using ArtCommonLib;
+﻿using ArtCommonLib;
 using ArtControlLib;
 using ArtEQ._4_Class_基本類別_;
 using ArtEQ.B_Tools;
 using ArtTeach;
+using System;
 using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.BaseProc
@@ -43,6 +43,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
             /// 移動中(無物料)
             /// </summary>
             Pick_Moving,
+
             /// <summary>
             /// 取料中
             /// </summary>
@@ -64,15 +65,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
         #endregion
 
-        /// <summary>
-        /// 馬達復歸後，延遲時間 1000 (ms)。
-        /// </summary>
-        protected readonly int m_iHomeDelay = 1000;
-
-        /// <summary>
-        /// 吸嘴真空啟動後延遲時間
-        /// </summary>
-        protected readonly int m_VacuumDelay = 300;
+        #region Constant
 
         /// <summary>
         /// 馬達移動速度
@@ -84,13 +77,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         /// </summary>
         protected const double m_dAirBlowTime = 200;
 
-
-        private PPStation m_enuPPStation;
-        protected int m_iPickColumn;
-        protected int m_iPickRow;
-        protected int m_iPlaceColumn;
-        protected int m_iPlaceRow;
-
         private const int m_dBaseCellPosX = 100;
         private const int m_dBaseCellPosY = 100;
         private const int m_dCellPitchY = 3;
@@ -98,12 +84,35 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         private const double m_dCellWidth = 10;
         private const double m_dCellLength = 10;
 
+        #endregion
+
+        #region Fields
+
+        /// <summary>
+        /// 吸嘴真空啟動後延遲時間
+        /// </summary>
+        protected readonly int m_VacuumDelay = 300;
+
+        /// <summary>
+        /// 馬達復歸後，延遲時間 1000 (ms)。
+        /// </summary>
+        protected readonly int m_iHomeDelay = 1000;
+
         /// <summary>
         /// Z軸安全位置
         /// </summary>
         protected double m_dSafePos_Z = ucPosPmt.GetValueDouble(enuPosName.SafePos_Z);
 
+
+        private PPStation m_enuPPStation;
+        protected int m_iPickColumn;
+        protected int m_iPickRow;
+        protected int m_iPlaceColumn;
+        protected int m_iPlaceRow;
+
         protected PickPlace m_pickPlace;
+
+        #endregion
 
         #region Constructors
 
@@ -150,7 +159,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         public void ClearTrayBill()
         {
             AssyRecord = new clsAssyRecord();
-
         }
 
         public bool IsProcOK() => !bIsProcessing && m_bIsReady;
@@ -207,94 +215,22 @@ namespace ArtEQ._2_Function_流程_.BaseProc
             iStepIndex = 30000;
         }
 
-        #endregion
+        public static void GetCellCenterPos(int iRow, int iCol, out double dPosX, out double dPosY)
+        {
+            // Step1：從 Row0,Col0 的教點，用 Pitch 換算出指定 Row/Col 那顆 Cell 的左上角座標
+            double dCellTopLeftX = m_dBaseCellPosX + iCol * m_dCellPitchX;
+            double dCellTopLeftY = m_dBaseCellPosY + iRow * m_dCellPitchY;
 
-        #region ===================== 控制盒 =====================
-
-        /// <summary>
-        /// 控制盒：把多個氣缸 / 軸控動作加進來後，用 Action() 等待完成
-        /// </summary>
-        protected clsControlBox m_CtrlBox = new clsControlBox();
-
-        /// <summary>
-        /// 控制元件馬達X
-        /// </summary>
-        protected clsBoxMotion m_Motion_X = new clsBoxMotion();
-
-        /// <summary>
-        /// 控制元件馬達Y
-        /// </summary>
-        protected clsBoxMotion m_Motion_Y = new clsBoxMotion();
-
-        /// <summary>
-        /// 控制元件馬達Z
-        /// </summary>
-        protected clsBoxMotion m_Motion_Z = new clsBoxMotion();
+            // Step2：從左上角推算中心點 (加上 Cell 自身尺寸的一半)
+            dPosX = dCellTopLeftX + m_dCellWidth / 2.0;
+            dPosY = dCellTopLeftY + m_dCellLength / 2.0;
+            dPosX = 0;
+            dPosY = 0;
+        }
 
         #endregion
 
-        #region ===================== Axis / Pos / IO =====================
-
-        /// <summary>
-        /// 手臂馬達X
-        /// </summary>
-        protected enuAxis m_Motor_X;
-
-        /// <summary>
-        /// 手臂馬達Y
-        /// </summary>
-        protected enuAxis m_Motor_Y;
-
-        /// <summary>
-        /// 手臂馬達Z
-        /// </summary>
-        protected enuAxis m_Motor_Z;
-
-        /// <summary>
-        /// 真空檢知DI
-        /// </summary>
-        protected enuDi m_DI_Vacuum;
-
-        /// <summary>
-        /// 真空啟動DO
-        /// </summary>
-        protected enuDo m_DO_Vacuum_Activate;
-
-        /// <summary>
-        /// 真空破壞DO
-        /// </summary>
-        protected enuDo m_DO_Vacuum_Break;
-
-        #endregion
-
-        #region ===================== 狀態變數 =====================
-
-        /// <summary>目前動作，AR / UI 透過此觀察流程狀態。</summary>
-        public enuAction m_enuAction { get; protected set; }
-
-        /// <summary>
-        /// 是否模擬
-        /// </summary>
-        /// <returns></returns>
-        private bool b_Simulation => PublicDeclare.bIsSimulate;
-
-        #region ===================== 帳料 =====================
-
-        /// <summary>
-        /// Lane 目前持有的 Tray 帳。
-        /// Magazine 推料完成後，帳會先複製到這裡。
-        /// </summary>
-        public clsTrayInfo m_Temp_Tray_Info = new clsTrayInfo();
-
-        /// <summary>
-        /// 防止同一次 Load_Done 重複通知上一站清帳。
-        /// </summary>
-        private bool m_bNotifyPreviousLoadDone = false;
-
-
-        #endregion
-
-        #endregion
+        #region Protected Methods
 
         protected static T GetSingletonInstance<T>(Func<T> factory) where T : class => SingletonHelper<T>.GetOrCreate(factory);
 
@@ -305,6 +241,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                 #region ===================== Initial (初始化流程 10000-10999) =====================
 
                 #region 【初始化開始】重新初始化 Arm 硬體設備
+
                 case 10000:
                     InitialArmHardware();
 
@@ -315,9 +252,11 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
                     iStepIndex = 10100;
                     break;
+
                 #endregion
 
                 #region 【有料檢查】檢查是否吸嘴上有物料
+
                 case 10100:
                     // 【有料檢查】檢查是否吸嘴上有物料
                     if (!GetDi(m_DI_Vacuum) && !AssyRecord.IsExist)
@@ -333,40 +272,48 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     }
 
                     break;
+
                 #endregion
 
                 #region 關閉真空啟動、真空破壞
+
                 case 10110:
                     SetDo(m_DO_Vacuum_Activate, false);
                     SetDo(m_DO_Vacuum_Break, false);
                     iStepIndex = 10200;
                     break;
+
                 #endregion
 
                 #region 【加入 Z 軸 Home 動作】將 Z 軸回原點動作加入控制盒
+
                 case 10200:
                     m_CtrlBox.Clear();
                     m_CtrlBox.Add(m_Motion_Z);
                     iStepIndex = 10210;
                     break;
+
                 #endregion
 
                 #region 【執行 Z 軸 Home】執行 Z 軸回原點動作
+
                 case 10210:
-                    {
-                        m_CtrlBox.Home(ref iStepIndex, 10220, 10998);
-                    }
+                    m_CtrlBox.Home(ref iStepIndex, 10220, 10998);
                     break;
+
                 #endregion
 
                 #region 【Z 軸 Home 完成】重啟計時器，準備設定 Z 軸位置為 0
+
                 case 10220:
                     Restart();
                     iStepIndex = 10230;
                     break;
+
                 #endregion
 
                 #region 【等待延遲後設定位置】等待 HomeDelay 時間後，將 Z 軸位置歸零
+
                 case 10230:
                     if (IsTimeOut(m_iHomeDelay, clsCmData.enuSecUnit.MilliSec))
                     {
@@ -375,31 +322,39 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     }
 
                     break;
+
                 #endregion
 
                 #region 【加入 XY 軸 Home 動作】將 XY 軸回原點動作加入控制盒
+
                 case 10300:
                     m_CtrlBox.Clear();
                     m_CtrlBox.Add(m_Motion_X);
                     m_CtrlBox.Add(m_Motion_Y);
                     iStepIndex = 10310;
                     break;
+
                 #endregion
 
                 #region 【執行 XY 軸 Home】執行 XY 軸回原點動作
+
                 case 10310:
                     m_CtrlBox.Home(ref iStepIndex, 10320, 10998);
                     break;
+
                 #endregion
 
                 #region 【XY 軸 Home 完成】重啟計時器，準備設定 XY 軸位置為 0
+
                 case 10320:
                     Restart();
                     iStepIndex = 10330;
                     break;
+
                 #endregion
 
                 #region 【等待延遲後設定位置】等待 HomeDelay 時間後，將 XY 軸位置歸零
+
                 case 10330:
                     if (IsTimeOut(m_iHomeDelay, clsCmData.enuSecUnit.MilliSec))
                     {
@@ -409,18 +364,22 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     }
 
                     break;
+
                 #endregion
 
                 #region 【初始化失敗】設定狀態，結束流程
+
                 case 10998:
                     m_enuAction = enuAction.Initial_Fail;
                     m_bIsReady = false;
                     bIsProcessing = false;
                     iStepIndex = -1;
                     break;
+
                 #endregion
 
                 #region 【 初始化完成】Arm 已就緒，可以開始 Pick / Place
+
                 case 10999:
                     if (b_Simulation)
                     {
@@ -432,6 +391,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     bIsProcessing = false;
                     iStepIndex = -1;
                     break;
+
                 #endregion
 
                 #endregion
@@ -439,6 +399,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                 #region //===================== Pick 取料主流程 (20000-20999) =====================
 
                 #region 【Pick 流程開始】檢查是否吸嘴上有物料
+
                 case 20000:
                     if (!AssyRecord.IsExist)
                     {
@@ -453,6 +414,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     }
 
                     break;
+
                 #endregion
 
                 //馬達Z軸設定安全位置
@@ -534,6 +496,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                         clsEditRunThread.ReportAlarm(enuAlarm.Pickup_Vacuum_Failure);
                         iStepIndex = 20998;
                     }
+
                     break;
 
                 //馬達Z軸設定安全位置
@@ -560,6 +523,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     {
                         clsEditRunThread.ReportAlarm(enuAlarm.Pickup_Vacuum_Failure);
                     }
+
                     break;
 
                 //過帳
@@ -600,6 +564,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     {
                         iStepIndex = 30100;
                     }
+
                     break;
 
                 //馬達Z軸設定安全位置
@@ -689,6 +654,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     {
                         SetDi(m_DI_Vacuum, false);
                     }
+
                     iStepIndex = 30710;
                     break;
 
@@ -703,6 +669,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                         clsEditRunThread.ReportAlarm(enuAlarm.Place_Suction_Cup_Has_Material);
                         iStepIndex = 30998;
                     }
+
                     break;
 
                 //過帳
@@ -721,13 +688,13 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
                 // 【Place 完成】放料流程正式完成
                 case 30999:
-
+                    m_enuAction = enuAction.Place_Done;
                     m_bIsReady = true;
                     bIsProcessing = false;
                     iStepIndex = -1;
                     break;
 
-                    #endregion
+                #endregion
             }
         }
 
@@ -777,6 +744,27 @@ namespace ArtEQ._2_Function_流程_.BaseProc
             }
         }
 
+        protected abstract BaseLane GetPickLane();
+        protected abstract BaseLane GetPlaceLane();
+
+        protected void TransferToArm()
+        {
+            var pickLane = GetPickLane();
+            if (pickLane == null)
+                return;
+
+            var index = pickLane.m_Temp_Tray_Info.GetIndexFromRowCol(m_iPickRow, m_iPickColumn);
+            pickLane.m_Temp_Tray_Info.AssyRecords[index].CopyTo(AssyRecord);
+            AssyRecord.IsExist = true;
+            pickLane.m_Temp_Tray_Info.SetItemStatus(index, TrayItemStatus.Empty);
+        }
+
+        protected abstract void TransferToLane();
+
+        #endregion
+
+        #region Private Methods
+
         private bool GetDi(enuDi p_enuDi) => clsDioCtrl.GetDi(p_enuDi);
         private bool SetDi(enuDi p_enuDi, bool p_bValue) => clsDioCtrl.SetDi(p_enuDi, p_bValue);
         private bool SetDo(enuDo p_enuDo, bool p_bValue) => clsDioCtrl.SetDo(p_enuDo, p_bValue);
@@ -814,36 +802,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
             m_CtrlBox.Add(m_Motion_Z);
         }
 
-        public static void GetCellCenterPos(int iRow, int iCol, out double dPosX, out double dPosY)
-        {
-            // Step1：從 Row0,Col0 的教點，用 Pitch 換算出指定 Row/Col 那顆 Cell 的左上角座標
-            double dCellTopLeftX = m_dBaseCellPosX + (iCol * m_dCellPitchX);
-            double dCellTopLeftY = m_dBaseCellPosY + (iRow * m_dCellPitchY);
-
-            // Step2：從左上角推算中心點 (加上 Cell 自身尺寸的一半)
-            dPosX = dCellTopLeftX + (m_dCellWidth / 2.0);
-            dPosY = dCellTopLeftY + (m_dCellLength / 2.0);
-            dPosX = 0;
-            dPosY = 0;
-        }
-
-        protected abstract BaseLane GetPickLane();
-        protected abstract BaseLane GetPlaceLane();
-
-        protected void TransferToArm()
-        {
-            var pickLane = GetPickLane();
-            if (pickLane == null)
-                return;
-
-            var index = pickLane.m_Temp_Tray_Info.GetIndexFromRowCol(m_iPickRow, m_iPickColumn);
-            pickLane.m_Temp_Tray_Info.AssyRecords[index].CopyTo(AssyRecord);
-            AssyRecord.IsExist = true;
-            pickLane.m_Temp_Tray_Info.SetItemStatus(index, TrayItemStatus.Empty);
-        }
-
-        protected abstract void TransferToLane();
-
         private BaseLane GetDestinationLane()
         {
             BaseLane lane = null;
@@ -863,5 +821,93 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
             return lane;
         }
+
+        #endregion
+
+        #region ===================== 控制盒 =====================
+
+        /// <summary>
+        /// 控制盒：把多個氣缸 / 軸控動作加進來後，用 Action() 等待完成
+        /// </summary>
+        protected clsControlBox m_CtrlBox = new clsControlBox();
+
+        /// <summary>
+        /// 控制元件馬達X
+        /// </summary>
+        protected clsBoxMotion m_Motion_X = new clsBoxMotion();
+
+        /// <summary>
+        /// 控制元件馬達Y
+        /// </summary>
+        protected clsBoxMotion m_Motion_Y = new clsBoxMotion();
+
+        /// <summary>
+        /// 控制元件馬達Z
+        /// </summary>
+        protected clsBoxMotion m_Motion_Z = new clsBoxMotion();
+
+        #endregion
+
+        #region ===================== Axis / Pos / IO =====================
+
+        /// <summary>
+        /// 手臂馬達X
+        /// </summary>
+        protected enuAxis m_Motor_X;
+
+        /// <summary>
+        /// 手臂馬達Y
+        /// </summary>
+        protected enuAxis m_Motor_Y;
+
+        /// <summary>
+        /// 手臂馬達Z
+        /// </summary>
+        protected enuAxis m_Motor_Z;
+
+        /// <summary>
+        /// 真空檢知DI
+        /// </summary>
+        protected enuDi m_DI_Vacuum;
+
+        /// <summary>
+        /// 真空啟動DO
+        /// </summary>
+        protected enuDo m_DO_Vacuum_Activate;
+
+        /// <summary>
+        /// 真空破壞DO
+        /// </summary>
+        protected enuDo m_DO_Vacuum_Break;
+
+        #endregion
+
+        #region ===================== 狀態變數 =====================
+
+        /// <summary>目前動作，AR / UI 透過此觀察流程狀態。</summary>
+        public enuAction m_enuAction { get; protected set; }
+
+        /// <summary>
+        /// 是否模擬
+        /// </summary>
+        /// <returns></returns>
+        private bool b_Simulation => PublicDeclare.bIsSimulate;
+
+        #region ===================== 帳料 =====================
+
+        /// <summary>
+        /// Lane 目前持有的 Tray 帳。
+        /// Magazine 推料完成後，帳會先複製到這裡。
+        /// </summary>
+        public clsTrayInfo m_Temp_Tray_Info = new clsTrayInfo();
+
+        /// <summary>
+        /// 防止同一次 Load_Done 重複通知上一站清帳。
+        /// </summary>
+        private bool m_bNotifyPreviousLoadDone = false;
+
+        #endregion
+
+        #endregion
     }
 }

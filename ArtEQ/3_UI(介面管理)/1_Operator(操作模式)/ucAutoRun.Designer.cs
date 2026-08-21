@@ -60,40 +60,33 @@
             this.btnAsmLaneInit = new System.Windows.Forms.Button();
             this.lblAsmLaneStatus = new System.Windows.Forms.Label();
             this.btnAsmLoad = new System.Windows.Forms.Button();
-            this.ucAsmTrayView = new ArtEQ.ucTrayDisplay();
             this.grpPressLane = new System.Windows.Forms.GroupBox();
             this.btnPressLaneUnload = new System.Windows.Forms.Button();
-            this.ucPressTrayView = new ArtEQ.ucTrayDisplay();
             this.btnPressLaneInit = new System.Windows.Forms.Button();
             this.lblPressLaneStatus = new System.Windows.Forms.Label();
             this.btnPressLaneLoad = new System.Windows.Forms.Button();
             this.grpAOILane = new System.Windows.Forms.GroupBox();
             this.btnAOILaneUnload = new System.Windows.Forms.Button();
-            this.ucAOITrayView = new ArtEQ.ucTrayDisplay();
             this.btnAOILaneInit = new System.Windows.Forms.Button();
             this.lblAOILaneStatus = new System.Windows.Forms.Label();
             this.btnAOILaneLoad = new System.Windows.Forms.Button();
             this.grpOKLane = new System.Windows.Forms.GroupBox();
             this.btnOKLaneUnload = new System.Windows.Forms.Button();
-            this.ucOKTrayView = new ArtEQ.ucTrayDisplay();
             this.btnOKLaneInit = new System.Windows.Forms.Button();
             this.lblOKLaneStatus = new System.Windows.Forms.Label();
             this.btnOKLaneLoad = new System.Windows.Forms.Button();
             this.grpHSLane = new System.Windows.Forms.GroupBox();
             this.btnHSLaneUnload = new System.Windows.Forms.Button();
-            this.ucHSTrayView = new ArtEQ.ucTrayDisplay();
             this.btnHSLaneInit = new System.Windows.Forms.Button();
             this.lblHSLaneStatus = new System.Windows.Forms.Label();
             this.btnHSLaneLoad = new System.Windows.Forms.Button();
             this.grpICFeedMagazine = new System.Windows.Forms.GroupBox();
-            this.ucIC_Feed_Magazine_View = new ArtEQ.ucMagazineDisplay();
             this.btnIcMagazineInit = new System.Windows.Forms.Button();
             this.lblICMagazineStatus = new System.Windows.Forms.Label();
             this.cboICFeedSlot = new System.Windows.Forms.ComboBox();
             this.btnIcMagazineLoad = new System.Windows.Forms.Button();
             this.grpHSFeedMagazine = new System.Windows.Forms.GroupBox();
             this.btnHSFeedMagazineInit = new System.Windows.Forms.Button();
-            this.ucHS_Feed_Magazine_View = new ArtEQ.ucMagazineDisplay();
             this.lblHSFeedMagazineStatus = new System.Windows.Forms.Label();
             this.cboHSFeedSlot = new System.Windows.Forms.ComboBox();
             this.btnHSFeedMagazineLoad = new System.Windows.Forms.Button();
@@ -101,28 +94,23 @@
             this.btnHSDischargeMagazineInit = new System.Windows.Forms.Button();
             this.lblHSDischargeMagazineStatus = new System.Windows.Forms.Label();
             this.cboHSDischargeSlot = new System.Windows.Forms.ComboBox();
-            this.ucHS_Discharge_Magazine_View = new ArtEQ.ucMagazineDisplay();
             this.btnHSDischargeMagazineUnload = new System.Windows.Forms.Button();
             this.grpNGLane = new System.Windows.Forms.GroupBox();
             this.btnNGLaneUnload = new System.Windows.Forms.Button();
-            this.ucNGTrayView = new ArtEQ.ucTrayDisplay();
             this.btnNGLaneInit = new System.Windows.Forms.Button();
             this.lblNGLaneStatus = new System.Windows.Forms.Label();
             this.btnNGLaneLoad = new System.Windows.Forms.Button();
             this.grpNGFeedMagazine = new System.Windows.Forms.GroupBox();
-            this.ucNG_Feed_Magazine_View = new ArtEQ.ucMagazineDisplay();
             this.btnNGFeedMagazineInit = new System.Windows.Forms.Button();
             this.lblNGFeedMagazineStatus = new System.Windows.Forms.Label();
             this.cboNGFeedSlot = new System.Windows.Forms.ComboBox();
             this.btnNGFeedMagazineLoad = new System.Windows.Forms.Button();
             this.grpOKDischargeMagazine = new System.Windows.Forms.GroupBox();
-            this.ucOK_Discharge_Magazine_View = new ArtEQ.ucMagazineDisplay();
             this.btnOKDischargeMagazineInit = new System.Windows.Forms.Button();
             this.lblOKDischargeMagazineStatus = new System.Windows.Forms.Label();
             this.cboOKDischargeSlot = new System.Windows.Forms.ComboBox();
             this.btnOKDischargeMagazineUnload = new System.Windows.Forms.Button();
             this.grpNGDischargeMagazine = new System.Windows.Forms.GroupBox();
-            this.ucNG_Discharge_Magazine_View = new ArtEQ.ucMagazineDisplay();
             this.btnNGDischargeMagazineInit = new System.Windows.Forms.Button();
             this.lblNGDischargeMagazineStatus = new System.Windows.Forms.Label();
             this.cboNGDischargeSlot = new System.Windows.Forms.ComboBox();
@@ -138,6 +126,18 @@
             this.cboAsmArmPpStation = new System.Windows.Forms.ComboBox();
             this.btnAsmArmPlace = new System.Windows.Forms.Button();
             this.btnAsmArmPick = new System.Windows.Forms.Button();
+            this.ucAsmTrayView = new ArtEQ.ucTrayDisplay();
+            this.ucPressTrayView = new ArtEQ.ucTrayDisplay();
+            this.ucAOITrayView = new ArtEQ.ucTrayDisplay();
+            this.ucOKTrayView = new ArtEQ.ucTrayDisplay();
+            this.ucHSTrayView = new ArtEQ.ucTrayDisplay();
+            this.ucIC_Feed_Magazine_View = new ArtEQ.ucMagazineDisplay();
+            this.ucHS_Feed_Magazine_View = new ArtEQ.ucMagazineDisplay();
+            this.ucHS_Discharge_Magazine_View = new ArtEQ.ucMagazineDisplay();
+            this.ucNGTrayView = new ArtEQ.ucTrayDisplay();
+            this.ucNG_Feed_Magazine_View = new ArtEQ.ucMagazineDisplay();
+            this.ucOK_Discharge_Magazine_View = new ArtEQ.ucMagazineDisplay();
+            this.ucNG_Discharge_Magazine_View = new ArtEQ.ucMagazineDisplay();
             this.grpSortArm.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudSortRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSortColumn)).BeginInit();
@@ -417,13 +417,13 @@
             // 
             // btnAddData
             // 
-            this.btnAddData.Enabled = false;
             this.btnAddData.Location = new System.Drawing.Point(95, 25);
             this.btnAddData.Name = "btnAddData";
             this.btnAddData.Size = new System.Drawing.Size(82, 25);
             this.btnAddData.TabIndex = 47;
             this.btnAddData.Text = "Add Data";
             this.btnAddData.UseVisualStyleBackColor = true;
+            this.btnAddData.Click += new System.EventHandler(this.btnAddData_Click);
             // 
             // grpAsmLane
             // 
@@ -476,22 +476,6 @@
             this.btnAsmLoad.Text = "Load";
             this.btnAsmLoad.UseVisualStyleBackColor = true;
             // 
-            // ucAsmTrayView
-            // 
-            this.ucAsmTrayView.ArrivalSignal = false;
-            this.ucAsmTrayView.BackwardSignal = false;
-            this.ucAsmTrayView.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.ucAsmTrayView.ForwardSignal = false;
-            this.ucAsmTrayView.LoadSignal = false;
-            this.ucAsmTrayView.Location = new System.Drawing.Point(6, 89);
-            this.ucAsmTrayView.Margin = new System.Windows.Forms.Padding(4);
-            this.ucAsmTrayView.Name = "ucAsmTrayView";
-            this.ucAsmTrayView.Size = new System.Drawing.Size(180, 137);
-            this.ucAsmTrayView.SlowSignal = false;
-            this.ucAsmTrayView.TabIndex = 0;
-            this.ucAsmTrayView.UnloadSignal = false;
-            this.ucAsmTrayView.UseUnloadSignal = false;
-            // 
             // grpPressLane
             // 
             this.grpPressLane.Controls.Add(this.btnPressLaneUnload);
@@ -514,22 +498,6 @@
             this.btnPressLaneUnload.TabIndex = 29;
             this.btnPressLaneUnload.Text = "Unload";
             this.btnPressLaneUnload.UseVisualStyleBackColor = true;
-            // 
-            // ucPressTrayView
-            // 
-            this.ucPressTrayView.ArrivalSignal = false;
-            this.ucPressTrayView.BackwardSignal = false;
-            this.ucPressTrayView.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.ucPressTrayView.ForwardSignal = false;
-            this.ucPressTrayView.LoadSignal = false;
-            this.ucPressTrayView.Location = new System.Drawing.Point(13, 89);
-            this.ucPressTrayView.Margin = new System.Windows.Forms.Padding(4);
-            this.ucPressTrayView.Name = "ucPressTrayView";
-            this.ucPressTrayView.Size = new System.Drawing.Size(180, 137);
-            this.ucPressTrayView.SlowSignal = false;
-            this.ucPressTrayView.TabIndex = 28;
-            this.ucPressTrayView.UnloadSignal = false;
-            this.ucPressTrayView.UseUnloadSignal = false;
             // 
             // btnPressLaneInit
             // 
@@ -582,22 +550,6 @@
             this.btnAOILaneUnload.Text = "Unload";
             this.btnAOILaneUnload.UseVisualStyleBackColor = true;
             // 
-            // ucAOITrayView
-            // 
-            this.ucAOITrayView.ArrivalSignal = false;
-            this.ucAOITrayView.BackwardSignal = false;
-            this.ucAOITrayView.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.ucAOITrayView.ForwardSignal = false;
-            this.ucAOITrayView.LoadSignal = false;
-            this.ucAOITrayView.Location = new System.Drawing.Point(13, 89);
-            this.ucAOITrayView.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.ucAOITrayView.Name = "ucAOITrayView";
-            this.ucAOITrayView.Size = new System.Drawing.Size(180, 137);
-            this.ucAOITrayView.SlowSignal = false;
-            this.ucAOITrayView.TabIndex = 29;
-            this.ucAOITrayView.UnloadSignal = false;
-            this.ucAOITrayView.UseUnloadSignal = false;
-            // 
             // btnAOILaneInit
             // 
             this.btnAOILaneInit.Location = new System.Drawing.Point(6, 21);
@@ -648,22 +600,6 @@
             this.btnOKLaneUnload.TabIndex = 42;
             this.btnOKLaneUnload.Text = "Unload";
             this.btnOKLaneUnload.UseVisualStyleBackColor = true;
-            // 
-            // ucOKTrayView
-            // 
-            this.ucOKTrayView.ArrivalSignal = false;
-            this.ucOKTrayView.BackwardSignal = false;
-            this.ucOKTrayView.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.ucOKTrayView.ForwardSignal = false;
-            this.ucOKTrayView.LoadSignal = false;
-            this.ucOKTrayView.Location = new System.Drawing.Point(13, 89);
-            this.ucOKTrayView.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
-            this.ucOKTrayView.Name = "ucOKTrayView";
-            this.ucOKTrayView.Size = new System.Drawing.Size(180, 137);
-            this.ucOKTrayView.SlowSignal = false;
-            this.ucOKTrayView.TabIndex = 29;
-            this.ucOKTrayView.UnloadSignal = false;
-            this.ucOKTrayView.UseUnloadSignal = false;
             // 
             // btnOKLaneInit
             // 
@@ -716,22 +652,6 @@
             this.btnHSLaneUnload.Text = "Unload";
             this.btnHSLaneUnload.UseVisualStyleBackColor = true;
             // 
-            // ucHSTrayView
-            // 
-            this.ucHSTrayView.ArrivalSignal = false;
-            this.ucHSTrayView.BackwardSignal = false;
-            this.ucHSTrayView.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.ucHSTrayView.ForwardSignal = false;
-            this.ucHSTrayView.LoadSignal = false;
-            this.ucHSTrayView.Location = new System.Drawing.Point(13, 91);
-            this.ucHSTrayView.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
-            this.ucHSTrayView.Name = "ucHSTrayView";
-            this.ucHSTrayView.Size = new System.Drawing.Size(180, 137);
-            this.ucHSTrayView.SlowSignal = false;
-            this.ucHSTrayView.TabIndex = 29;
-            this.ucHSTrayView.UnloadSignal = false;
-            this.ucHSTrayView.UseUnloadSignal = false;
-            // 
             // btnHSLaneInit
             // 
             this.btnHSLaneInit.Location = new System.Drawing.Point(6, 24);
@@ -773,22 +693,6 @@
             this.grpICFeedMagazine.TabIndex = 54;
             this.grpICFeedMagazine.TabStop = false;
             this.grpICFeedMagazine.Text = "IC Feed Magazine";
-            // 
-            // ucIC_Feed_Magazine_View
-            // 
-            this.ucIC_Feed_Magazine_View.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.ucIC_Feed_Magazine_View.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.ucIC_Feed_Magazine_View.Location = new System.Drawing.Point(7, 94);
-            this.ucIC_Feed_Magazine_View.MagazineType = ArtData.clsEnum.MagazineType.Unload;
-            this.ucIC_Feed_Magazine_View.Margin = new System.Windows.Forms.Padding(4);
-            this.ucIC_Feed_Magazine_View.MinimumSize = new System.Drawing.Size(190, 150);
-            this.ucIC_Feed_Magazine_View.Name = "ucIC_Feed_Magazine_View";
-            this.ucIC_Feed_Magazine_View.OverPress = false;
-            this.ucIC_Feed_Magazine_View.Present = false;
-            this.ucIC_Feed_Magazine_View.PushBwd = false;
-            this.ucIC_Feed_Magazine_View.PushFwd = false;
-            this.ucIC_Feed_Magazine_View.Size = new System.Drawing.Size(190, 150);
-            this.ucIC_Feed_Magazine_View.TabIndex = 46;
             // 
             // btnIcMagazineInit
             // 
@@ -850,22 +754,6 @@
             this.btnHSFeedMagazineInit.TabIndex = 6;
             this.btnHSFeedMagazineInit.Text = "Init";
             this.btnHSFeedMagazineInit.UseVisualStyleBackColor = true;
-            // 
-            // ucHS_Feed_Magazine_View
-            // 
-            this.ucHS_Feed_Magazine_View.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.ucHS_Feed_Magazine_View.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.ucHS_Feed_Magazine_View.Location = new System.Drawing.Point(7, 94);
-            this.ucHS_Feed_Magazine_View.MagazineType = ArtData.clsEnum.MagazineType.Unload;
-            this.ucHS_Feed_Magazine_View.Margin = new System.Windows.Forms.Padding(4);
-            this.ucHS_Feed_Magazine_View.MinimumSize = new System.Drawing.Size(190, 150);
-            this.ucHS_Feed_Magazine_View.Name = "ucHS_Feed_Magazine_View";
-            this.ucHS_Feed_Magazine_View.OverPress = false;
-            this.ucHS_Feed_Magazine_View.Present = false;
-            this.ucHS_Feed_Magazine_View.PushBwd = false;
-            this.ucHS_Feed_Magazine_View.PushFwd = false;
-            this.ucHS_Feed_Magazine_View.Size = new System.Drawing.Size(190, 150);
-            this.ucHS_Feed_Magazine_View.TabIndex = 0;
             // 
             // lblHSFeedMagazineStatus
             // 
@@ -937,22 +825,6 @@
             this.cboHSDischargeSlot.Size = new System.Drawing.Size(48, 25);
             this.cboHSDischargeSlot.TabIndex = 4;
             // 
-            // ucHS_Discharge_Magazine_View
-            // 
-            this.ucHS_Discharge_Magazine_View.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.ucHS_Discharge_Magazine_View.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.ucHS_Discharge_Magazine_View.Location = new System.Drawing.Point(7, 94);
-            this.ucHS_Discharge_Magazine_View.MagazineType = ArtData.clsEnum.MagazineType.Load;
-            this.ucHS_Discharge_Magazine_View.Margin = new System.Windows.Forms.Padding(4);
-            this.ucHS_Discharge_Magazine_View.MinimumSize = new System.Drawing.Size(190, 150);
-            this.ucHS_Discharge_Magazine_View.Name = "ucHS_Discharge_Magazine_View";
-            this.ucHS_Discharge_Magazine_View.OverPress = false;
-            this.ucHS_Discharge_Magazine_View.Present = false;
-            this.ucHS_Discharge_Magazine_View.PushBwd = false;
-            this.ucHS_Discharge_Magazine_View.PushFwd = false;
-            this.ucHS_Discharge_Magazine_View.Size = new System.Drawing.Size(190, 150);
-            this.ucHS_Discharge_Magazine_View.TabIndex = 47;
-            // 
             // btnHSDischargeMagazineUnload
             // 
             this.btnHSDischargeMagazineUnload.Location = new System.Drawing.Point(127, 24);
@@ -984,22 +856,6 @@
             this.btnNGLaneUnload.TabIndex = 31;
             this.btnNGLaneUnload.Text = "Unload";
             this.btnNGLaneUnload.UseVisualStyleBackColor = true;
-            // 
-            // ucNGTrayView
-            // 
-            this.ucNGTrayView.ArrivalSignal = false;
-            this.ucNGTrayView.BackwardSignal = false;
-            this.ucNGTrayView.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.ucNGTrayView.ForwardSignal = false;
-            this.ucNGTrayView.LoadSignal = false;
-            this.ucNGTrayView.Location = new System.Drawing.Point(13, 91);
-            this.ucNGTrayView.Margin = new System.Windows.Forms.Padding(4, 7, 4, 7);
-            this.ucNGTrayView.Name = "ucNGTrayView";
-            this.ucNGTrayView.Size = new System.Drawing.Size(180, 137);
-            this.ucNGTrayView.SlowSignal = false;
-            this.ucNGTrayView.TabIndex = 29;
-            this.ucNGTrayView.UnloadSignal = false;
-            this.ucNGTrayView.UseUnloadSignal = false;
             // 
             // btnNGLaneInit
             // 
@@ -1042,22 +898,6 @@
             this.grpNGFeedMagazine.TabIndex = 57;
             this.grpNGFeedMagazine.TabStop = false;
             this.grpNGFeedMagazine.Text = "NG Feed Magazine";
-            // 
-            // ucNG_Feed_Magazine_View
-            // 
-            this.ucNG_Feed_Magazine_View.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.ucNG_Feed_Magazine_View.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.ucNG_Feed_Magazine_View.Location = new System.Drawing.Point(7, 94);
-            this.ucNG_Feed_Magazine_View.MagazineType = ArtData.clsEnum.MagazineType.Unload;
-            this.ucNG_Feed_Magazine_View.Margin = new System.Windows.Forms.Padding(4);
-            this.ucNG_Feed_Magazine_View.MinimumSize = new System.Drawing.Size(190, 150);
-            this.ucNG_Feed_Magazine_View.Name = "ucNG_Feed_Magazine_View";
-            this.ucNG_Feed_Magazine_View.OverPress = false;
-            this.ucNG_Feed_Magazine_View.Present = false;
-            this.ucNG_Feed_Magazine_View.PushBwd = false;
-            this.ucNG_Feed_Magazine_View.PushFwd = false;
-            this.ucNG_Feed_Magazine_View.Size = new System.Drawing.Size(190, 150);
-            this.ucNG_Feed_Magazine_View.TabIndex = 0;
             // 
             // btnNGFeedMagazineInit
             // 
@@ -1110,22 +950,6 @@
             this.grpOKDischargeMagazine.TabStop = false;
             this.grpOKDischargeMagazine.Text = "OK Discharge Magazine";
             // 
-            // ucOK_Discharge_Magazine_View
-            // 
-            this.ucOK_Discharge_Magazine_View.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.ucOK_Discharge_Magazine_View.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.ucOK_Discharge_Magazine_View.Location = new System.Drawing.Point(7, 94);
-            this.ucOK_Discharge_Magazine_View.MagazineType = ArtData.clsEnum.MagazineType.Load;
-            this.ucOK_Discharge_Magazine_View.Margin = new System.Windows.Forms.Padding(4);
-            this.ucOK_Discharge_Magazine_View.MinimumSize = new System.Drawing.Size(190, 150);
-            this.ucOK_Discharge_Magazine_View.Name = "ucOK_Discharge_Magazine_View";
-            this.ucOK_Discharge_Magazine_View.OverPress = false;
-            this.ucOK_Discharge_Magazine_View.Present = false;
-            this.ucOK_Discharge_Magazine_View.PushBwd = false;
-            this.ucOK_Discharge_Magazine_View.PushFwd = false;
-            this.ucOK_Discharge_Magazine_View.Size = new System.Drawing.Size(190, 150);
-            this.ucOK_Discharge_Magazine_View.TabIndex = 0;
-            // 
             // btnOKDischargeMagazineInit
             // 
             this.btnOKDischargeMagazineInit.Location = new System.Drawing.Point(61, 21);
@@ -1176,22 +1000,6 @@
             this.grpNGDischargeMagazine.TabIndex = 59;
             this.grpNGDischargeMagazine.TabStop = false;
             this.grpNGDischargeMagazine.Text = "NG Discharge Magazine";
-            // 
-            // ucNG_Discharge_Magazine_View
-            // 
-            this.ucNG_Discharge_Magazine_View.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.ucNG_Discharge_Magazine_View.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.ucNG_Discharge_Magazine_View.Location = new System.Drawing.Point(7, 94);
-            this.ucNG_Discharge_Magazine_View.MagazineType = ArtData.clsEnum.MagazineType.Load;
-            this.ucNG_Discharge_Magazine_View.Margin = new System.Windows.Forms.Padding(4);
-            this.ucNG_Discharge_Magazine_View.MinimumSize = new System.Drawing.Size(190, 150);
-            this.ucNG_Discharge_Magazine_View.Name = "ucNG_Discharge_Magazine_View";
-            this.ucNG_Discharge_Magazine_View.OverPress = false;
-            this.ucNG_Discharge_Magazine_View.Present = false;
-            this.ucNG_Discharge_Magazine_View.PushBwd = false;
-            this.ucNG_Discharge_Magazine_View.PushFwd = false;
-            this.ucNG_Discharge_Magazine_View.Size = new System.Drawing.Size(190, 150);
-            this.ucNG_Discharge_Magazine_View.TabIndex = 0;
             // 
             // btnNGDischargeMagazineInit
             // 
@@ -1337,6 +1145,198 @@
             this.btnAsmArmPick.TabIndex = 29;
             this.btnAsmArmPick.Text = "Pick";
             this.btnAsmArmPick.UseVisualStyleBackColor = true;
+            // 
+            // ucAsmTrayView
+            // 
+            this.ucAsmTrayView.ArrivalSignal = false;
+            this.ucAsmTrayView.BackwardSignal = false;
+            this.ucAsmTrayView.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.ucAsmTrayView.ForwardSignal = false;
+            this.ucAsmTrayView.LoadSignal = false;
+            this.ucAsmTrayView.Location = new System.Drawing.Point(6, 89);
+            this.ucAsmTrayView.Margin = new System.Windows.Forms.Padding(4);
+            this.ucAsmTrayView.Name = "ucAsmTrayView";
+            this.ucAsmTrayView.Size = new System.Drawing.Size(180, 137);
+            this.ucAsmTrayView.SlowSignal = false;
+            this.ucAsmTrayView.TabIndex = 0;
+            this.ucAsmTrayView.UnloadSignal = false;
+            this.ucAsmTrayView.UseUnloadSignal = false;
+            // 
+            // ucPressTrayView
+            // 
+            this.ucPressTrayView.ArrivalSignal = false;
+            this.ucPressTrayView.BackwardSignal = false;
+            this.ucPressTrayView.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.ucPressTrayView.ForwardSignal = false;
+            this.ucPressTrayView.LoadSignal = false;
+            this.ucPressTrayView.Location = new System.Drawing.Point(13, 89);
+            this.ucPressTrayView.Margin = new System.Windows.Forms.Padding(4);
+            this.ucPressTrayView.Name = "ucPressTrayView";
+            this.ucPressTrayView.Size = new System.Drawing.Size(180, 137);
+            this.ucPressTrayView.SlowSignal = false;
+            this.ucPressTrayView.TabIndex = 28;
+            this.ucPressTrayView.UnloadSignal = false;
+            this.ucPressTrayView.UseUnloadSignal = false;
+            // 
+            // ucAOITrayView
+            // 
+            this.ucAOITrayView.ArrivalSignal = false;
+            this.ucAOITrayView.BackwardSignal = false;
+            this.ucAOITrayView.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.ucAOITrayView.ForwardSignal = false;
+            this.ucAOITrayView.LoadSignal = false;
+            this.ucAOITrayView.Location = new System.Drawing.Point(13, 89);
+            this.ucAOITrayView.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.ucAOITrayView.Name = "ucAOITrayView";
+            this.ucAOITrayView.Size = new System.Drawing.Size(180, 137);
+            this.ucAOITrayView.SlowSignal = false;
+            this.ucAOITrayView.TabIndex = 29;
+            this.ucAOITrayView.UnloadSignal = false;
+            this.ucAOITrayView.UseUnloadSignal = false;
+            // 
+            // ucOKTrayView
+            // 
+            this.ucOKTrayView.ArrivalSignal = false;
+            this.ucOKTrayView.BackwardSignal = false;
+            this.ucOKTrayView.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.ucOKTrayView.ForwardSignal = false;
+            this.ucOKTrayView.LoadSignal = false;
+            this.ucOKTrayView.Location = new System.Drawing.Point(13, 89);
+            this.ucOKTrayView.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.ucOKTrayView.Name = "ucOKTrayView";
+            this.ucOKTrayView.Size = new System.Drawing.Size(180, 137);
+            this.ucOKTrayView.SlowSignal = false;
+            this.ucOKTrayView.TabIndex = 29;
+            this.ucOKTrayView.UnloadSignal = false;
+            this.ucOKTrayView.UseUnloadSignal = false;
+            // 
+            // ucHSTrayView
+            // 
+            this.ucHSTrayView.ArrivalSignal = false;
+            this.ucHSTrayView.BackwardSignal = false;
+            this.ucHSTrayView.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.ucHSTrayView.ForwardSignal = false;
+            this.ucHSTrayView.LoadSignal = false;
+            this.ucHSTrayView.Location = new System.Drawing.Point(13, 91);
+            this.ucHSTrayView.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.ucHSTrayView.Name = "ucHSTrayView";
+            this.ucHSTrayView.Size = new System.Drawing.Size(180, 137);
+            this.ucHSTrayView.SlowSignal = false;
+            this.ucHSTrayView.TabIndex = 29;
+            this.ucHSTrayView.UnloadSignal = false;
+            this.ucHSTrayView.UseUnloadSignal = false;
+            // 
+            // ucIC_Feed_Magazine_View
+            // 
+            this.ucIC_Feed_Magazine_View.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ucIC_Feed_Magazine_View.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.ucIC_Feed_Magazine_View.Location = new System.Drawing.Point(7, 94);
+            this.ucIC_Feed_Magazine_View.MagazineType = ArtData.clsEnum.MagazineType.Unload;
+            this.ucIC_Feed_Magazine_View.Margin = new System.Windows.Forms.Padding(4);
+            this.ucIC_Feed_Magazine_View.MinimumSize = new System.Drawing.Size(190, 150);
+            this.ucIC_Feed_Magazine_View.Name = "ucIC_Feed_Magazine_View";
+            this.ucIC_Feed_Magazine_View.OverPress = false;
+            this.ucIC_Feed_Magazine_View.Present = false;
+            this.ucIC_Feed_Magazine_View.PushBwd = false;
+            this.ucIC_Feed_Magazine_View.PushFwd = false;
+            this.ucIC_Feed_Magazine_View.Size = new System.Drawing.Size(190, 150);
+            this.ucIC_Feed_Magazine_View.TabIndex = 46;
+            // 
+            // ucHS_Feed_Magazine_View
+            // 
+            this.ucHS_Feed_Magazine_View.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ucHS_Feed_Magazine_View.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.ucHS_Feed_Magazine_View.Location = new System.Drawing.Point(7, 94);
+            this.ucHS_Feed_Magazine_View.MagazineType = ArtData.clsEnum.MagazineType.Unload;
+            this.ucHS_Feed_Magazine_View.Margin = new System.Windows.Forms.Padding(4);
+            this.ucHS_Feed_Magazine_View.MinimumSize = new System.Drawing.Size(190, 150);
+            this.ucHS_Feed_Magazine_View.Name = "ucHS_Feed_Magazine_View";
+            this.ucHS_Feed_Magazine_View.OverPress = false;
+            this.ucHS_Feed_Magazine_View.Present = false;
+            this.ucHS_Feed_Magazine_View.PushBwd = false;
+            this.ucHS_Feed_Magazine_View.PushFwd = false;
+            this.ucHS_Feed_Magazine_View.Size = new System.Drawing.Size(190, 150);
+            this.ucHS_Feed_Magazine_View.TabIndex = 0;
+            // 
+            // ucHS_Discharge_Magazine_View
+            // 
+            this.ucHS_Discharge_Magazine_View.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ucHS_Discharge_Magazine_View.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.ucHS_Discharge_Magazine_View.Location = new System.Drawing.Point(7, 94);
+            this.ucHS_Discharge_Magazine_View.MagazineType = ArtData.clsEnum.MagazineType.Load;
+            this.ucHS_Discharge_Magazine_View.Margin = new System.Windows.Forms.Padding(4);
+            this.ucHS_Discharge_Magazine_View.MinimumSize = new System.Drawing.Size(190, 150);
+            this.ucHS_Discharge_Magazine_View.Name = "ucHS_Discharge_Magazine_View";
+            this.ucHS_Discharge_Magazine_View.OverPress = false;
+            this.ucHS_Discharge_Magazine_View.Present = false;
+            this.ucHS_Discharge_Magazine_View.PushBwd = false;
+            this.ucHS_Discharge_Magazine_View.PushFwd = false;
+            this.ucHS_Discharge_Magazine_View.Size = new System.Drawing.Size(190, 150);
+            this.ucHS_Discharge_Magazine_View.TabIndex = 47;
+            // 
+            // ucNGTrayView
+            // 
+            this.ucNGTrayView.ArrivalSignal = false;
+            this.ucNGTrayView.BackwardSignal = false;
+            this.ucNGTrayView.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.ucNGTrayView.ForwardSignal = false;
+            this.ucNGTrayView.LoadSignal = false;
+            this.ucNGTrayView.Location = new System.Drawing.Point(13, 91);
+            this.ucNGTrayView.Margin = new System.Windows.Forms.Padding(4, 7, 4, 7);
+            this.ucNGTrayView.Name = "ucNGTrayView";
+            this.ucNGTrayView.Size = new System.Drawing.Size(180, 137);
+            this.ucNGTrayView.SlowSignal = false;
+            this.ucNGTrayView.TabIndex = 29;
+            this.ucNGTrayView.UnloadSignal = false;
+            this.ucNGTrayView.UseUnloadSignal = false;
+            // 
+            // ucNG_Feed_Magazine_View
+            // 
+            this.ucNG_Feed_Magazine_View.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ucNG_Feed_Magazine_View.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.ucNG_Feed_Magazine_View.Location = new System.Drawing.Point(7, 94);
+            this.ucNG_Feed_Magazine_View.MagazineType = ArtData.clsEnum.MagazineType.Unload;
+            this.ucNG_Feed_Magazine_View.Margin = new System.Windows.Forms.Padding(4);
+            this.ucNG_Feed_Magazine_View.MinimumSize = new System.Drawing.Size(190, 150);
+            this.ucNG_Feed_Magazine_View.Name = "ucNG_Feed_Magazine_View";
+            this.ucNG_Feed_Magazine_View.OverPress = false;
+            this.ucNG_Feed_Magazine_View.Present = false;
+            this.ucNG_Feed_Magazine_View.PushBwd = false;
+            this.ucNG_Feed_Magazine_View.PushFwd = false;
+            this.ucNG_Feed_Magazine_View.Size = new System.Drawing.Size(190, 150);
+            this.ucNG_Feed_Magazine_View.TabIndex = 0;
+            // 
+            // ucOK_Discharge_Magazine_View
+            // 
+            this.ucOK_Discharge_Magazine_View.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ucOK_Discharge_Magazine_View.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.ucOK_Discharge_Magazine_View.Location = new System.Drawing.Point(7, 94);
+            this.ucOK_Discharge_Magazine_View.MagazineType = ArtData.clsEnum.MagazineType.Load;
+            this.ucOK_Discharge_Magazine_View.Margin = new System.Windows.Forms.Padding(4);
+            this.ucOK_Discharge_Magazine_View.MinimumSize = new System.Drawing.Size(190, 150);
+            this.ucOK_Discharge_Magazine_View.Name = "ucOK_Discharge_Magazine_View";
+            this.ucOK_Discharge_Magazine_View.OverPress = false;
+            this.ucOK_Discharge_Magazine_View.Present = false;
+            this.ucOK_Discharge_Magazine_View.PushBwd = false;
+            this.ucOK_Discharge_Magazine_View.PushFwd = false;
+            this.ucOK_Discharge_Magazine_View.Size = new System.Drawing.Size(190, 150);
+            this.ucOK_Discharge_Magazine_View.TabIndex = 0;
+            // 
+            // ucNG_Discharge_Magazine_View
+            // 
+            this.ucNG_Discharge_Magazine_View.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ucNG_Discharge_Magazine_View.Font = new System.Drawing.Font("微軟正黑體", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.ucNG_Discharge_Magazine_View.Location = new System.Drawing.Point(7, 94);
+            this.ucNG_Discharge_Magazine_View.MagazineType = ArtData.clsEnum.MagazineType.Load;
+            this.ucNG_Discharge_Magazine_View.Margin = new System.Windows.Forms.Padding(4);
+            this.ucNG_Discharge_Magazine_View.MinimumSize = new System.Drawing.Size(190, 150);
+            this.ucNG_Discharge_Magazine_View.Name = "ucNG_Discharge_Magazine_View";
+            this.ucNG_Discharge_Magazine_View.OverPress = false;
+            this.ucNG_Discharge_Magazine_View.Present = false;
+            this.ucNG_Discharge_Magazine_View.PushBwd = false;
+            this.ucNG_Discharge_Magazine_View.PushFwd = false;
+            this.ucNG_Discharge_Magazine_View.Size = new System.Drawing.Size(190, 150);
+            this.ucNG_Discharge_Magazine_View.TabIndex = 0;
             // 
             // ucAutoRun
             // 

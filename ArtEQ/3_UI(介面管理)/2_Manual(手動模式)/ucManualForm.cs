@@ -1,9 +1,9 @@
-﻿using System;
+﻿using ArtCommonLib;
+using ArtEQ._2_Function_流程_.Proc;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using ArtCommonLib;
-using ArtEQ._2_Function_流程_.Proc;
 using static ArtData.clsEnum;
 using static ArtEQ.BaseMagazine;
 
@@ -24,30 +24,6 @@ namespace ArtEQ._3_UI_介面管理_._2_Manual_手動模式_
         private Dictionary<BaseMagazine, ComboBox> m_MagazineSlotComboBoxes = new Dictionary<BaseMagazine, ComboBox>();
         private Dictionary<string, BaseMagazine> m_Magazines = new Dictionary<string, BaseMagazine>();
 
-
-        #region Process
-
-        private Proc_IC_Feed_Magazine m_IC_Magazine;
-        private Proc_OK_Discharge_Magazine m_OK_Discharge_Magazine;
-        private Proc_HS_Feed_Magazine m_HS_Feed_Magazine;
-        private Proc_NG_Feed_Magazine m_NG_Feed_Magazine;
-        private Proc_HS_Discharge_Magazine m_HS_Discharge_Magazine;
-        private Proc_NG_Discharge_Magazine m_NG_Discharge_Magazine;
-
-        private Proc_ASM_Lane m_ASM_Lane;
-        private Proc_Press_Lane m_Press_Lane;
-        private Proc_AOI_Lane m_AOI_Lane;
-        private Proc_OK_Lane m_OK_Lane;
-        private Proc_HS_Lane m_HS_Lane;
-        private Proc_NG_Lane m_NG_Lane;
-
-        private Proc_ASM_Arm m_ASM_Arm;
-        private Proc_Sort_Arm m_Sort_Arm;
-
-        private Proc_Press_Station m_Press_Station;
-        private Proc_AOI_Station m_AOI_Station;
-
-        #endregion
         #endregion
 
         #region Constructors
@@ -141,6 +117,7 @@ namespace ArtEQ._3_UI_介面管理_._2_Manual_手動模式_
         private void BindProcessSingleton()
         {
             #region Magazine
+
             m_IC_Magazine = Proc_IC_Feed_Magazine.GetSingleton();
             m_OK_Discharge_Magazine = Proc_OK_Discharge_Magazine.GetSingleton();
             m_HS_Feed_Magazine = Proc_HS_Feed_Magazine.GetSingleton();
@@ -151,17 +128,21 @@ namespace ArtEQ._3_UI_介面管理_._2_Manual_手動模式_
             #endregion
 
             #region Lane
+
             m_ASM_Lane = Proc_ASM_Lane.GetSingleton();
             m_Press_Lane = Proc_Press_Lane.GetSingleton();
             m_AOI_Lane = Proc_AOI_Lane.GetSingleton();
             m_OK_Lane = Proc_OK_Lane.GetSingleton();
             m_HS_Lane = Proc_HS_Lane.GetSingleton();
             m_NG_Lane = Proc_NG_Lane.GetSingleton();
+
             #endregion
 
             #region Arm
+
             m_ASM_Arm = Proc_ASM_Arm.GetSingleton();
             m_Sort_Arm = Proc_Sort_Arm.GetSingleton();
+
             #endregion
 
             m_Press_Station = Proc_Press_Station.GetSingleton();
@@ -440,6 +421,133 @@ namespace ArtEQ._3_UI_介面管理_._2_Manual_手動模式_
             return (sender as Button)?.Tag as BaseMagazine;
         }
 
+        private void btnAsmArmInit_Click(object sender, EventArgs e)
+        {
+            m_ASM_Arm.RunInitial();
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            bool exist = m_ASM_Arm.AssyRecord.IsExist;
+            m_HS_Lane.m_Temp_Tray_Info.SetItemStatus(0, TrayItemStatus.Empty);
+        }
+
+        private void btnAsmArmPick_Click(object sender, EventArgs e)
+        {
+            var column = (int)nudAsmColumn.Value;
+            var row = (int)nudAsmRow.Value;
+            var selectedStation = (PPStation)cboAsmArmPpStation.SelectedItem;
+
+            if (selectedStation == PPStation.None)
+            {
+                m_ASM_Arm.RunPick(PPStation.HeatSink, column, row);
+            }
+            else
+            {
+                m_ASM_Arm.RunPick(selectedStation, column, row);
+            }
+        }
+
+        private void btnAsmArmPlace_Click(object sender, EventArgs e)
+        {
+            var column = (int)nudAsmColumn.Value;
+            var row = (int)nudAsmRow.Value;
+            var selectedStation = (PPStation)cboAsmArmPpStation.SelectedItem;
+
+            if (selectedStation == PPStation.None)
+            {
+                m_ASM_Arm.RunPlace(PPStation.IC, column, row);
+            }
+            else
+            {
+                m_ASM_Arm.RunPlace(selectedStation, column, row);
+            }
+        }
+
+        private void btnSortArmInit_Click(object sender, EventArgs e)
+        {
+            m_Sort_Arm.RunInitial();
+        }
+
+        private void btnSortArmPick_Click(object sender, EventArgs e)
+        {
+            var column = (int)nudSortColumn.Value;
+            var row = (int)nudSortRow.Value;
+            var selectedStation = (PPStation)cboSortArmPpStation.SelectedItem;
+
+            if (selectedStation == PPStation.None)
+            {
+                return;
+            }
+            else
+            {
+                m_Sort_Arm.RunPick(selectedStation, column, row);
+            }
+        }
+
+        private void btnSortArmPlace_Click(object sender, EventArgs e)
+        {
+            var column = (int)nudSortColumn.Value;
+            var row = (int)nudSortRow.Value;
+            var selectedStation = (PPStation)cboSortArmPpStation.SelectedItem;
+
+            if (selectedStation == PPStation.None)
+            {
+                return;
+            }
+            else
+            {
+                m_Sort_Arm.RunPlace(selectedStation, column, row);
+            }
+        }
+
+        private void btnPressStationInit_Click(object sender, EventArgs e)
+        {
+            m_Press_Station.RunInitial();
+        }
+
+        private void btnPressWork_Click(object sender, EventArgs e)
+        {
+            m_Press_Station.RunPress();
+        }
+
+        private void btnAoiStationInit_Click(object sender, EventArgs e)
+        {
+            m_AOI_Station.RunInitial();
+        }
+
+        private void btnAOIInspect_Click(object sender, EventArgs e)
+        {
+            var column = (int)nudAoiColumn.Value;
+            var row = (int)nudAoiRow.Value;
+            m_AOI_Station.RunInspect(column, row);
+        }
+
+        #endregion
+
+
+        #region Process
+
+        private Proc_IC_Feed_Magazine m_IC_Magazine;
+        private Proc_OK_Discharge_Magazine m_OK_Discharge_Magazine;
+        private Proc_HS_Feed_Magazine m_HS_Feed_Magazine;
+        private Proc_NG_Feed_Magazine m_NG_Feed_Magazine;
+        private Proc_HS_Discharge_Magazine m_HS_Discharge_Magazine;
+        private Proc_NG_Discharge_Magazine m_NG_Discharge_Magazine;
+
+        private Proc_ASM_Lane m_ASM_Lane;
+        private Proc_Press_Lane m_Press_Lane;
+        private Proc_AOI_Lane m_AOI_Lane;
+        private Proc_OK_Lane m_OK_Lane;
+        private Proc_HS_Lane m_HS_Lane;
+        private Proc_NG_Lane m_NG_Lane;
+
+        private Proc_ASM_Arm m_ASM_Arm;
+        private Proc_Sort_Arm m_Sort_Arm;
+
+        private Proc_Press_Station m_Press_Station;
+        private Proc_AOI_Station m_AOI_Station;
+
         #endregion
 
 
@@ -676,107 +784,5 @@ namespace ArtEQ._3_UI_介面管理_._2_Manual_手動模式_
         }
 
         #endregion
-
-        private void btnAsmArmInit_Click(object sender, EventArgs e)
-        {
-            m_ASM_Arm.RunInitial();
-        }
-
-        private void button9_Click(object sender, EventArgs e)
-        {
-            bool exist = m_ASM_Arm.AssyRecord.IsExist;
-            m_HS_Lane.m_Temp_Tray_Info.SetItemStatus(0, TrayItemStatus.Empty);
-        }
-
-        private void btnAsmArmPick_Click(object sender, EventArgs e)
-        {
-            var column = (int)nudAsmColumn.Value;
-            var row = (int)nudAsmRow.Value;
-            var selectedStation = (PPStation)cboAsmArmPpStation.SelectedItem;
-
-            if (selectedStation == PPStation.None)
-            {
-                m_ASM_Arm.RunPick(PPStation.HeatSink, column, row);
-            }
-            else
-            {
-                m_ASM_Arm.RunPick(selectedStation, column, row);
-            }
-        }
-
-        private void btnAsmArmPlace_Click(object sender, EventArgs e)
-        {
-            var column = (int)nudAsmColumn.Value;
-            var row = (int)nudAsmRow.Value;
-            var selectedStation = (PPStation)cboAsmArmPpStation.SelectedItem;
-
-            if (selectedStation == PPStation.None)
-            {
-                m_ASM_Arm.RunPlace(PPStation.IC, column, row);
-            }
-            else
-            {
-                m_ASM_Arm.RunPlace(selectedStation, column, row);
-            }
-        }
-
-        private void btnSortArmInit_Click(object sender, EventArgs e)
-        {
-            m_Sort_Arm.RunInitial();
-        }
-
-        private void btnSortArmPick_Click(object sender, EventArgs e)
-        {
-            var column = (int)nudSortColumn.Value;
-            var row = (int)nudSortRow.Value;
-            var selectedStation = (PPStation)cboSortArmPpStation.SelectedItem;
-
-            if (selectedStation == PPStation.None)
-            {
-                return;
-            }
-            else
-            {
-                m_Sort_Arm.RunPick(selectedStation, column, row);
-            }
-        }
-
-        private void btnSortArmPlace_Click(object sender, EventArgs e)
-        {
-            var column = (int)nudSortColumn.Value;
-            var row = (int)nudSortRow.Value;
-            var selectedStation = (PPStation)cboSortArmPpStation.SelectedItem;
-
-            if (selectedStation == PPStation.None)
-            {
-                return;
-            }
-            else
-            {
-                m_Sort_Arm.RunPlace(selectedStation, column, row);
-            }
-        }
-
-        private void btnPressStationInit_Click(object sender, EventArgs e)
-        {
-            m_Press_Station.RunInitial();
-        }
-
-        private void btnPressWork_Click(object sender, EventArgs e)
-        {
-            m_Press_Station.RunPress();
-        }
-
-        private void btnAoiStationInit_Click(object sender, EventArgs e)
-        {
-            m_AOI_Station.RunInitial();
-        }
-
-        private void btnAOIInspect_Click(object sender, EventArgs e)
-        {
-            var column = (int)nudAoiColumn.Value;
-            var row = (int)nudAoiRow.Value;
-            m_AOI_Station.RunInspect(column, row);
-        }
     }
 }

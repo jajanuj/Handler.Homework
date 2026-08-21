@@ -27,7 +27,6 @@ namespace ArtEQ
         /// <summary> 執行模式</summary>
         static public bool bIsAutoRunMode = false;
 
-
         #endregion
 
         #region //=====================  區域變數設置 =====================
@@ -43,22 +42,24 @@ namespace ArtEQ
 
         protected override void Scenario()
         {
-            switch (this.iStepIndex)
+            switch (iStepIndex)
             {
                 case 0:
-                    clsLog.Log(clsEnum.enuLogName.ProcessLog.ToString(), this.strThreadLogName + " : ===== Proc Auto Run Start =====");
+                    clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : ===== Proc Auto Run Start =====");
                     clsCmData.g_NowEqStatus = clsCmData.enuEqStatus.Run;
 
-                    ProcAutoRun.bIsLotEnd = false;
-                    ProcAutoRun.bIsAlreadyStartLotEnd = false;
-                    ProcAutoRun.bIsStopLoad = false;
-                    this.iStepIndex = 1000;
+                    bIsLotEnd = false;
+                    bIsAlreadyStartLotEnd = false;
+                    bIsStopLoad = false;
+                    iStepIndex = 1000;
                     break;
 
                 case 1000:
                     AR_Mag_IC_Feed.GetSingleton().Run_AutoRun();
                     AR_Mag_HS_Feed.GetSingleton().Run_AutoRun();
                     AR_HS_Lane.GetSingleton().Run_AutoRun();
+                    AR_ASM_Lane.GetSingleton().Run_AutoRun();
+                    AR_ASM_Arm.GetSingleton().Run_AutoRun();
                     //AR_Mag_UnLoadNG.GetSingleton().Run_AutoRun();
                     //AR_Lane_Top.GetSingleton().Run_AutoRun();
                     //AR_Lane_Bottom.GetSingleton().Run_AutoRun();
@@ -74,49 +75,48 @@ namespace ArtEQ
                     //AR_Pick_LeftRight.GetSingleton().Run_AutoRun();
                     //AR_Pick_OKNG.GetSingleton().Run_AutoRun();
 
-                    this.iStepIndex = 2000;
+                    iStepIndex = 2000;
                     break;
 
                 case 2000:
+                {
+                    if (bIsLotEnd || bIsStopLoad)
                     {
-                        if (ProcAutoRun.bIsLotEnd || ProcAutoRun.bIsStopLoad)
-                        {
-                            //AllProcessOK &= !Proc_Lane_Top.GetSingleton().m_Temp_Tray_Info.isExist;
-                            //AllProcessOK &= !Proc_Lane_Bottom.GetSingleton().m_Temp_Tray_Info.isExist;
-                            //AllProcessOK &= !Proc_Lane_FrontBack.GetSingleton().m_Temp_Tray_Info.isExist;
-                            //AllProcessOK &= !Proc_Lane_LeftRight.GetSingleton().m_Temp_Tray_Info.isExist;
-                            //AllProcessOK &= !Proc_Lane_OK.GetSingleton().m_Temp_Tray_Info.isExist;
-                            //AllProcessOK &= !Proc_Lane_NG.GetSingleton().m_Temp_Tray_Info.isExist;
-                            //AllProcessOK &= !Proc_Pick_OKNG.GetSingleton().m_Temp_TagMoveData.Tag.IsExist;
-                            //AllProcessOK &= Proc_Lane_NG.GetSingleton().m_enuAction == _2_Function_流程_.Base.BaseLane.enuAction.Lane_Unload_Done;
-                            //if (AllProcessOK)
-                            //{
-                            //    this.iStepIndex = 3000;
-                            //}
-                        }
-
+                        //AllProcessOK &= !Proc_Lane_Top.GetSingleton().m_Temp_Tray_Info.isExist;
+                        //AllProcessOK &= !Proc_Lane_Bottom.GetSingleton().m_Temp_Tray_Info.isExist;
+                        //AllProcessOK &= !Proc_Lane_FrontBack.GetSingleton().m_Temp_Tray_Info.isExist;
+                        //AllProcessOK &= !Proc_Lane_LeftRight.GetSingleton().m_Temp_Tray_Info.isExist;
+                        //AllProcessOK &= !Proc_Lane_OK.GetSingleton().m_Temp_Tray_Info.isExist;
+                        //AllProcessOK &= !Proc_Lane_NG.GetSingleton().m_Temp_Tray_Info.isExist;
+                        //AllProcessOK &= !Proc_Pick_OKNG.GetSingleton().m_Temp_TagMoveData.Tag.IsExist;
+                        //AllProcessOK &= Proc_Lane_NG.GetSingleton().m_enuAction == _2_Function_流程_.Base.BaseLane.enuAction.Lane_Unload_Done;
+                        //if (AllProcessOK)
+                        //{
+                        //    this.iStepIndex = 3000;
+                        //}
                     }
-                    break;
+                }
+                break;
 
                 case 3000:
-                    this.iStepIndex = 9000;
+                    iStepIndex = 9000;
                     break;
 
-                case 9000://機台正常停機
+                case 9000: //機台正常停機
                     ProcInitial.ParameterSet_Idle();
                     clsCmData.g_NowEqStatus = clsCmData.enuEqStatus.Idle;
-                    ProcAutoRun.bIsAutoRunMode = false;
-                    ProcAutoRun.bIsManualMode = false;
-                    clsLog.Log(clsEnum.enuLogName.ProcessLog.ToString(), this.strThreadLogName + " : ===== Proc Auto Run End =====");
-                    this.iStepIndex = -1;
-                    this.bIsProcessing = false;
+                    bIsAutoRunMode = false;
+                    bIsManualMode = false;
+                    clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : ===== Proc Auto Run End =====");
+                    iStepIndex = -1;
+                    bIsProcessing = false;
                     clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.LOT_batch_completed);
                     break;
 
                 default:
-                    this.iStepIndex = -1;
-                    this.Stop();
-                    this.bIsProcessing = false;
+                    iStepIndex = -1;
+                    Stop();
+                    bIsProcessing = false;
                     break;
             }
         }
@@ -129,8 +129,6 @@ namespace ArtEQ
 
         #region //===================== private 函式設置 =====================
 
-
         #endregion
-
     }
 }
