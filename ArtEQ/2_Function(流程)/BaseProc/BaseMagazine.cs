@@ -1320,6 +1320,30 @@ namespace ArtEQ
 
         public void RunInitial()
         {
+            // 依 Recipe 設定使用中的 Slot 數(NormalizeSlotCount 會夾在 1~m_iSlotMax 硬體上限之間，
+            // Recipe 還沒載入、GetPmt 回傳預設 0 時也會被夾到 1，不會出錯)。
+            SetMagazineSlotCount(GetPmt(enuPmtName.Rec_Magazine_Slot_Number));
+
+            RunInitialCore();
+        }
+
+        /// <summary>
+        /// UI 可呼叫：先設定使用 Slot 數，再執行 Initial，這次呼叫不會被 Recipe 值蓋掉。
+        /// 例如 RunInitial(3) 代表本次只建立 Slot 1~3 的帳。
+        /// </summary>
+        public void RunInitial(int p_iSlotCount)
+        {
+            SetMagazineSlotCount(p_iSlotCount);
+            RunInitialCore();
+        }
+
+        /// <summary>
+        /// Initial 流程共用核心：建立 Slot 帳、重置流程狀態、啟動硬體初始化。
+        /// 呼叫前要先確定 m_iUseSlotCount 已經是這次要用的值——
+        /// RunInitial() 用 Recipe 設，RunInitial(int) 用外部指定的值設，兩者互斥、不會互相蓋掉。
+        /// </summary>
+        private void RunInitialCore()
+        {
             // Init 時先依目前使用者設定的 Slot 數建立 Magazine Slot 帳
             InitialMagazineBill();
 
@@ -1336,16 +1360,6 @@ namespace ArtEQ
             m_bIsReady = false;
             bIsProcessing = true;
             iStepIndex = 0;
-        }
-
-        /// <summary>
-        /// UI 可呼叫：先設定使用 Slot 數，再執行 Initial。
-        /// 例如 RunInitial(3) 代表本次只建立 Slot 1~3 的帳。
-        /// </summary>
-        public void RunInitial(int p_iSlotCount)
-        {
-            SetMagazineSlotCount(p_iSlotCount);
-            RunInitial();
         }
 
         /// <summary> 推料給下游 </summary>
