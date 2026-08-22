@@ -6,12 +6,27 @@ namespace ArtEQ._2_Function_流程_.Proc
 {
     public class Proc_AOI_Lane : BaseLane
     {
-        protected override bool UseStopper => true;
+        #region Constructors
 
-        public static Proc_AOI_Lane GetSingleton() => GetSingletonInstance(() => new Proc_AOI_Lane("Proc_AOI_Lane"));
         public Proc_AOI_Lane(string p_strName) : base(p_strName)
         {
         }
+
+        #endregion
+
+        #region Properties
+
+        protected override bool UseStopper => true;
+
+        #endregion
+
+        #region Public Methods
+
+        public static Proc_AOI_Lane GetSingleton() => GetSingletonInstance(() => new Proc_AOI_Lane("Proc_AOI_Lane"));
+
+        #endregion
+
+        #region Protected Methods
 
         protected override void BindHardwarePoint()
         {
@@ -82,5 +97,7 @@ namespace ArtEQ._2_Function_流程_.Proc
 
             return Press_Lane.m_enuAction == enuAction.Unload_Waiting;
         }
+
+        #endregion
     }
 }

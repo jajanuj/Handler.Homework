@@ -76,7 +76,7 @@ namespace ArtEQ._2_Function_流程_.Proc
             if (ASM_Lane == null)
                 return false;
 
-            return ASM_Lane.m_enuAction == enuAction.Unload_Done;
+            return ASM_Lane.m_enuAction == enuAction.Unload_Waiting_Sign;
         }
 
         protected override bool ReadyToLoad()

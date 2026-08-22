@@ -106,6 +106,42 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
         #endregion
 
+        #region Private Methods
+
+        #region //===================== 條件判斷 =====================
+
+        /// <summary>
+        /// 確認可以執行壓合
+        /// 條件：Press Lane 有帳、到位、Station 就緒、且盤子裡還有格子有料但尚未壓合
+        /// </summary>
+        private bool CanPress()
+        {
+            bool rValue = true;
+
+            // 1. Press Lane 帳料 + 到位訊號確認
+            rValue &= Press_Lane().m_Temp_Tray_Info.bIsExist;
+            rValue &= Press_Lane().ArrivalSignal;
+            rValue &= Press_Lane().IsProcOK();
+
+            // 2. Station 流程就緒
+            rValue &= Station().IsProcOK();
+
+            // 3. Station 狀態確認
+            rValue &= Station().m_enuAction == BasePressStation.enuAction.Initial_Done ||
+                      Station().m_enuAction == BasePressStation.enuAction.Press_Done ||
+                      Station().m_enuAction == BasePressStation.enuAction.Press_Fail;
+
+            if (!rValue)
+                return false;
+
+            // 4. 還有格子有料但尚未壓合完成，才需要壓；全部壓完就不用再觸發
+            return Press_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsPressed);
+        }
+
+        #endregion
+
+        #endregion
+
         #region //===================== Singleton =====================
 
         private static AR_Press_Station m_Singleton;
@@ -133,37 +169,6 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
         private Proc_Press_Station Station() => Proc_Press_Station.GetSingleton();
         private Proc_Press_Lane Press_Lane() => Proc_Press_Lane.GetSingleton();
-
-        #endregion
-
-        #region //===================== 條件判斷 =====================
-
-        /// <summary>
-        /// 確認可以執行壓合
-        /// 條件：Press Lane 有帳、到位、Station 就緒、且盤子裡還有格子有料但尚未壓合
-        /// </summary>
-        private bool CanPress()
-        {
-            bool rValue = true;
-
-            // 1. Press Lane 帳料 + 到位訊號確認
-            rValue &= Press_Lane().m_Temp_Tray_Info.bIsExist;
-            rValue &= Press_Lane().ArrivalSignal;
-
-            // 2. Station 流程就緒
-            rValue &= Station().IsProcOK();
-
-            // 3. Station 狀態確認
-            rValue &= Station().m_enuAction == BasePressStation.enuAction.Initial_Done ||
-                      Station().m_enuAction == BasePressStation.enuAction.Press_Done ||
-                      Station().m_enuAction == BasePressStation.enuAction.Press_Fail;
-
-            if (!rValue)
-                return false;
-
-            // 4. 還有格子有料但尚未壓合完成，才需要壓；全部壓完就不用再觸發
-            return Press_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsPressed);
-        }
 
         #endregion
 

@@ -3,6 +3,18 @@
 > 新條目加在最上面。每條格式：`## L{編號} [日期] 一行標題`，內文固定三欄：情境／錯誤做法／正確做法，總長 ≤6 行。
 > 動手改程式碼前，先掃一遍標題行。
 
+## L8 [2026-08-22] Lane→Lane 交握不能輪詢瞬間狀態，要用「持續到下游確認」的狀態
+
+情境：`Proc_Press_Lane.WaitPreviousDoneLoad()` 原本寫 `ASM_Lane.m_enuAction == Unload_Done`。`Unload_Done` 是
+`case 60999` 才設的終點狀態，`AR_ASM_Lane` 一看到 `Unload_Done` 就馬上判斷可以開始下一輪 Load，把它蓋掉——實測
+只維持了 231ms。`Press_Lane` 剛好沒在這個窗口內輪詢到，卡在 `case 50500` 不動。
+錯誤做法：Lane→Lane 交握檢查一個「做完就馬上被覆寫」的終點狀態（`Unload_Done`）。
+正確做法：比照 `Proc_AOI_Lane.WaitPreviousDoneLoad()` 檢查 `Unload_Waiting_Sign`——這個狀態會停在 `case 60500`
+一直等到 `WaitNextLoadDone()` 成立才離開，是穩定可輪詢的。**已知殘留疑慮**：`Unload_Waiting_Sign` 結束的時機是
+「下游 Lane 到達 `Loading`」，比下游 Lane 真正走到 `WaitPreviousDoneLoad()` 那一步早很多（中間還有好幾個模擬
+sensor 延遲），理論上還是有機率被 `AR_ASM_Lane` 搶著開新一輪蓋掉，只是窗口比 231ms 大很多。如果之後在別的
+Lane→Lane 交握又卡住，先往這個方向查，不要假設這條路一定沒問題。
+
 ## L7 [2026-08-21] 資料夾名稱撞到 .gitignore 的建置產出樣式，整個資料夾被靜默忽略
 
 情境：`.gitignore`（GitHub 官方 VisualStudio 範本）裡有 `[Aa][Rr][Mm]/`、`[Aa][Rr][Mm]64/`，本來是要擋掉 ARM 平台的建置輸出資料夾。

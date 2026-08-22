@@ -718,23 +718,26 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         /// </summary>
         protected void InitialArmHardware()
         {
+            //500 ms
+            var iSimulateDelayTime = 100;
+
             // ========== 1.呼叫子類別自訂初始化 ==========
             // 用途：設定該 Arm 專屬的 DI/DO/Port 等參數
             BindHardwarePoint();
 
             // X 軸初始化
             m_Motion_X.Initial(m_Motor_X, MotionUnit.Minimeter, 10000, "X-Axis Timeout");
-            m_Motion_X.iSimulateDelayTime = 500;
+            m_Motion_X.iSimulateDelayTime = iSimulateDelayTime;
             clsMotionCtrl.SetServo(m_Motor_X, true);
 
             // Y 軸初始化
             m_Motion_Y.Initial(m_Motor_Y, MotionUnit.Minimeter, 10000, "Y-Axis Timeout");
-            m_Motion_Y.iSimulateDelayTime = 500;
+            m_Motion_Y.iSimulateDelayTime = iSimulateDelayTime;
             clsMotionCtrl.SetServo(m_Motor_Y, true);
 
             // Z 軸初始化
             m_Motion_Z.Initial(m_Motor_Z, MotionUnit.Minimeter, 10000, "Z-Axis Timeout");
-            m_Motion_Z.iSimulateDelayTime = 500;
+            m_Motion_Z.iSimulateDelayTime = iSimulateDelayTime;
             clsMotionCtrl.SetServo(m_Motor_Z, true);
 
 

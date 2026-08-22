@@ -4,7 +4,8 @@
 > **AR**(什麼時候該叫設備動作的決策層)。要碰 `AutoRun`／`Scenario`／`AR_*`／`Proc_*` 相關程式碼之前，先讀這份。
 > 內容是逐檔讀出來的架構，不是憑空整理的規格書——拿不準的地方請直接重讀對應檔案確認。
 > **這是活文件**：每次寫新的 AR/Proc 遇到新的架構模式或踩到新的坑，都要回來補進這份檔案，不要只留在對話紀錄裡。
-> 建立：2026-08-21(ASM Lane 組裝流程)。更新：2026-08-22(HS Discharge Magazine、Press Lane/Station)。
+> 建立：2026-08-21(ASM Lane 組裝流程)。更新：2026-08-22(HS Discharge Magazine、Press Lane/Station、AOI Lane/Station、
+> Lane→Lane 交握輪詢瞬間狀態的 bug)。
 
 ## 核心機制：clsThreadProc + iStepIndex
 
@@ -28,23 +29,27 @@
 ### Proc 層——設備本體
 
 路徑：`ArtEQ/2_Function(流程)/Proc/{Arm,Lane,Magazine,Station}/Proc_*.cs`
-基底：`BaseArm`、`BaseLane`、`BaseMagazine`、`BasePressStation`（都在 `ArtEQ/2_Function(流程)/BaseProc/`）
+基底：`BaseArm`、`BaseLane`、`BaseMagazine`、`BasePressStation`、`BaseAoiStation`（都在 `ArtEQ/2_Function(流程)/BaseProc/`）
 
 Proc 類別代表一個實體設備（一支手臂、一條流道、一個料盒、一個站別），自己的 `Scenario()` 是這個設備的動作細節
 （馬達怎麼移動、真空怎麼開關、DI/DO 怎麼讀寫）。子類別只覆寫「這個設備專屬」的部分：
 
-**目前有三種設備原型**，差在「一次動作處理幾格」：
+**目前有四種設備原型**，差在「一次動作處理幾格」：
 
 | 原型 | 一次動作處理範圍 | 例子 |
 |---|---|---|
-| `BaseArm` | 單一格（Pick 一格、Place 一格，靠 col/row 指定） | `Proc_ASM_Arm` |
-| `BaseLane` | 整盤 Tray（Load 進來一整盤、Unload 出去一整盤） | `Proc_HS_Lane`、`Proc_ASM_Lane`、`Proc_Press_Lane` |
-| `BasePressStation` | **整盤裡「所有有料的格子」一次處理完**，不是逐格 | `Proc_Press_Station` |
+| `BaseArm` | 單一格，兩段式（Pick 一格、Place 一格，靠 col/row 指定） | `Proc_ASM_Arm` |
+| `BaseLane` | 整盤 Tray（Load 進來一整盤、Unload 出去一整盤） | `Proc_HS_Lane`、`Proc_ASM_Lane`、`Proc_Press_Lane`、`Proc_AOI_Lane` |
+| `BasePressStation` | **整盤裡「所有有料的格子」一次處理完**，不逐格觸發 | `Proc_Press_Station` |
+| `BaseAoiStation` | **單一格，一段式**（鏡頭移到 col/row 檢測那一格，沒有 Pick/Place 兩段） | `Proc_AOI_Station` |
 
-`BasePressStation` 這種「一次全部處理完」的站別型設備，寫法比 Arm 簡單很多：不用算 col/row、不用 Pick+Place
-兩段式，`RunPress()` 一次觸發，內部 `SetTrayWork()` 自己迴圈整盤（`for i in AssyRecords`，`IsExist` 的格子才處理）。
-之後如果要加 AOI 站這類「對整盤做一次檢測/加工」的設備，照 `BasePressStation`／`Proc_Press_Station` 抄，不要照
-`BaseArm` 抄。
+> ⚠️ **`BasePressStation` 跟 `BaseAoiStation` 長得像（都是「站別」，都對應一條 Lane），但一次處理的範圍不一樣，
+> 不要看名字都是「XxxStation」就假設可以照抄同一套。加新站別前，先讀該站別 `Proc_*.SetTrayWork()` 的實作，
+> 確認它是迴圈整盤（Press 那種）還是只動 `m_workRow/m_workColumn` 那一格（AOI 那種），這會直接決定 AR 要怎麼寫：**
+> - **整盤一次處理完**（照 `BasePressStation`／`AR_Press_Station` 抄）：AR 只要「有沒有還沒處理的格子」判斷要不要觸發，
+>   觸發一次 `RunXxx()` 就對整盤生效，不用管 col/row。
+> - **逐格處理**（照 `BaseAoiStation`／`AR_AOI_Station` 抄）：AR 要照 `AR_ASM_Arm` 的邏輯逐格找「有料但沒處理完成」
+>   的格子，一格一格觸發 `RunXxx(col, row)`，每次只推進一格。
 
 各原型子類別要覆寫的 hook：
 
@@ -59,14 +64,18 @@ Proc 類別代表一個實體設備（一支手臂、一條流道、一個料盒
 | | `GetPreviousMagazineForBill()` / `GetPreviousLaneForBill()` / `GetNextLaneForBill()` / `GetNextMagazineForBill()` | 指定上下游是誰（上游可能是 Magazine 或 Lane，下游同理，視情況只覆寫需要的那組） |
 | `BasePressStation` | `BindHardwarePoint()` | 綁定壓合氣缸的 DI／DO |
 | | `PressLane`（abstract 屬性） | 指定這個站別對應哪條 Lane |
-| | `SetTrayWork()`（abstract） | 整盤迴圈，把每個 `IsExist` 的格子標記處理完成（例如 `IsPressed=true`） |
+| | `SetTrayWork()`（abstract，**整盤迴圈**） | 迴圈整盤，把每個 `IsExist` 的格子標記處理完成（例如 `IsPressed=true`） |
+| `BaseAoiStation` | `BindHardwarePoint()` | 綁定檢測相機/馬達的軸 |
+| | `AOILane`（abstract 屬性） | 指定這個站別對應哪條 Lane |
+| | `SetTrayWork()`（abstract，**只動 `m_workRow`/`m_workColumn` 那一格**） | 用 `RunInspect(col,row)` 傳進來的座標算 index，只標記那一格（`IsAoiInspected=true`、寫入 `AoiResult`） |
 
 公開介面（AR 層會呼叫的）：
 - `RunInitial()`（全部都有）
 - Arm：`RunPick(PPStation, col, row)` / `RunPlace(PPStation, col, row)`
 - Lane：`RunLoad()` / `RunUnload()`（無參數，物件自己知道上下游是誰）
 - Magazine：`RunLoad(slotNo)` / `RunUnload(slotNo)`——**方向名稱容易搞混，見下方警告**
-- Station：`RunPress()`（`BasePressStation` 專屬，其他站別依樣畫葫蘆會是 `RunXxx()`）
+- Station（整盤型）：`RunPress()`（`BasePressStation` 專屬）
+- Station（逐格型）：`RunInspect(col, row)`（`BaseAoiStation` 專屬）
 - 狀態查詢：`IsProcOK()`（`!bIsProcessing && bIsReady`）、`m_enuAction`（每個基底自己定義的 enum，
   例如 `BaseArm.enuAction.Pick_Done`）
 
@@ -102,9 +111,15 @@ default              → Stop
 
 Arm 型的 AR 現在有模板可抄了（`AR_ASM_Arm`）：跟 Load/Unload 型不同，Arm 是「Pick 一次 + Place 一次」，
 狀態機多一組 Pick→Place 的序列，條件判斷也不是查 `m_enuAction`，而是逐格比對兩條流道的 `clsTrayInfo`
-（細節見下一節）。Station 型的 AR 也有模板了（`AR_Press_Station`）：比 Arm 簡單，只有「觸發一次 `RunXxx()` →
-等 `_Done`/`_Fail`」兩步，不用算格位；「還要不要再觸發」的判斷靠檢查整盤裡「有料但還沒處理完成」的格子還在不在
-（`AssyRecords.Any(v => v.IsExist && !v.IsPressed)` 這種寫法），不是額外記一個「有沒有觸發過」的旗標。
+（細節見下一節）。
+
+Station 型的 AR 有**兩種模板**，對應上面「整盤型」跟「逐格型」兩種站別，不要混用：
+- **整盤型**（`AR_Press_Station`）：比 Arm 簡單，只有「觸發一次 `RunXxx()` → 等 `_Done`/`_Fail`」兩步，不用算格位；
+  「還要不要再觸發」的判斷靠檢查整盤裡「有料但還沒處理完成」的格子還在不在
+  （`AssyRecords.Any(v => v.IsExist && !v.IsPressed)` 這種寫法），不是額外記一個「有沒有觸發過」的旗標。
+- **逐格型**（`AR_AOI_Station`）：形狀介於 Arm 跟整盤型 Station 之間——像 Arm 一樣要逐格找「有料但還沒處理完成」
+  的格子（`FindNextInspectCell`，邏輯跟 `AR_ASM_Arm` 找格位的迴圈幾乎一樣），但沒有 Pick/Place 兩段，只有
+  「觸發 `RunXxx(col, row)` → 等 `_Done`/`_Fail`」一段，找到一格處理一格，回閒置後下一輪 scan 才會再找下一格。
 
 > ⚠️ **抄別的 AR 檔案當模板時，物件參照(哪個 Lane／Magazine)要逐一核對，不能只信任變數名稱抄對了。**
 > `AR_HS_Lane.CanUnload()` 曾經真的把「檢查下游 Magazine」那段誤植成呼叫上游的 `Mag_HS_Feed()`（應該是
@@ -149,9 +164,27 @@ Lane 從上游接帳時（`BaseLane.ReceiveTrayBillFromPrevious`），依 `Mater
 !laneOrStation.m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.<這個站別的完成旗標>);
 ```
 
-`<完成旗標>` 依站別換：ASM 用 `IsAssembled`、Press 用 `IsPressed`、以後 AOI 站大概率是 `IsAoiInspected`。
+`<完成旗標>` 依站別換：ASM 用 `IsAssembled`、Press 用 `IsPressed`、AOI 用 `IsAoiInspected`。
 新增一個「會處理整盤、下一站要等它做完才能收料」的站別時，這個旗標要在該站別的 `SetTrayWork()`（或等效方法）
 裡設成 `true`，並且確保 `IsExist` 已經照上表被正確維護，不然這個 gate 又會變成死開關。
+
+### Lane→Lane 交握：不能輪詢「做完就馬上被覆寫」的瞬間狀態
+
+`BaseLane` 的 `WaitPreviousDoneLoad()`／`ReadyToLoad()` 這類 hook 都是用「輪詢上游 Lane 的 `m_enuAction`」實作的，
+但 `m_enuAction` 裡不是每個值都會穩定停留——有些是「終點狀態，設完馬上被下一輪覆寫」，輪詢會有機率完全錯過：
+
+- **穩定、可以放心輪詢**：`Unload_Waiting`（`case 60200`，`if (!ReadyToUnloadToNext()) break;`）、`Unload_Waiting_Sign`
+  （`case 60500`，`if (!WaitNextLoadDone()) break;`）——這兩個都是「條件不成立就停在原地」的迴圈狀態，會一直維持
+  到真的成立才離開，輪詢抓得到。
+- **不穩定、輪詢會賭運氣**：`Unload_Done`（`case 60999`，一次性終點）——`AR_ASM_Lane` 這類 AR 一看到上游 Lane
+  到達 `Unload_Done` 就會馬上判斷可以開新一輪 Load（`CanLoad()` 把 `Unload_Done` 當合法閒置狀態），實測只維持
+  231ms 就被蓋掉。2026-08-22 抓到 `Proc_Press_Lane.WaitPreviousDoneLoad()` 就是在輪詢這個，導致卡在
+  `case 50500`（見 `LESSONS.md` L8）；已改成輪詢 `Unload_Waiting_Sign`（照 `Proc_AOI_Lane` 的寫法）。
+
+**加新的 Lane→Lane 交握 hook 之前，先確認要輪詢的 `m_enuAction` 是不是「迴圈裡才會設」的穩定狀態，不要挑一次性終點
+狀態（`XXX_Done`）來輪詢。** 這個修法本身還留了一個沒完全排除的疑慮：`Unload_Waiting_Sign` 結束的時機是「下游
+Lane 到達 `Loading`」，比下游真正走到 `WaitPreviousDoneLoad()` 那步早很多，理論上窗口變大但沒歸零——如果之後
+還在別的 Lane→Lane 交握點卡住，先往這個方向查。
 
 ## 四個容易漏掉的註冊點
 
@@ -182,7 +215,11 @@ IC Feed Magazine --(AR_Mag_IC_Feed)--> ASM Lane
                                           |
                                   (AR_Press_Lane 卸料，需整盤壓合完成)
                                           v
-                                      AOI Lane（尚未做 AR）→ OK/NG 分流（尚未做 AR）
+                                      AOI Lane <--(AR_AOI_Station 逐格檢測)
+                                          |
+                                  (AR_AOI_Lane 卸料，需整盤檢測完成)
+                                          v
+                                      OK Lane → OK/NG 分流（尚未做 AR，靠 Sort Arm 依 AoiResult 分派）
 ```
 
 ### ASM 組裝（2026-08-21）
@@ -216,3 +253,22 @@ IC Feed Magazine --(AR_Mag_IC_Feed)--> ASM Lane
 
 檔案：[AR_Press_Lane.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Press_Lane.cs)、
 [AR_Press_Station.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Press_Station.cs)
+
+### AOI 檢測（2026-08-22）
+
+- AOI 站是**逐格移動鏡頭檢測**，不是整盤一次做完——跟 Press 長得像（都是「XxxStation」對應一條 Lane）但一次處理
+  範圍不同，是四種原型裡的第四種（`BaseAoiStation`）。查 `Proc_AOI_Station.SetTrayWork()` 才確認到這件事
+  （它只動 `tray.GetIndexFromRowCol(m_workRow, m_workColumn)` 那一格，不是迴圈整盤），不要看到「XxxStation」
+  就預設照 Press 抄。
+- `AR_AOI_Station`：邏輯上更接近 `AR_ASM_Arm`（逐格找位）而不是 `AR_Press_Station`（整盤觸發一次）——逐格找
+  `AssyRecords[i].IsExist && !IsAoiInspected` 的格子，一次只處理一格，`RunInspect(col, row)` → 等
+  `AOI_Done`/`AOI_Fail` → 回閒置，下一輪 scan 才會找下一格。
+- `AR_AOI_Lane`：跟 `AR_Press_Lane` 同一個模板整段複製，本站從 `Proc_Press_Lane` 換成 `Proc_AOI_Lane`，
+  上游從 `Proc_ASM_Lane` 換成 `Proc_Press_Lane`，下游從 `Proc_AOI_Lane` 換成 `Proc_OK_Lane`，`CanUnload()`
+  的完成旗標從 `IsPressed` 換成 `IsAoiInspected`。
+- `Proc_AOI_Lane.GetNextLaneForBill()` 目前寫死指向 `Proc_OK_Lane`，NG 品目前不會在 Lane 層被分流——分流(OK/NG)
+  應該是靠 `Proc_Sort_Arm`(檔案已存在，AR 還沒做)之後依每格 `AoiResult` 分別 Pick 到 OK/NG 各自的 Discharge
+  Magazine，不是靠 Lane 選擇下一站。做 Sort Arm 的 AR 之前，先讀 `Proc_Sort_Arm.cs` 確認這個假設。
+
+檔案：[AR_AOI_Lane.cs](ArtEQ/2_Function(流程)/AutoRun/AR_AOI_Lane.cs)、
+[AR_AOI_Station.cs](ArtEQ/2_Function(流程)/AutoRun/AR_AOI_Station.cs)

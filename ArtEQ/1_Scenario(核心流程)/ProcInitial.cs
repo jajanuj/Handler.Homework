@@ -90,6 +90,8 @@ namespace ArtEQ
                     AR_Mag_HS_Discharge.GetSingleton().RunInitial();
                     AR_Press_Lane.GetSingleton().RunInitial();
                     AR_Press_Station.GetSingleton().RunInitial();
+                    AR_AOI_Lane.GetSingleton().RunInitial();
+                    AR_AOI_Station.GetSingleton().RunInitial();
 
                     //範例
                     //AR_Mag_LoadOK.GetSingleton().RunInitial();
@@ -129,6 +131,8 @@ namespace ArtEQ
                     ProcInitialDone &= AR_Mag_HS_Discharge.GetSingleton().IsProcOK();
                     ProcInitialDone &= AR_Press_Lane.GetSingleton().IsProcOK();
                     ProcInitialDone &= AR_Press_Station.GetSingleton().IsProcOK();
+                    ProcInitialDone &= AR_AOI_Lane.GetSingleton().IsProcOK();
+                    ProcInitialDone &= AR_AOI_Station.GetSingleton().IsProcOK();
                     //ProcInitialDone &= AR_Seal_Lane.GetSingleton().IsProcOK();
                     //ProcInitialDone &= AR_AOI_Lane.GetSingleton().IsProcOK();
                     //ProcInitialDone &= AR_OK_Lane.GetSingleton().IsProcOK();
@@ -178,6 +182,8 @@ namespace ArtEQ
                     Proc_HS_Discharge_Magazine.GetSingleton().RunInitial();
                     Proc_Press_Lane.GetSingleton().RunInitial();
                     Proc_Press_Station.GetSingleton().RunInitial();
+                    Proc_AOI_Lane.GetSingleton().RunInitial();
+                    Proc_AOI_Station.GetSingleton().RunInitial();
                     //Proc_Seal_Lane.GetSingleton().RunInitial();
                     //Proc_AOI_Lane.GetSingleton().RunInitial();
                     //Proc_OK_Lane.GetSingleton().RunInitial();
@@ -217,6 +223,8 @@ namespace ArtEQ
                     ProcInitialDone &= Proc_HS_Discharge_Magazine.GetSingleton().IsProcOK();
                     ProcInitialDone &= Proc_Press_Lane.GetSingleton().IsProcOK();
                     ProcInitialDone &= Proc_Press_Station.GetSingleton().IsProcOK();
+                    ProcInitialDone &= Proc_AOI_Lane.GetSingleton().IsProcOK();
+                    ProcInitialDone &= Proc_AOI_Station.GetSingleton().IsProcOK();
                     //ProcInitialDone &= Proc_Seal_Lane.GetSingleton().IsProcOK();
                     //ProcInitialDone &= Proc_AOI_Lane.GetSingleton().IsProcOK();
                     //ProcInitialDone &= Proc_OK_Lane.GetSingleton().IsProcOK();

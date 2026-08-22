@@ -1,15 +1,17 @@
-﻿using System;
-using ArtCommonLib;
+﻿using ArtCommonLib;
 using ArtControlLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.Proc;
 using ArtEQ.B_Tools;
+using System;
 using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.BaseProc
 {
     public abstract class BasePressStation : clsThreadProc
     {
+        #region Enums
+
         #region ===================== Action 定義 =====================
 
         public enum enuAction
@@ -41,10 +43,21 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
         #endregion
 
+        #endregion
+
+        #region Constructors
+
+        public BasePressStation(string name) : base(name)
+        {
+        }
+
+        #endregion
+
+        #region Properties
+
         private int m_iPutterTimeout => GetPmt(enuPmtName.Sys_Timeout_Putter);
         private int m_iPutterBeforeDelay => GetPmt(enuPmtName.Sys_Delay_Putter_Before);
         private int m_iPutterAfterDelay => GetPmt(enuPmtName.Sys_Delay_Putter_After);
-        private int GetPmt(clsEnum.enuPmtName name) => ucParameter.GetValueInt(name);
 
         /// <summary>
         /// 本站帳料
@@ -74,49 +87,11 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         /// </summary>
         public abstract BaseLane PressLane { get; }
 
+        #endregion
+
+        #region Public Methods
+
         public bool IsProcOK() => !bIsProcessing && m_bIsReady;
-
-        public BasePressStation(string name) : base(name)
-        {
-        }
-
-        #region ===================== 控制盒 =====================
-
-        /// <summary>
-        /// 控制盒：把多個氣缸 / 軸控動作加進來後，用 Action() 等待完成
-        /// </summary>
-        protected clsControlBox m_CtrlBox = new clsControlBox();
-
-        /// <summary>
-        /// 控制元件壓合氣缸
-        /// </summary>
-        protected clsBoxCylinder m_Cylinder_Press = new clsBoxCylinder();
-
-        #endregion
-
-        #region ===================== Axis / Pos / IO =====================
-
-        /// <summary>
-        /// 壓合氣缸前進檢知DI
-        /// </summary>
-        protected enuDi m_DI_Press_Fwd;
-
-        /// <summary>
-        /// 壓合氣缸後退檢知DI
-        /// </summary>
-        protected enuDi m_DI_Press_Bwd;
-
-        /// <summary>
-        /// 壓合氣缸過壓檢知_(B)DI
-        /// </summary>
-        protected enuDi m_DI_Press_OverPress_B;
-
-        /// <summary>
-        /// 壓合氣缸啟動DO
-        /// </summary>
-        protected enuDo m_DO_Press_Cylinder;
-
-        #endregion
 
 
         /// <summary> 壓合流程 </summary>
@@ -143,8 +118,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
             iStepIndex = 10000;
         }
 
-        protected static T GetSingletonInstance<T>(Func<T> factory) where T : class => SingletonHelper<T>.GetOrCreate(factory);
-
         public void InitialSet()
         {
             // 推桿氣缸初始化
@@ -159,6 +132,12 @@ namespace ArtEQ._2_Function_流程_.BaseProc
             }
         }
 
+        #endregion
+
+        #region Protected Methods
+
+        protected static T GetSingletonInstance<T>(Func<T> factory) where T : class => SingletonHelper<T>.GetOrCreate(factory);
+
         protected override void Scenario()
         {
             switch (iStepIndex)
@@ -166,9 +145,11 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                 #region ===================== Initial (初始化流程 10000-10999) =====================
 
                 #region 【初始化開始】
+
                 case 10000:
                     iStepIndex = 10200;
                     break;
+
                 #endregion
 
                 //設定壓合氣缸縮回
@@ -184,21 +165,25 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     break;
 
                 #region 【初始化失敗】設定狀態，結束流程
+
                 case 10998:
                     m_enuAction = enuAction.Initial_Fail;
                     m_bIsReady = false;
                     bIsProcessing = false;
                     iStepIndex = -1;
                     break;
+
                 #endregion
 
                 #region 【 初始化完成】壓合站 已就緒
+
                 case 10999:
                     m_enuAction = enuAction.Initial_Done;
                     m_bIsReady = true;
                     bIsProcessing = false;
                     iStepIndex = -1;
                     break;
+
                 #endregion
 
                 #endregion
@@ -206,13 +191,14 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                 #region //===================== 壓合站 主流程 (20000-20999) =====================
 
                 #region 【壓合站 流程開始】
+
                 case 20000:
                     m_enuAction = enuAction.Press;
                     iStepIndex = 20010;
                     break;
 
                 case 20010:
-                    // 檢查壓合站帳籍有料 && 壓合流道到位檢知Off
+                    // 檢查壓合站帳籍有料 && 壓合流道到位檢知
                     if (PressLane.m_Temp_Tray_Info.bIsExist && PressLane.ArrivalSignal)
                     {
                         iStepIndex = 20200;
@@ -225,7 +211,9 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     }
 
                     break;
+
                 #endregion
+
                 //todo :0821
                 //等待取料流道是否準備完成，判斷有無料盤
                 case 20200:
@@ -268,7 +256,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     iStepIndex = -1;
                     break;
 
-                    #endregion
+                #endregion
             }
         }
 
@@ -281,9 +269,16 @@ namespace ArtEQ._2_Function_流程_.BaseProc
             var pressLane = Proc_Press_Lane.GetSingleton();
             return pressLane.IsProcOK() && pressLane.m_Temp_Tray_Info.bIsExist;
         }
+
         protected abstract void BindHardwarePoint();
 
         protected abstract bool SetTrayWork();
+
+        #endregion
+
+        #region Private Methods
+
+        private int GetPmt(clsEnum.enuPmtName name) => ucParameter.GetValueInt(name);
 
         private void RunAction(enuAction p_enuAction)
         {
@@ -333,6 +328,44 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         private bool SetDi(enuDi p_enuDi, bool p_bValue) => clsDioCtrl.SetDi(p_enuDi, p_bValue);
         private bool SetDo(enuDo p_enuDo, bool p_bValue) => clsDioCtrl.SetDo(p_enuDo, p_bValue);
 
+        #endregion
 
+        #region ===================== 控制盒 =====================
+
+        /// <summary>
+        /// 控制盒：把多個氣缸 / 軸控動作加進來後，用 Action() 等待完成
+        /// </summary>
+        protected clsControlBox m_CtrlBox = new clsControlBox();
+
+        /// <summary>
+        /// 控制元件壓合氣缸
+        /// </summary>
+        protected clsBoxCylinder m_Cylinder_Press = new clsBoxCylinder();
+
+        #endregion
+
+        #region ===================== Axis / Pos / IO =====================
+
+        /// <summary>
+        /// 壓合氣缸前進檢知DI
+        /// </summary>
+        protected enuDi m_DI_Press_Fwd;
+
+        /// <summary>
+        /// 壓合氣缸後退檢知DI
+        /// </summary>
+        protected enuDi m_DI_Press_Bwd;
+
+        /// <summary>
+        /// 壓合氣缸過壓檢知_(B)DI
+        /// </summary>
+        protected enuDi m_DI_Press_OverPress_B;
+
+        /// <summary>
+        /// 壓合氣缸啟動DO
+        /// </summary>
+        protected enuDo m_DO_Press_Cylinder;
+
+        #endregion
     }
 }
