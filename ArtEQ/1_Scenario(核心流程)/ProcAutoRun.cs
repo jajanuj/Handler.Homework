@@ -1,12 +1,35 @@
 using ArtCommonLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.AutoRun;
+using ArtEQ._2_Function_流程_.Proc;
 
 namespace ArtEQ
 {
     /// <summary> 自動運轉流程規劃 </summary>
     public class ProcAutoRun : clsThreadProc
     {
+        #region Public Methods
+
+        #region //===================== public 函式設置 =====================
+
+        /// <summary>
+        /// 結批期間判斷用：OK_Lane 或更上游(HS/ASM/Press/AOI)是否還有料在流，
+        /// 代表之後還可能分出新的 NG。AR_Mag_NG_Feed(要不要繼續補空盤)、
+        /// AR_NG_Lane(空盤要不要強制出料)共用同一個判斷，避免兩邊各寫一份、以後改一邊漏一邊。
+        /// </summary>
+        static public bool HasUpstreamWorkPendingSort()
+        {
+            return Proc_HS_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist
+                   || Proc_ASM_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist
+                   || Proc_Press_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist
+                   || Proc_AOI_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist
+                   || Proc_OK_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+        }
+
+        #endregion
+
+        #endregion
+
         #region //=====================  全域變數設置 =====================
 
         /// <summary> LotID </summary>
@@ -93,20 +116,37 @@ namespace ArtEQ
                 {
                     if (bIsLotEnd || bIsStopLoad)
                     {
-                        //AllProcessOK &= !Proc_Lane_Top.GetSingleton().m_Temp_Tray_Info.isExist;
-                        //AllProcessOK &= !Proc_Lane_Bottom.GetSingleton().m_Temp_Tray_Info.isExist;
-                        //AllProcessOK &= !Proc_Lane_FrontBack.GetSingleton().m_Temp_Tray_Info.isExist;
-                        //AllProcessOK &= !Proc_Lane_LeftRight.GetSingleton().m_Temp_Tray_Info.isExist;
-                        //AllProcessOK &= !Proc_Lane_OK.GetSingleton().m_Temp_Tray_Info.isExist;
-                        //AllProcessOK &= !Proc_Lane_NG.GetSingleton().m_Temp_Tray_Info.isExist;
-                        //AllProcessOK &= !Proc_Pick_OKNG.GetSingleton().m_Temp_TagMoveData.Tag.IsExist;
-                        //AllProcessOK &= Proc_Lane_NG.GetSingleton().m_enuAction == _2_Function_流程_.Base.BaseLane.enuAction.Lane_Unload_Done;
-                        //if (AllProcessOK)
-                        //{
-                        //    this.iStepIndex = 3000;
-                        //}
+                        bool bAllDrained = true;
+
+                        // 六條流道都要淨空(沒有帳)才算流完。
+                        bAllDrained &= !Proc_HS_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+                        bAllDrained &= !Proc_ASM_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+                        bAllDrained &= !Proc_Press_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+                        bAllDrained &= !Proc_AOI_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+                        bAllDrained &= !Proc_OK_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+                        bAllDrained &= !Proc_NG_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+
+                        // 兩隻手臂也要閒置——流道剛好淨空的那一瞬間，手臂有可能正夾著料
+                        // 走在 Pick 完、Place 還沒完成的半路上，這段期間料只存在手臂身上，
+                        // 不會反映在任何一條流道的帳上，只看流道會漏掉這個狀態。
+                        bAllDrained &= Proc_ASM_Arm.GetSingleton().IsProcOK();
+                        bAllDrained &= Proc_Sort_Arm.GetSingleton().IsProcOK();
+
+                        // 三個 Feed Magazine 也要閒置——結批按下的當下如果剛好在推料，
+                        // 料還沒真正過帳到下游流道之前，同樣不會反映在流道的帳上。同樣查 Proc_Xxx。
+                        bAllDrained &= Proc_IC_Feed_Magazine.GetSingleton().IsProcOK();
+                        bAllDrained &= Proc_HS_Feed_Magazine.GetSingleton().IsProcOK();
+                        bAllDrained &= Proc_NG_Feed_Magazine.GetSingleton().IsProcOK();
+
+                        // 強制結批：AR_NG_Lane.CanUnload() 在 bIsLotEnd 時已經改成不用等收滿
+                        if (bAllDrained)
+                        {
+                            clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : 結批 - 所有流道已淨空，準備停機");
+                            iStepIndex = 3000;
+                        }
                     }
                 }
+
                 break;
 
                 case 3000:
@@ -118,6 +158,7 @@ namespace ArtEQ
                     clsCmData.g_NowEqStatus = clsCmData.enuEqStatus.Idle;
                     bIsAutoRunMode = false;
                     bIsManualMode = false;
+                    bIsLotEnd = false;
                     clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : ===== Proc Auto Run End =====");
                     iStepIndex = -1;
                     bIsProcessing = false;
@@ -131,10 +172,6 @@ namespace ArtEQ
                     break;
             }
         }
-
-        #endregion
-
-        #region //===================== public 函式設置 =====================
 
         #endregion
 

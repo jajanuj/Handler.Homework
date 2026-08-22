@@ -165,8 +165,11 @@ namespace ArtEQ._2_Function_流程_.AutoRun
             // 4. 下游 Load_Lane 無 Boat、無帳料、狀態為 Lane_Loading 等待中
             rValue &= !NextLane().m_Temp_Tray_Info.bIsExist;
 
-            // 5. 結批
-            rValue &= !ProcAutoRun.bIsLotEnd;
+            // 5. 結批：正常運轉一律放行。結批期間不能整批停料——NG_Feed 供應的是「空載具盤」，
+            //    不是新的生產原料；只要 OK_Lane 或更上游(HS/ASM/Press/AOI)還有料在流，代表
+            //    之後還可能分出新的 NG，NG_Lane 需要有空盤接，Sort_Arm 才有地方放。等這些
+            //    上游全部流空了，才代表不會再有新的 NG，這時才真的不需要再補空盤。
+            rValue &= !ProcAutoRun.bIsLotEnd || ProcAutoRun.HasUpstreamWorkPendingSort();
             return rValue;
         }
 

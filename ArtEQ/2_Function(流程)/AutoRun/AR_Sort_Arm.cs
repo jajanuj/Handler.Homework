@@ -293,15 +293,22 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         }
 
         /// <summary>
-        /// 閒置判別時，如果 OK_Lane 有帳但已經找不到待搬的 NG 格了，代表這一輪分料做完了，設定 bIsSortDone。
+        /// 閒置判別時，如果找不到待搬的 NG 格了，代表這一輪分料做完了，設定 bIsSortDone。
         /// 只看「OK_Lane 還有沒有 NG 沒搬完」，不管 NG_Lane 有沒有空格——沒空格時 CanSort() 會失敗，
         /// 但那是「卡住等 NG_Lane 出料」，不是「這輪分完了」，不能誤設成 true。
+        ///
+        /// 注意：這裡刻意不判斷「OK_Lane 現在有沒有帳(bIsExist)」。原本有一個
+        /// `if (!OK_Lane().bIsExist) return;` 的提早跳出，用意是「OK_Lane 還沒收到任何 Tray 時
+        /// 不要誤判成做完」，但這個判斷會踩到一個競態：Sort_Arm 搬完最後一顆 NG 之後，回到這裡
+        /// 檢查的時間點如果晚於 OK_Lane 自己完成 Unload(帳已經被清掉、bIsExist 變 false)，
+        /// 這個提早跳出就會讓 bIsSortDone 永遠設不成 true——正常運轉時下一輪 OK_Lane 進料還能
+        /// 讓 CanSort() 重新抓到新的 NG、間接把這個問題蓋過去，但結批的最後一輪沒有下一輪可以
+        /// 蓋過去，會永久卡住(NG_Lane 最後一盤出不去，實測發生過)。拿掉這個判斷後，
+        /// FindNextNGCell() 掃到「沒有 Tray」或「Tray 剛被清空」都會直接回傳 false，
+        /// 效果等同「沒有 NG 待搬」，邏輯上是安全的，不需要另外判斷 bIsExist。
         /// </summary>
         private void MarkSortDoneIfNothingLeft()
         {
-            if (!OK_Lane().m_Temp_Tray_Info.bIsExist)
-                return;
-
             int dummyCol, dummyRow;
             if (FindNextNGCell(out dummyCol, out dummyRow))
                 return;

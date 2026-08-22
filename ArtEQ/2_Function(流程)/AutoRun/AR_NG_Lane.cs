@@ -286,23 +286,45 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                 return false;
 
             //5. 依 NG 出料模式，判斷這盤 NG 夠不夠出料
-            switch (GetNGDischargeMode())
+            if (ProcAutoRun.bIsLotEnd && !ProcAutoRun.HasUpstreamWorkPendingSort())
             {
-                case clsEnum.NGDischargeMode.PerCycle:
-                    // 這一輪(對應目前 OK_Lane 那盤)分料已經做完，而且這輪真的有收到東西才出，
-                    // 避免 OK_Lane 那盤剛好整盤都是 OK、NG_Lane 這輪沒收到任何一顆卻白跑一次出料。
-                    rValue &= AR_Sort_Arm.GetSingleton().bIsSortDone;
-                    rValue &= NG_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist);
-                    break;
+                // 強制結批：只有在「上游(HS/ASM/Press/AOI/OK Lane)已經完全流空、不會再有新的 NG
+                // 進來」時才啟動——不管平常設定哪種模式，這盤不管滿不滿(甚至完全是空的載具盤)
+                // 都要讓它出得去，只需要確認 Sort_Arm 目前沒有正在半路上的 Pick/Place(bIsSortDone)，
+                // 不然可能夾著最後一顆料還沒放進去。不然結批後這盤會卡死 ProcAutoRun case 2000
+                // 的淨空偵測，永遠停不了機。
+                //
+                // 注意：這裡的條件是「上游已經流空」，不是單純「bIsSortDone==true」——bIsSortDone
+                // 在「目前沒有 NG 在等搬」時就是 true，這個狀態在上游還有料時也會出現(例如連續
+                // 好幾輪 OK_Lane 都是全 OK)。如果結批期間只看 bIsSortDone 就無條件出料，會把
+                // AR_Mag_NG_Feed 剛補的空盤立刻又推出去，兩邊邏輯打架，變成空盤瘋狂進出的迴圈
+                // (實測發生過)。也不能只看「這盤有沒有東西」就對 FullTray 模式提早出料——上游
+                // 還有料時，FullTray 該等的還是要等，不能因為結批就把還沒滿的盤子提早推出去
+                // (也實測發生過：兩輪 OK_Lane 才送完，第一盤 NG 沒滿就被出料了)。
+                rValue &= AR_Sort_Arm.GetSingleton().bIsSortDone;
+            }
+            else
+            {
+                // 正常運轉，或結批但上游還有料在跑：兩種模式維持原本各自的判斷邏輯，
+                // 結批不改變這裡的行為，只是等上游流空後才會進到上面那個強制出料分支。
+                switch (GetNGDischargeMode())
+                {
+                    case clsEnum.NGDischargeMode.PerCycle:
+                        // 這一輪(對應目前 OK_Lane 那盤)分料已經做完，而且這輪真的有收到東西才出，
+                        // 避免 OK_Lane 那盤剛好整盤都是 OK、NG_Lane 這輪沒收到任何一顆卻白跑一次出料。
+                        rValue &= AR_Sort_Arm.GetSingleton().bIsSortDone;
+                        rValue &= NG_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist);
+                        break;
 
-                case clsEnum.NGDischargeMode.FullTray:
-                    // NG_Lane 自己收滿整盤(每一格都有帳)才出料
-                    rValue &= NG_Lane().m_Temp_Tray_Info.AssyRecords.All(v => v.IsExist);
-                    break;
+                    case clsEnum.NGDischargeMode.FullTray:
+                        // NG_Lane 自己收滿整盤(每一格都有帳)才出料
+                        rValue &= NG_Lane().m_Temp_Tray_Info.AssyRecords.All(v => v.IsExist);
+                        break;
 
-                default:
-                    rValue = false;
-                    break;
+                    default:
+                        rValue = false;
+                        break;
+                }
             }
 
             return rValue;

@@ -112,6 +112,11 @@ namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
             }
         }
 
+        private void btnLotEnd_Click(object sender, EventArgs e)
+        {
+            clsEditRunThread.LotEnd();
+        }
+
         #endregion
 
         #region Process
