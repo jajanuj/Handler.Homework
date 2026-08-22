@@ -99,6 +99,7 @@ namespace ArtEQ._2_Function_流程_.Proc
             var index = placeLane.m_Temp_Tray_Info.GetIndexFromRowCol(m_iPlaceRow, m_iPlaceColumn);
 
             AssyRecord.CopyTo(placeLane.m_Temp_Tray_Info.AssyRecords[index]);
+            placeLane.m_Temp_Tray_Info.AssyRecords[index].IsExist = true;
             placeLane.m_Temp_Tray_Info.AssyRecords[index].IsAssembled = true;
             placeLane.m_Temp_Tray_Info.AssyRecords[index].CurrentStation = WorkStationType.ASM;
             AssyRecord.IsExist = false;

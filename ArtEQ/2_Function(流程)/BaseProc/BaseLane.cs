@@ -976,11 +976,12 @@ namespace ArtEQ
                     }
 
                     m_Temp_Tray_Info.SetItemStatus(i, itemStatus);
+                    m_Temp_Tray_Info.AssyRecords[i].IsExist = true;
                 }
                 else
                 {
                     m_Temp_Tray_Info.SetItemStatus(i, TrayItemStatus.Empty);
-
+                    m_Temp_Tray_Info.AssyRecords[i].IsExist = false;
                 }
             }
 

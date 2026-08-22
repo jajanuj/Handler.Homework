@@ -1,17 +1,20 @@
-﻿using ArtCommonLib;
+using ArtCommonLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.Proc;
 using System.Linq;
 
 namespace ArtEQ._2_Function_流程_.AutoRun
 {
-    internal class AR_Mag_HS_Feed : clsThreadProc
+    /// <summary>
+    /// 驅動 HS Discharge Magazine 自動運轉：等 HS Lane 出料就緒後，收料進 Magazine 空 Slot。
+    /// </summary>
+    internal class AR_Mag_HS_Discharge : clsThreadProc
     {
         #region Constructors
 
         #region //===================== 建構子 =====================
 
-        public AR_Mag_HS_Feed(string p_strLogName) : base(p_strLogName)
+        public AR_Mag_HS_Discharge(string p_strLogName) : base(p_strLogName)
         {
         }
 
@@ -51,7 +54,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                 #region //============== 閒置判別 ==============
 
                 case 100000:
-                    if (CanLoad())
+                    if (CanUnload())
                     {
                         iStepIndex = 200000;
                     }
@@ -60,47 +63,43 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
                 #endregion
 
-                #region //============== Load ==============
+                #region //============== Unload（收料進 Magazine） ==============
 
                 case 200000:
-                    if (Mag_HS_Feed().IsProcOK())
+                    if (Mag_HS_Discharge().IsProcOK())
                     {
-                        int slotNo = CheckNextSlotNo();
+                        int slotNo = CheckNextEmptySlotNo();
                         if (slotNo < 0)
                         {
-                            clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : 無有效 Slot，回閒置");
+                            clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : 無空 Slot 可收料，回閒置");
                             iStepIndex = 100000;
                             break;
                         }
 
-                        Mag_HS_Feed().RunLoad(slotNo);
-                        clsLog.Log(clsEnum.enuLogName.ProcessLog, $"{strThreadLogName} : RunLoad Slot[{slotNo}]");
+                        Mag_HS_Discharge().RunUnload(slotNo);
+                        clsLog.Log(clsEnum.enuLogName.ProcessLog, $"{strThreadLogName} : RunUnload Slot[{slotNo}]");
                         iStepIndex = 201000;
                     }
 
                     break;
 
                 case 201000:
-                    if (Mag_HS_Feed().IsProcOK()) break;
-                    if (Mag_HS_Feed().m_enuAction == BaseMagazine.enuAction.Magazine_Load_Done)
+                    if (Mag_HS_Discharge().IsProcOK()) break;
+                    if (Mag_HS_Discharge().m_enuAction == BaseMagazine.enuAction.Magazine_Unload_Done)
                     {
                         clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog),
-                            $"{strThreadLogName} : {Mag_HS_Feed().m_enuAction.ToString()} : Load Done → 回閒置等處理");
+                            $"{strThreadLogName} : {Mag_HS_Discharge().m_enuAction.ToString()} : Unload Done → 回閒置等處理");
                         iStepIndex = 100000;
-                        if (CheckNextSlotNo() < 0)
+                        if (CheckNextEmptySlotNo() < 0)
                         {
-                            // TODO 料盒內無料
+                            clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Empty_Magazine, NeedEqStop: false);
                         }
                     }
-                    else if (Mag_HS_Feed().m_enuAction == BaseMagazine.enuAction.Magazine_Load_Fail)
+                    else if (Mag_HS_Discharge().m_enuAction == BaseMagazine.enuAction.Magazine_Unload_Fail)
                     {
                         clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog),
-                            $"{strThreadLogName} : {Mag_HS_Feed().m_enuAction.ToString()} : Load Fail → 回閒置等處理");
+                            $"{strThreadLogName} : {Mag_HS_Discharge().m_enuAction.ToString()} : Unload Fail → 回閒置等處理");
                         iStepIndex = 100000;
-                        if (CheckNextSlotNo() < 0)
-                        {
-                            clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
-                        }
                     }
 
                     break;
@@ -121,10 +120,10 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
         #region //===================== Singleton =====================
 
-        private static AR_Mag_HS_Feed m_Singleton;
+        private static AR_Mag_HS_Discharge m_Singleton;
         private static object m_objLock = new object();
 
-        public static AR_Mag_HS_Feed GetSingleton()
+        public static AR_Mag_HS_Discharge GetSingleton()
         {
             if (m_Singleton == null)
             {
@@ -132,7 +131,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                 {
                     if (m_Singleton == null)
                     {
-                        m_Singleton = new AR_Mag_HS_Feed("AR_Mag_HS_Feed");
+                        m_Singleton = new AR_Mag_HS_Discharge("AR_Mag_HS_Discharge");
                     }
                 }
             }
@@ -145,39 +144,39 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         #region //===================== 條件判斷 =====================
 
         /// <summary>
-        /// 判斷是否可以執行 Load
+        /// 判斷是否可以執行 Unload（收料）
         /// </summary>
-        private bool CanLoad()
+        private bool CanUnload()
         {
             bool rValue = true;
 
-            // 1. Magazine 有帳料且尚未結束
-            rValue &= Mag_HS_Feed().m_MagazineInfo.bIsExist;
+            // 1. Magazine 本體有帳(空料盒已上機)且尚未結束
+            rValue &= Mag_HS_Discharge().m_MagazineInfo.bIsExist;
 
-            // 2. 還有 Slot 有料可推
-            rValue &= CheckNextSlotNo() >= 0;
+            // 2. 還有空 Slot 可以收料
+            rValue &= CheckNextEmptySlotNo() >= 0;
 
-            // 3. 下游 Load_Lane 流程就緒
-            rValue &= NextLane().m_enuAction == BaseLane.enuAction.Load_Done ||
-                      NextLane().m_enuAction == BaseLane.enuAction.Unload_Done ||
-                      NextLane().m_enuAction == BaseLane.enuAction.Initial_Done;
+            // 3. 上游 HS Lane 已經出料到位，等待被收走
+            rValue &= HS_Lane().m_enuAction == BaseLane.enuAction.Unload_Waiting;
 
-            // 4. 下游 Load_Lane 無 Boat、無帳料、狀態為 Lane_Loading 等待中
-            rValue &= !NextLane().m_Temp_Tray_Info.bIsExist;
+            // 4. Magazine 流程就緒
+            rValue &= Mag_HS_Discharge().IsProcOK();
 
-            // 5. 結批
-            rValue &= !ProcAutoRun.bIsLotEnd;
+            // 5. Magazine 狀態確認
+            rValue &= Mag_HS_Discharge().m_enuAction == BaseMagazine.enuAction.Initial_Done ||
+                      Mag_HS_Discharge().m_enuAction == BaseMagazine.enuAction.Magazine_Unload_Done;
+
             return rValue;
         }
 
         /// <summary>
-        /// 找到下一個有料的 Slot
+        /// 找到下一個空的 Slot（收料方向：找沒有帳的槽位，跟出料方向的 CheckNextSlotNo 相反）
         /// </summary>
-        private int CheckNextSlotNo()
+        private int CheckNextEmptySlotNo()
         {
-            // 排序後取第一個有料的 Slot，避免 Dictionary 順序不定
-            var nextSlot = Mag_HS_Feed().m_MagazineInfo.m_trayInfo
-                .Where(kv => kv.Value.bIsExist)
+            // 排序後取第一個沒有帳的 Slot，避免 Dictionary 順序不定
+            var nextSlot = Mag_HS_Discharge().m_MagazineInfo.m_trayInfo
+                .Where(kv => !kv.Value.bIsExist)
                 .OrderBy(kv => kv.Key)
                 .FirstOrDefault();
 
@@ -188,8 +187,8 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
         #region //===================== Private Helper =====================
 
-        private Proc_HS_Feed_Magazine Mag_HS_Feed() => Proc_HS_Feed_Magazine.GetSingleton();
-        private Proc_HS_Lane NextLane() => Proc_HS_Lane.GetSingleton();
+        private Proc_HS_Discharge_Magazine Mag_HS_Discharge() => Proc_HS_Discharge_Magazine.GetSingleton();
+        private Proc_HS_Lane HS_Lane() => Proc_HS_Lane.GetSingleton();
 
         #endregion
 
@@ -215,7 +214,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
         public bool IsIdle()
         {
-            return Mag_HS_Feed().IsProcOK();
+            return Mag_HS_Discharge().IsProcOK();
         }
 
         #endregion

@@ -757,6 +757,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
             pickLane.m_Temp_Tray_Info.AssyRecords[index].CopyTo(AssyRecord);
             AssyRecord.IsExist = true;
             pickLane.m_Temp_Tray_Info.SetItemStatus(index, TrayItemStatus.Empty);
+            pickLane.m_Temp_Tray_Info.AssyRecords[index].IsExist = false;
         }
 
         protected abstract void TransferToLane();

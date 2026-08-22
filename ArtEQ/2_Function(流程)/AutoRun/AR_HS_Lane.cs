@@ -219,6 +219,12 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         /// <returns></returns>
         private Proc_HS_Feed_Magazine Mag_HS_Feed() => Proc_HS_Feed_Magazine.GetSingleton();
 
+        /// <summary>
+        /// 下游料盒(HS收料)
+        /// </summary>
+        /// <returns></returns>
+        private Proc_HS_Discharge_Magazine Mag_HS_Discharge() => Proc_HS_Discharge_Magazine.GetSingleton();
+
         #endregion
 
         #region //===================== 條件判斷 =====================
@@ -256,10 +262,10 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         {
             bool rValue = true;
 
-            // 1. 下游狀態確認
-            rValue &= Mag_HS_Feed().m_enuAction == BaseMagazine.enuAction.Magazine_Unload_Waiting ||
-                      Mag_HS_Feed().m_enuAction == BaseMagazine.enuAction.Magazine_Unload_Done ||
-                      Mag_HS_Feed().m_enuAction == BaseMagazine.enuAction.Initial_Done;
+            // 1. 下游狀態確認(下游是收料的 HS Discharge Magazine，不是上游的 HS Feed Magazine)
+            rValue &= Mag_HS_Discharge().m_enuAction == BaseMagazine.enuAction.Magazine_Unload_Waiting ||
+                      Mag_HS_Discharge().m_enuAction == BaseMagazine.enuAction.Magazine_Unload_Done ||
+                      Mag_HS_Discharge().m_enuAction == BaseMagazine.enuAction.Initial_Done;
 
             //2. Lane料帳確認
             rValue &= HS_Lane().m_Temp_Tray_Info.bIsExist;
