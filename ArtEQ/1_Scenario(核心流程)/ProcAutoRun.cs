@@ -61,6 +61,8 @@ namespace ArtEQ
                     AR_ASM_Lane.GetSingleton().Run_AutoRun();
                     AR_ASM_Arm.GetSingleton().Run_AutoRun();
                     AR_Mag_HS_Discharge.GetSingleton().Run_AutoRun();
+                    AR_Press_Lane.GetSingleton().Run_AutoRun();
+                    AR_Press_Station.GetSingleton().Run_AutoRun();
                     //AR_Mag_UnLoadNG.GetSingleton().Run_AutoRun();
                     //AR_Lane_Top.GetSingleton().Run_AutoRun();
                     //AR_Lane_Bottom.GetSingleton().Run_AutoRun();

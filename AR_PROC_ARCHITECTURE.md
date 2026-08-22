@@ -2,7 +2,9 @@
 
 > 給新 session 讀的架構速覽：這個專案的自動化流程(AutoRun)分成兩層——**Proc**(設備本體的狀態機)跟
 > **AR**(什麼時候該叫設備動作的決策層)。要碰 `AutoRun`／`Scenario`／`AR_*`／`Proc_*` 相關程式碼之前，先讀這份。
-> 內容是 2026-08-21 實作 ASM Lane 組裝流程時，逐檔讀出來的架構，不是憑空整理的規格書——拿不準的地方請直接重讀對應檔案確認。
+> 內容是逐檔讀出來的架構，不是憑空整理的規格書——拿不準的地方請直接重讀對應檔案確認。
+> **這是活文件**：每次寫新的 AR/Proc 遇到新的架構模式或踩到新的坑，都要回來補進這份檔案，不要只留在對話紀錄裡。
+> 建立：2026-08-21(ASM Lane 組裝流程)。更新：2026-08-22(HS Discharge Magazine、Press Lane/Station)。
 
 ## 核心機制：clsThreadProc + iStepIndex
 
@@ -26,10 +28,25 @@
 ### Proc 層——設備本體
 
 路徑：`ArtEQ/2_Function(流程)/Proc/{Arm,Lane,Magazine,Station}/Proc_*.cs`
-基底：`BaseArm`、`BaseLane`、`BaseMagazine`（都在 `ArtEQ/2_Function(流程)/BaseProc/`）
+基底：`BaseArm`、`BaseLane`、`BaseMagazine`、`BasePressStation`（都在 `ArtEQ/2_Function(流程)/BaseProc/`）
 
-Proc 類別代表一個實體設備（一支手臂、一條流道、一個料盒），自己的 `Scenario()` 是這個設備的動作細節
+Proc 類別代表一個實體設備（一支手臂、一條流道、一個料盒、一個站別），自己的 `Scenario()` 是這個設備的動作細節
 （馬達怎麼移動、真空怎麼開關、DI/DO 怎麼讀寫）。子類別只覆寫「這個設備專屬」的部分：
+
+**目前有三種設備原型**，差在「一次動作處理幾格」：
+
+| 原型 | 一次動作處理範圍 | 例子 |
+|---|---|---|
+| `BaseArm` | 單一格（Pick 一格、Place 一格，靠 col/row 指定） | `Proc_ASM_Arm` |
+| `BaseLane` | 整盤 Tray（Load 進來一整盤、Unload 出去一整盤） | `Proc_HS_Lane`、`Proc_ASM_Lane`、`Proc_Press_Lane` |
+| `BasePressStation` | **整盤裡「所有有料的格子」一次處理完**，不是逐格 | `Proc_Press_Station` |
+
+`BasePressStation` 這種「一次全部處理完」的站別型設備，寫法比 Arm 簡單很多：不用算 col/row、不用 Pick+Place
+兩段式，`RunPress()` 一次觸發，內部 `SetTrayWork()` 自己迴圈整盤（`for i in AssyRecords`，`IsExist` 的格子才處理）。
+之後如果要加 AOI 站這類「對整盤做一次檢測/加工」的設備，照 `BasePressStation`／`Proc_Press_Station` 抄，不要照
+`BaseArm` 抄。
+
+各原型子類別要覆寫的 hook：
 
 | 基底 | 子類別要覆寫的 hook | 用途 |
 |---|---|---|
@@ -39,17 +56,28 @@ Proc 類別代表一個實體設備（一支手臂、一條流道、一個料盒
 | | `TransferToLane()`（abstract） | 放料完成後怎麼把帳過到目的流道 |
 | `BaseLane` | `BindHardwarePoint()` | 綁定 Roller／Stopper 的 DI／DO |
 | | `ReadyToLoad()` / `ReadyToUnloadToNext()` / `WaitPreviousDoneLoad()` / `WaitNextLoadDone()` | 跟上下游（Magazine 或 Lane）交握 |
-| | `GetPreviousMagazineForBill()` / `GetNextLaneForBill()` / `GetNextMagazineForBill()` | 指定上下游是誰（視情況只覆寫需要的那個） |
+| | `GetPreviousMagazineForBill()` / `GetPreviousLaneForBill()` / `GetNextLaneForBill()` / `GetNextMagazineForBill()` | 指定上下游是誰（上游可能是 Magazine 或 Lane，下游同理，視情況只覆寫需要的那組） |
+| `BasePressStation` | `BindHardwarePoint()` | 綁定壓合氣缸的 DI／DO |
+| | `PressLane`（abstract 屬性） | 指定這個站別對應哪條 Lane |
+| | `SetTrayWork()`（abstract） | 整盤迴圈，把每個 `IsExist` 的格子標記處理完成（例如 `IsPressed=true`） |
 
 公開介面（AR 層會呼叫的）：
 - `RunInitial()`（全部都有）
 - Arm：`RunPick(PPStation, col, row)` / `RunPlace(PPStation, col, row)`
 - Lane：`RunLoad()` / `RunUnload()`（無參數，物件自己知道上下游是誰）
-- Magazine：`RunLoad(slotNo)`
+- Magazine：`RunLoad(slotNo)` / `RunUnload(slotNo)`——**方向名稱容易搞混，見下方警告**
+- Station：`RunPress()`（`BasePressStation` 專屬，其他站別依樣畫葫蘆會是 `RunXxx()`）
 - 狀態查詢：`IsProcOK()`（`!bIsProcessing && bIsReady`）、`m_enuAction`（每個基底自己定義的 enum，
   例如 `BaseArm.enuAction.Pick_Done`）
 
 都是 singleton，`GetSingleton()` 拿實例。
+
+> ⚠️ **`BaseMagazine.RunLoad(slot)` / `RunUnload(slot)` 的方向跟直覺可能相反**：
+> `RunLoad` = 「推料**給下游**」（dispense out，料盒 → Lane）；`RunUnload` = 「**收料回**料盒」（Lane → 料盒）。
+> 不是「Load＝裝料進料盒」。寫 Discharge 類（收料方向）的 Magazine AR 之前，先去
+> `BaseMagazine.cs` 對應的 `enuAction` 定義（`Magazine_Load` 區塊 vs `Magazine_Unload` 區塊）的中文註解確認一次，
+> 不要憑方法名字猜（`Proc_HS_Discharge_Magazine` 的 hook 也取了容易誤導的名字 `ReadyToLoad`/`TransferBillAfterLoading`，
+> 但實際上是被 `Magazine_Unload`（30000 系列）流程呼叫的——hook 命名跟它服務的方向不一致，見檔案本身求證）。
 
 ### AR 層——什麼時候該動
 
@@ -72,9 +100,17 @@ default              → Stop
 一個 AR 通常對應「一段搬運關係」，不是一個設備。例如 `AR_Mag_HS_Feed` 管的是「HS Feed Magazine → HS Lane」
 這段推料關係，物件本身持有兩個 Proc 的參照（`Mag_HS_Feed()`／`NextLane()`）。
 
-Arm 沒有現成模板可抄（`AR_ASM_Arm` 是第一個）：因為 Arm 是「Pick 一次 + Place 一次」而不是「Load/Unload」，
+Arm 型的 AR 現在有模板可抄了（`AR_ASM_Arm`）：跟 Load/Unload 型不同，Arm 是「Pick 一次 + Place 一次」，
 狀態機多一組 Pick→Place 的序列，條件判斷也不是查 `m_enuAction`，而是逐格比對兩條流道的 `clsTrayInfo`
-（細節見下一節）。
+（細節見下一節）。Station 型的 AR 也有模板了（`AR_Press_Station`）：比 Arm 簡單，只有「觸發一次 `RunXxx()` →
+等 `_Done`/`_Fail`」兩步，不用算格位；「還要不要再觸發」的判斷靠檢查整盤裡「有料但還沒處理完成」的格子還在不在
+（`AssyRecords.Any(v => v.IsExist && !v.IsPressed)` 這種寫法），不是額外記一個「有沒有觸發過」的旗標。
+
+> ⚠️ **抄別的 AR 檔案當模板時，物件參照(哪個 Lane／Magazine)要逐一核對，不能只信任變數名稱抄對了。**
+> `AR_HS_Lane.CanUnload()` 曾經真的把「檢查下游 Magazine」那段誤植成呼叫上游的 `Mag_HS_Feed()`（應該是
+> `Mag_HS_Discharge()`），編譯完全不會報錯，只有邏輯是錯的——因為兩個都是合法的 `Proc_XxxMagazine` 物件，
+> 型別對得上。加新 AR 時，尤其是複製既有檔案再改的情況，每一個 helper method（`XxxLane()`／`Mag_Xxx()`）
+> 實際指向誰、跟這個 AR 真正的上下游關係對不對得起來，要重新過一遍，不要只看變數名稱順眼就跳過。
 
 ## 帳料資料結構：clsTrayInfo / TrayItemStatus / clsAssyRecord
 
@@ -89,11 +125,33 @@ Arm 沒有現成模板可抄（`AR_ASM_Arm` 是第一個）：因為 Arm 是「P
 Lane 從上游接帳時（`BaseLane.ReceiveTrayBillFromPrevious`），依 `Materials[i].MaterialType` 把每一格的
 `arrItemStatus` 設成對應的 `HeatSink`/`Substrate`。Arm 撿料／放料（`TransferToArm`/`TransferToLane`）會把撿走
 的格子設回 `Empty`、放上去的格子設成 `Assembly`。**這代表兩條 Lane 之間要做「格子對格子」的比對，直接比
-`GetItemStatus(i)` 就知道某一格目前是什麼材料，不需要另外查 `AssyRecords.IsExist`。**
+`GetItemStatus(i)` 就知道某一格目前是什麼材料。**
 
 `clsTrayInfo.Clear()` 只清 `bIsExist`/`sTrayID`/`iRowID`/`iColumnID`，**不會清 `arrItemStatus`／`AssyRecords`／
 `Materials`**——重用一個 tray 物件前如果沒有明確覆寫每一格，舊資料會殘留（`BaseMagazine.cs` 的幾個測試建帳
 方法就是活生生的例子，見 `LESSONS.md`）。
+
+### `AssyRecords[i].IsExist` 要自己維護，不會自動跟著 `arrItemStatus` 走
+
+這個欄位**不是**自動衍生出來的，2026-08-21 做 ASM 那次漏了維護它，`CanUnload()` 裡引用它的完成判斷全部變成
+「永遠是 true」的死開關（原因：`Any(v => v.IsExist)` 在 `IsExist` 從來沒被設過 true 的情況下永遠是 false，
+取反後永遠通過，見 `LESSONS.md` 相關條目）。2026-08-22 補上維護，改成在下面三個既有動作點各加一行：
+
+| 動作 | 檔案／方法 | 要做的事 |
+|---|---|---|
+| Lane 從上游接到整盤 Tray | `BaseLane.ReceiveTrayBillFromPrevious()` | 跟著 `arrItemStatus` 同一個 `if/else` 分支，占用的格子設 `IsExist=true`，空的設 `false` |
+| Arm 從 Lane 撿走一格 | `BaseArm.TransferToArm()` | 撿走那格 `AssyRecords[index].IsExist = false`（跟 `SetItemStatus(index, Empty)` 同一行旁邊加） |
+| Arm 把料放到 Lane 一格 | 各 Arm 子類別自己的 `TransferToLane()`（如 `Proc_ASM_Arm.cs`） | 放上去那格明確設 `IsExist = true`（不要依賴 `AssyRecord.CopyTo(...)` 的巧合順序） |
+
+**「這個站別的作業有沒有整盤做完」的判斷，統一用這個寫法**（`AR_ASM_Lane`／`AR_Press_Lane` 的 `CanUnload()` 都這樣寫）：
+
+```csharp
+!laneOrStation.m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.<這個站別的完成旗標>);
+```
+
+`<完成旗標>` 依站別換：ASM 用 `IsAssembled`、Press 用 `IsPressed`、以後 AOI 站大概率是 `IsAoiInspected`。
+新增一個「會處理整盤、下一站要等它做完才能收料」的站別時，這個旗標要在該站別的 `SetTrayWork()`（或等效方法）
+裡設成 `true`，並且確保 `IsExist` 已經照上表被正確維護，不然這個 gate 又會變成死開關。
 
 ## 四個容易漏掉的註冊點
 
@@ -107,17 +165,27 @@ Lane 從上游接帳時（`BaseLane.ReceiveTrayBillFromPrevious`），依 `Mater
    不會真的反映這個 AR 的初始化狀態。
 4. **`ProcInitial.cs` case 2000 + 2010**：同上，但是 `Proc_Xxx`（設備本體）那組。
 
-## 實例：ASM 組裝流程（2026-08-21 做的）
+## 實例：目前完整生產線關係鏈
 
-當作範例參考，完整關係鏈：
+隨著新的 AR/Proc 加進來持續更新這張圖，當作查詢「這個 Proc 的上下游是誰、對應哪個 AR」的速查表：
 
 ```
-IC Feed Magazine --(AR_Mag_IC_Feed)--> ASM Lane <--(AR_ASM_Arm 從這裡撿散熱片)-- HS Lane <--(AR_Mag_HS_Feed)-- HS Feed Magazine
+HS Feed Magazine --(AR_Mag_HS_Feed)--> HS Lane --(AR_Mag_HS_Discharge)--> HS Discharge Magazine
+                                          ^
+                                          | AR_ASM_Arm 從這裡撿散熱片
+                                          |
+IC Feed Magazine --(AR_Mag_IC_Feed)--> ASM Lane
                                           |
                                   (AR_ASM_Lane 卸料，需整盤組裝完成)
                                           v
-                                      Press Lane
+                                      Press Lane <--(AR_Press_Station 整盤壓合)
+                                          |
+                                  (AR_Press_Lane 卸料，需整盤壓合完成)
+                                          v
+                                      AOI Lane（尚未做 AR）→ OK/NG 分流（尚未做 AR）
 ```
+
+### ASM 組裝（2026-08-21）
 
 - `AR_ASM_Arm`：逐格比對 `HS_Lane().m_Temp_Tray_Info` 是不是 `HeatSink`、`ASM_Lane().m_Temp_Tray_Info` 同一格
   是不是 `Substrate`，兩個都成立才 `RunPick(PPStation.HeatSink, col, row)` → `RunPlace(PPStation.IC, col, row)`。
@@ -126,3 +194,25 @@ IC Feed Magazine --(AR_Mag_IC_Feed)--> ASM Lane <--(AR_ASM_Arm 從這裡撿散�
 
 檔案：[AR_ASM_Lane.cs](ArtEQ/2_Function(流程)/AutoRun/AR_ASM_Lane.cs)、
 [AR_ASM_Arm.cs](ArtEQ/2_Function(流程)/AutoRun/AR_ASM_Arm.cs)
+
+### HS Discharge 收料（2026-08-22）
+
+- `AR_Mag_HS_Discharge`：跟 `AR_Mag_HS_Feed`（推料方向）剛好相反，找的是**空**槽位，觸發的是 `RunUnload(slotNo)`
+  （收料方向，見上面 `BaseMagazine` 方向警告）。
+- 同一批順手修的：`AR_HS_Lane.CanUnload()` 原本誤指到上游 `Mag_HS_Feed()`，改成真正的下游 `Mag_HS_Discharge()`；
+  `AR_Mag_HS_Feed.CanLoad()` 補上 `NextLane().m_enuAction == Unload_Done` 這個分支，不然 HS Lane 卸完第一輪
+  之後永遠回不去 `CanLoad()` 會接受的狀態，整條線只能跑一輪就卡住。
+
+檔案：[AR_Mag_HS_Discharge.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Mag_HS_Discharge.cs)
+
+### Press 壓合（2026-08-22）
+
+- 壓合站是**一次把整盤裡所有有料的格子壓完**，不是逐格 Pick/Place——`BasePressStation`／`AR_Press_Station`
+  就是為了這種「整盤一次處理完」的站別設計的（跟 Arm 型的逐格模式不同，見上面三種原型的表）。
+- `AR_Press_Station`：`Press_Lane().m_Temp_Tray_Info.bIsExist` + `ArrivalSignal` 都成立、且盤子裡「還有
+  `IsExist` 但 `!IsPressed` 的格子」時才觸發 `RunPress()`；壓完之後這個條件自然不再成立，不用額外記狀態。
+- `AR_Press_Lane`：跟 `AR_ASM_Lane` 同一個模板，Load 的上游從 Magazine 換成 Lane（`Proc_ASM_Lane`），
+  `CanUnload()` 的完成旗標從 `IsAssembled` 換成 `IsPressed`。
+
+檔案：[AR_Press_Lane.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Press_Lane.cs)、
+[AR_Press_Station.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Press_Station.cs)
