@@ -218,6 +218,15 @@ namespace ArtEQ
         /// <summary> 定時刷新，依 TrayInfo 目前狀態重繪 (沿用專案 Reflash 慣例) </summary>
         public void ReflashTimerFunc()
         {
+            // 格數(欄/列)可能因為 Recipe 換了新值、綁定的 Tray 換了一顆新的而改變，
+            // Initial() 只在綁定當下同步一次，這裡每次刷新都要重新同步，
+            // 不然畫面永遠停在 Initial() 當下那一刻的舊格數，不會跟著新 Tray 更新。
+            if (m_pTrayInfo != null)
+            {
+                iRows = m_pTrayInfo.iRows;
+                iCols = m_pTrayInfo.iCols;
+            }
+
             pnlCanvas.Invalidate();
         }
 

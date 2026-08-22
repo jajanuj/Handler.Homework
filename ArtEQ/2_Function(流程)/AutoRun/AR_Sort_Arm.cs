@@ -15,8 +15,6 @@ namespace ArtEQ._2_Function_流程_.AutoRun
     {
         #region Fields
 
-        private clsEnum.NGDischargeMode m_enuNgDischargeMode;
-
         /// <summary>
         /// 本次分料鎖定的格位：Pick 從 OK_Lane 撿的位置、Place 放到 NG_Lane 的位置。
         /// 兩邊位置不一定相同(NG_Lane 是找空格循序塞，不是同位置對應)。

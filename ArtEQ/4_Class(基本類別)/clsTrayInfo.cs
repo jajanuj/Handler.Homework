@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ArtControlLib;
 using ArtEQ._4_Class_基本類別_;
 using ArtTeach;
 using static ArtData.clsEnum;
@@ -35,7 +36,12 @@ namespace ArtEQ
 
         public clsTrayInfo()
         {
-            SetGridSize(iRows, iCols);
+            // 依 Recipe 設定 Tray 格數(欄/列)。Math.Max(1, ...) 防呆：
+            // 程式啟動早期 Recipe 可能還沒真的載入、GetValueInt 回傳預設 0，
+            // SetGridSize(0, 0) 會直接 throw，比原本寫死 2/3 的舊行為風險更高，所以擋下限。
+            int iRecipeRows = Math.Max(1, ucParameter.GetValueInt(enuPmtName.Rec_Tray_Row_Number));
+            int iRecipeCols = Math.Max(1, ucParameter.GetValueInt(enuPmtName.Rec_Tray_Column_Number));
+            SetGridSize(iRecipeRows, iRecipeCols);
 
             for (int i = 0; i < iRows * iCols; i++)
             {
@@ -158,6 +164,12 @@ namespace ArtEQ
         {
             if (p_Target == null)
                 return;
+
+            // 先同步格數(欄/列)，順便重配 arrItemStatus。
+            // 沒有這一步的話，來源跟目標建立時間點的 Recipe 值不同時，
+            // 目標的 arrItemStatus 長度會跟複製過去的 AssyRecords/Materials 對不上，
+            // SetItemStatus() 對超出舊長度的格子會靜默不做事(不噴例外，畫面就是不會更新)。
+            p_Target.SetGridSize(this.iRows, this.iCols);
 
             p_Target.bIsExist = this.bIsExist;
             p_Target.sTrayID = this.sTrayID;
