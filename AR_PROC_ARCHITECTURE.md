@@ -301,6 +301,13 @@ NG Feed Magazine --(AR_Mag_NG_Feed，供應空Tray)--> NG Lane --(AR_Mag_NG_Disc
   完全一樣**，`AR_Mag_NG_Feed`／`AR_NG_Lane`／`AR_Mag_NG_Discharge` 直接照 HS 那三個檔案改名字複製。
 - `Proc_OK_Lane.cs` 也踩了跟 `Proc_Press_Lane`/`Proc_AOI_Lane` 一樣的 `WaitPreviousDoneLoad()` 多餘覆寫，
   一併拿掉了（第三個中招的檔案，見 `LESSONS.md` L8）。
+- **`AR_Mag_OK_Discharge.cs`／`AR_Mag_NG_Discharge.cs` 照抄 `AR_Mag_HS_Discharge.cs` 範本時，`CanUnload()`
+  判斷上游 Lane 出料到位的狀態值抄錯**：寫成 `Unload_Waiting_Sign`（case 60500，料已送出只等下游 ACK）而非
+  `Unload_Waiting`（case 60200，Lane 卡著等下游準備好的早期狀態）。因為 `Proc_OK_Lane`／`Proc_NG_Lane` 的
+  `ReadyToUnloadToNext()` 要 Magazine 先進 `Magazine_Unload_Waiting` 才放行過 60200，而 Magazine 要靠這裡
+  呼叫 `RunUnload()` 才會進那個狀態——等 `Unload_Waiting_Sign` 的話 Lane 永遠到不了，兩邊互相等死鎖，
+  實測結果是 OK/NG Discharge Magazine 完全沒有動作。已修正為 `Unload_Waiting`。詳見 `LESSONS.md` L10。
+  **複製 AR 檔案當範本時，凡是拿來跟 `enuAction` 狀態比較的常數都要逐一比對原檔，不能只看邏輯形狀像不像。**
 
 檔案：[AR_OK_Lane.cs](ArtEQ/2_Function(流程)/AutoRun/AR_OK_Lane.cs)、
 [AR_Mag_OK_Discharge.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Mag_OK_Discharge.cs)、

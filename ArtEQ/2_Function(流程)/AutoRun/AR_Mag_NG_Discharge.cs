@@ -157,7 +157,9 @@ namespace ArtEQ._2_Function_流程_.AutoRun
             rValue &= CheckNextEmptySlotNo() >= 0;
 
             // 3. 上游 NG Lane 已經出料到位，等待被收走
-            rValue &= NG_Lane().m_enuAction == BaseLane.enuAction.Unload_Waiting_Sign;
+            // 注意：用 Unload_Waiting（case 60200），不能用 Unload_Waiting_Sign（case 60500）。
+                // 原因同 AR_Mag_OK_Discharge.cs，避免 Lane 跟 Magazine 互相卡死。詳見 LESSONS.md。
+                rValue &= NG_Lane().m_enuAction == BaseLane.enuAction.Unload_Waiting;
 
             // 4. Magazine 流程就緒
             rValue &= Mag_NG_Discharge().IsProcOK();

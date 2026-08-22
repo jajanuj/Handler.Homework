@@ -157,7 +157,12 @@ namespace ArtEQ._2_Function_流程_.AutoRun
             rValue &= CheckNextEmptySlotNo() >= 0;
 
             // 3. 上游 OK Lane 已經出料到位，等待被收走
-            rValue &= OK_Lane().m_enuAction == BaseLane.enuAction.Unload_Waiting_Sign;
+            // 注意：用 Unload_Waiting（case 60200，Lane 卡著等下游準備好的早期狀態），
+                // 不能用 Unload_Waiting_Sign（case 60500，料已送出只等下游 ACK 的晚期狀態）。
+                // Proc_OK_Lane.ReadyToUnloadToNext() 要 Magazine 先進 Magazine_Unload_Waiting 才放行過 60200，
+                // Magazine 要靠這裡呼叫 RunUnload() 才會進 Magazine_Unload_Waiting，
+                // 等 Unload_Waiting_Sign 的話 Lane 永遠到不了，會互相卡死。詳見 LESSONS.md。
+                rValue &= OK_Lane().m_enuAction == BaseLane.enuAction.Unload_Waiting;
 
             // 4. Magazine 流程就緒
             rValue &= Mag_OK_Discharge().IsProcOK();

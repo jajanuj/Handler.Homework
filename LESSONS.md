@@ -3,6 +3,18 @@
 > 新條目加在最上面。每條格式：`## L{編號} [日期] 一行標題`，內文固定三欄：情境／錯誤做法／正確做法，總長 ≤6 行。
 > 動手改程式碼前，先掃一遍標題行。
 
+## L10 [2026-08-22] 複製 AR_Mag_HS_Discharge.cs 當範本時把 Unload_Waiting 抄成 Unload_Waiting_Sign，Lane↔Magazine 互相卡死
+
+情境：`AR_Mag_OK_Discharge.cs`／`AR_Mag_NG_Discharge.cs` 照 `AR_Mag_HS_Discharge.cs` 範本寫，`CanUnload()` 判斷
+「上游 Lane 出料到位」卻寫成 `Unload_Waiting_Sign`（case 60500，料已送出只等下游 ACK）而非 `Unload_Waiting`
+（case 60200，Lane 卡著等下游準備好的早期狀態）。`Proc_OK_Lane.ReadyToUnloadToNext()` 要 Magazine 先進
+`Magazine_Unload_Waiting` 才放行過 60200，而 Magazine 要靠這裡呼叫 `RunUnload()` 才會進那個狀態——等
+`Unload_Waiting_Sign` 的話 Lane 永遠到不了，兩邊互相等死鎖。實測 log：`OK_Lane` 卡在 `Case:60200` 不動，
+`OK_Discharge_Magazine` 從頭到尾沒再進 `Magazine_Unload`(30000) 系列。
+錯誤做法：複製範本檔案時只比對「大致邏輯像不像」，沒有逐行比對常數值是否一致。
+正確做法：改回 `Unload_Waiting`，跟能動的 `AR_Mag_HS_Discharge.cs` 一致。以後複製 AR 檔案當範本，凡是拿來跟
+`enuAction` 狀態做比較的常數，都要跟原檔逐一比對過一次，不能只看「看起來一樣」。
+
 ## L9 [2026-08-22] AR 的 CanUnload() 檢查下游狀態時漏掉「下游剛做完、閒置中」那個分支，兩條 Lane 互相等死鎖
 
 情境：`AR_ASM_Lane.CanUnload()` 檢查 `Press_Lane().m_enuAction == Load_Waiting || Initial_Done` 才觸發卸料。
