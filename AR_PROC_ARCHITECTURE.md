@@ -327,12 +327,14 @@ NG Feed Magazine --(AR_Mag_NG_Feed，供應空Tray)--> NG Lane --(AR_Mag_NG_Disc
   Pick 跟 Place 用的 (col,row) 一開始就是兩組獨立算出來的，不是同一組數字重複用兩次(跟 `AR_ASM_Arm` 的
   「同位置」模式不一樣，這是本文件目前唯一一個 Pick/Place 位置不對應的 Arm)。
 
-**NG 出料時機是可設定的**，Recipe 參數 `enuNGDischargeMode`(`ArtData/clsEnum.cs`)：
-- `Immediate`：這一輪(對應目前 `OK_Lane` 那盤)`Sort_Arm` 分完就出料，不等下一輪的 NG 湊在一起。
+**NG 出料時機是可設定的**，Recipe 參數 `clsEnum.NGDischargeMode`(`ArtData/clsEnum.cs`)：
+- `PerCycle`：這一輪(對應目前 `OK_Lane` 那盤)`Sort_Arm` 分完就出料，不等下一輪的 NG 湊在一起。
+  (原本命名 `Immediate`，2026-08-22 改名——「即時」給人單顆分完馬上出的錯覺，實際是逐輪出料。)
 - `FullTray`：`NG_Lane` 自己收滿整盤(跨好幾輪 `OK_Lane` 循環)才出料。
 
-目前 `AR_NG_Lane.GetNGDischargeMode()` 是寫死回傳 `FullTray` 的佔位方法，之後要串接真的 Recipe 查詢
-(比照 `BasePressStation`/`BaseAoiStation` 的 `GetPmt()` 包法)。
+`AR_NG_Lane.GetNGDischargeMode()` 已經接上真的 Recipe 參數(`Rec_Sort_Type`，透過
+`ucParameter.GetValueInt()` 讀值後轉型)，不再是寫死的佔位方法；`ucFunctionSetting.cs` 有對應的
+`cboSortType` 下拉選單(`DataSource = Enum.GetNames(typeof(NGDischargeMode))`)。
 
 **「這一輪分完了沒」用鎖定的旗標，不是即時查詢**——`AR_Sort_Arm.bIsSortDone`：`Sort_Arm` 自己在找不到
 `OK_Lane` 裡下一個待搬 NG 格時設成 `true`，下次又找到新的待搬格才清回 `false`。`Immediate` 模式的
@@ -346,3 +348,40 @@ NG Feed Magazine --(AR_Mag_NG_Feed，供應空Tray)--> NG Lane --(AR_Mag_NG_Disc
 確保 `OK_Lane` 要等 `Sort_Arm` 把 NG 都搬完才出料到 `OK_Discharge_Magazine`。
 
 檔案：[AR_Sort_Arm.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Sort_Arm.cs)
+
+### Tray 格數 / Magazine Slot 數改成 Recipe 動態值（2026-08-22）
+
+原本 `clsTrayInfo` 的 Row/Col 跟 `BaseMagazine` 的 Slot 數都是寫死的常數(2×3、5 個 Slot)。改成 Recipe 參數
+驅動時，關鍵發現是：**格子計數的地方全部都已經用 `tray.iRows`/`tray.iCols`／`m_iUseSlotCount` 動態算，沒有
+任何地方寫死字面數字**——`AR_ASM_Arm.cs`、`AR_AOI_Station.cs`、`BaseMagazine.cs`、`ucTrayDisplay.cs` 的畫面
+渲染都已經是動態讀值。所以真正要改的地方很小：
+
+- **`clsTrayInfo` 建構子**：改成 `SetGridSize(Math.Max(1, GetPmt(Rec_Tray_Row_Number)), Math.Max(1, GetPmt(Rec_Tray_Column_Number)))`，
+  取代原本寫死的 `2`/`3`。外面包 `Math.Max(1, ...)` 防呆——`SetGridSize` 對 `<=0` 會直接 `throw`，Recipe
+  還沒真的載入、`GetValueInt` 回傳預設 0 時會炸掉建構子，比原本寫死的舊行為風險更高，一定要擋下限。
+- **`clsTrayInfo.CopyTo()`**：原本沒有同步 `iRows`/`iCols`(只複製 `Materials`/`AssyRecords` 內容)，格數固定
+  2×3 時從沒被踩到。一旦格數可變，這是整條產線帳料傳遞的核心路徑(Lane→Lane、Magazine→Lane、Arm 都靠它)，
+  來源跟目標建立時間點的 Recipe 值不同時，目標的 `arrItemStatus` 長度會跟複製過去的資料對不上，`SetItemStatus()`
+  對超出舊長度的格子靜默不做事(不噴例外，畫面就是不會更新)。修法：`CopyTo()` 一開始先呼叫
+  `p_Target.SetGridSize(this.iRows, this.iCols)`，把目標同步成來源的格數。
+- **`BaseMagazine.RunInitial()`**：改成先 `SetMagazineSlotCount(GetPmt(Rec_Magazine_Slot_Number))` 再建帳。
+  `NormalizeSlotCount()` 本來就會夾在 `[1, m_iSlotMax]`(`m_iSlotMax=5` 是硬體上限，維持寫死，Recipe 只能在
+  這個上限內選，不會被 Recipe 蓋掉)，Recipe 沒載入回傳 0 也會被夾到 1，不需要額外防呆。
+  既有的 `RunInitial(int p_iSlotCount)` overload(目前沒人呼叫，保留給未來手動指定用)拆成共用的
+  `RunInitialCore()`，避免 `RunInitial()` 的 Recipe 讀值蓋掉 `RunInitial(int)` 的外部指定值。
+  `InitialMagazineBill()` → `clsMagazineInfo.InitialSlot(slotMax)` 本來就是每次都 `Clear()` 整個 Dictionary
+  重建 `1..slotMax`，所以 Recipe 調小 Slot 數會確實收斂 Magazine 的可用 Slot 數，不用額外處理。
+
+**踩到的坑**：資料模型(`clsTrayInfo`)改成動態讀 Recipe 之後，`ucTrayDisplay` 畫面沒有跟著變——因為
+`Initial(trayInfo)` 只在綁定當下同步一次 `iRows`/`iCols` 到控制項自己的欄位，`ReflashTimerFunc()`(定時器
+持續呼叫)只有 `Invalidate()` 重繪，沒有重新同步格數。修法：`ReflashTimerFunc()` 裡也要重讀
+`m_pTrayInfo.iRows`/`iCols`。詳見 `LESSONS.md` L11——**這是一個通用教訓：資料模型的某個屬性改成動態可變時，
+要連著往下追每一個顯示/消費該屬性的地方，確認是「每次都重讀」還是「綁定當下讀一次就不會再變」。**
+
+Recipe 改變 Row/Col/Slot 數之後，是「下一個新建的物件才套用新值」，不會追溯修改運轉中已存在的 Tray/Magazine
+帳——跟 `MotorHighSpeed`、`CalculateSlotPosZ` 等其他 Recipe 參數的讀值方式一致(即時讀、不快取，但不主動
+推播給已經存在的舊物件)。
+
+檔案：[clsTrayInfo.cs](ArtEQ/4_Class(基本類別)/clsTrayInfo.cs)、
+[ucTrayDisplay.cs](ArtEQ/C_Component(介面元件)/ucTrayDisplay.cs)、
+[BaseMagazine.cs](ArtEQ/2_Function(流程)/BaseProc/BaseMagazine.cs)

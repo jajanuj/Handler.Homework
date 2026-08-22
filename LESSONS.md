@@ -3,6 +3,16 @@
 > 新條目加在最上面。每條格式：`## L{編號} [日期] 一行標題`，內文固定三欄：情境／錯誤做法／正確做法，總長 ≤6 行。
 > 動手改程式碼前，先掃一遍標題行。
 
+## L11 [2026-08-22] UI 顯示元件 Initial() 只綁定一次，資料模型改了格數畫面不會跟著動
+
+情境：`clsTrayInfo` 的 Row/Col 改成讀 Recipe 動態值後，實測改 Recipe 為 3×4，debugger 證實 `clsTrayInfo` 建構子
+確實讀到 3/4，但畫面還是照舊格式畫。追到 `ucTrayDisplay.Initial(trayInfo)` 只在綁定當下把 `iRows`/`iCols`
+從 Tray 同步到控制項自己的欄位一次，`Initial()` 只在 `ucManualForm` 建構子跑一次；之後的 `ReflashTimerFunc()`
+(定時器持續呼叫)只有 `Invalidate()` 重繪，沒有重新同步格數，畫面永遠停在第一次綁定當下的舊值。
+錯誤做法：只確認資料模型(`clsTrayInfo`)讀到新值就結案，沒有連著往下追顯示元件是否也是「即時讀」還是「綁定當下讀一次」。
+正確做法：`ReflashTimerFunc()` 裡也要重新讀 `m_pTrayInfo.iRows`/`iCols`，不能假設 `Initial()` 綁一次就永遠同步。
+凡是「資料模型的某個屬性改成動態可變」，同時要檢查所有顯示/消費該屬性的地方是「每次都重讀」還是「只在綁定當下讀一次」。
+
 ## L10 [2026-08-22] 複製 AR_Mag_HS_Discharge.cs 當範本時把 Unload_Waiting 抄成 Unload_Waiting_Sign，Lane↔Magazine 互相卡死
 
 情境：`AR_Mag_OK_Discharge.cs`／`AR_Mag_NG_Discharge.cs` 照 `AR_Mag_HS_Discharge.cs` 範本寫，`CanUnload()` 判斷
