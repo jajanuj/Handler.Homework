@@ -13,7 +13,6 @@ namespace ArtEQ._3_UI_介面管理_._2_Manual_手動模式_
     {
         #region Constant
 
-        private const int m_iSlotMax = 5;
         private static ucManualForm m_singleton;
         private static readonly object s_lock = new object();
 
@@ -209,7 +208,9 @@ namespace ArtEQ._3_UI_介面管理_._2_Manual_手動模式_
                 if (magazine == null)
                     continue;
 
-                for (int slotNo = 1; slotNo <= m_iSlotMax; slotNo++)
+                // 依這顆 Magazine 現在實際的 Slot 數灌測試資料，不寫死數字——
+                // 不然 Recipe 把 Slot 數調大之後，超過舊寫死上限的那幾格永遠不會有測試資料。
+                for (int slotNo = 1; slotNo <= magazine.GetMagazineSlotCount(); slotNo++)
                 {
                     switch (magazineName)
                     {

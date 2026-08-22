@@ -9,12 +9,6 @@ namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
 {
     public partial class ucAutoRun : ucBaseUserControl
     {
-        #region Constant
-
-        private const int m_iSlotMax = 6;
-
-        #endregion
-
         #region Fields
 
         private Dictionary<string, BaseMagazine> m_Magazines = new Dictionary<string, BaseMagazine>();
@@ -95,7 +89,9 @@ namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
                 if (magazine == null)
                     continue;
 
-                for (int slotNo = 1; slotNo <= m_iSlotMax; slotNo++)
+                // 依這顆 Magazine 現在實際的 Slot 數灌測試資料，不寫死數字——
+                // 跟 ucManualForm.cs 的 btnAddData_Click() 同一個坑，這裡是獨立複製的一份。
+                for (int slotNo = 1; slotNo <= magazine.GetMagazineSlotCount(); slotNo++)
                 {
                     switch (magazineName)
                     {

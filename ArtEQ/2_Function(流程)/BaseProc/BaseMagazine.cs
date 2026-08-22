@@ -628,7 +628,7 @@ namespace ArtEQ
         /// <summary>
         /// Magazine 最大 Slot 數，硬體上限。
         /// </summary>
-        protected int m_iSlotMax = 5;
+        protected int m_iSlotMax = 10;
 
         /// <summary>
         /// 目前使用者設定要使用的 Slot 數。
@@ -1448,7 +1448,7 @@ namespace ArtEQ
 
         /// <summary>
         /// 設定本次 Magazine 要使用的 Slot 數。
-        /// 最小 1，最大 m_iSlotMax，目前 m_iSlotMax = 5。
+        /// 最小 1，最大 m_iSlotMax，目前 m_iSlotMax = 10。
         /// </summary>
         public void SetMagazineSlotCount(int p_iSlotCount)
         {

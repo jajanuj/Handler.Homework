@@ -46,7 +46,8 @@ namespace ArtEQ
             this.tlpMain.TabIndex = 0;
             // 
             // flpSlot
-            // 
+            //
+            this.flpSlot.AutoScroll = false;
             this.flpSlot.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpSlot.Location = new System.Drawing.Point(1, 1);
             this.flpSlot.Margin = new System.Windows.Forms.Padding(1);

@@ -92,7 +92,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                         iStepIndex = 100000;
                         if (CheckNextEmptySlotNo() < 0)
                         {
-                            clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Empty_Magazine, NeedEqStop: false);
+                            //clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Empty_Magazine, NeedEqStop: false);
                         }
                     }
                     else if (Mag_HS_Discharge().m_enuAction == BaseMagazine.enuAction.Magazine_Unload_Fail)
