@@ -263,6 +263,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
             // 1. 下游 AOI Lane 狀態確認
             rValue &= AOI_Lane().m_enuAction == BaseLane.enuAction.Load_Waiting ||
+                      AOI_Lane().m_enuAction == BaseLane.enuAction.Unload_Done ||
                       AOI_Lane().m_enuAction == BaseLane.enuAction.Initial_Done;
 
             //2. Lane料帳確認

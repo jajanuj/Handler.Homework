@@ -3,6 +3,18 @@
 > 新條目加在最上面。每條格式：`## L{編號} [日期] 一行標題`，內文固定三欄：情境／錯誤做法／正確做法，總長 ≤6 行。
 > 動手改程式碼前，先掃一遍標題行。
 
+## L9 [2026-08-22] AR 的 CanUnload() 檢查下游狀態時漏掉「下游剛做完、閒置中」那個分支，兩條 Lane 互相等死鎖
+
+情境：`AR_ASM_Lane.CanUnload()` 檢查 `Press_Lane().m_enuAction == Load_Waiting || Initial_Done` 才觸發卸料。
+第一輪能跑是因為 `Initial_Done`（開機才有、只出現一次）讓 `Press_Lane` 提早卡位等待；第二輪開始 `Press_Lane`
+做完會停在 `Unload_Done`，不在清單裡，`ASM_Lane` 永遠不觸發卸料，也就永遠到不了 `Press_Lane.CanLoad()` 要看的
+`Unload_Waiting`——兩邊互相等對方先進入「正在等待」的姿勢，死結。`AR_Press_Lane`／`AR_AOI_Lane` 檢查各自下游
+Lane 時也是同一個洞。
+錯誤做法：`CanXxx()` 檢查下游 Lane 狀態時，只列「下游正在主動等待」的狀態（`Load_Waiting`），漏了「下游剛跑完
+一輪、閒置中」的終點狀態（`Unload_Done`）。
+正確做法：跟 `AR_Mag_HS_Feed`／`AR_Mag_IC_Feed` 檢查目標 Lane 時一樣，把「閒置中」的終點狀態也列進 OR 清單。
+`AR_ASM_Lane.cs`／`AR_Press_Lane.cs`／`AR_AOI_Lane.cs` 三個的下游檢查都補上 `Unload_Done` 了。
+
 ## L8 [2026-08-22] Lane→Lane 交握的 WaitPreviousDoneLoad() 根本不該覆寫、不該輪詢上游狀態
 
 情境：`Proc_Press_Lane.WaitPreviousDoneLoad()` 覆寫成輪詢 `ASM_Lane.m_enuAction`。第一次改成查 `Unload_Done`，

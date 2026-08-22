@@ -5,7 +5,7 @@
 > 內容是逐檔讀出來的架構，不是憑空整理的規格書——拿不準的地方請直接重讀對應檔案確認。
 > **這是活文件**：每次寫新的 AR/Proc 遇到新的架構模式或踩到新的坑，都要回來補進這份檔案，不要只留在對話紀錄裡。
 > 建立：2026-08-21(ASM Lane 組裝流程)。更新：2026-08-22(HS Discharge Magazine、Press Lane/Station、AOI Lane/Station、
-> Lane→Lane 交握 WaitPreviousDoneLoad() 不該覆寫的 bug)。
+> Lane→Lane 交握 WaitPreviousDoneLoad() 不該覆寫的 bug、CanUnload() 下游狀態清單漏掉 Unload_Done 導致死結的 bug)。
 
 ## 核心機制：clsThreadProc + iStepIndex
 
@@ -108,6 +108,15 @@ default              → Stop
 
 一個 AR 通常對應「一段搬運關係」，不是一個設備。例如 `AR_Mag_HS_Feed` 管的是「HS Feed Magazine → HS Lane」
 這段推料關係，物件本身持有兩個 Proc 的參照（`Mag_HS_Feed()`／`NextLane()`）。
+
+> ⚠️ **`CanLoad()`/`CanUnload()` 檢查下游狀態時，OR 清單一定要同時包含「下游正在等待」跟「下游剛做完一輪、
+> 閒置中」兩種狀態，只列前者會死結。** 例如檢查下游 Lane 準備好收料，不能只列 `Load_Waiting`（下游正在主動
+> 等待進料），還要列 `Unload_Done`（下游剛完成上一輪、目前閒置）——不然下游剛做完一輪、還沒開始等待下一輪時，
+> 上游看不到任何一個清單裡的狀態，永遠不觸發；下游那邊又要等上游先觸發才會開始等待，兩邊互相卡住。
+> 2026-08-22 `AR_ASM_Lane`／`AR_Press_Lane`／`AR_AOI_Lane` 三個的下游檢查原本都只列 `Load_Waiting`／
+> `Initial_Done`，第一輪靠 `Initial_Done`（只出現一次）僥倖跑過，第二輪就三個一起卡（見 `LESSONS.md` L9）。
+> `AR_Mag_HS_Feed`／`AR_Mag_IC_Feed` 檢查目標 Lane 時是對的範例（`Load_Done || Unload_Done || Initial_Done`），
+> 新寫一個 AR 的下游檢查時，直接照這三個狀態的組合抄，不要只抄看起來像「在等待」的那一個。
 
 Arm 型的 AR 現在有模板可抄了（`AR_ASM_Arm`）：跟 Load/Unload 型不同，Arm 是「Pick 一次 + Place 一次」，
 狀態機多一組 Pick→Place 的序列，條件判斷也不是查 `m_enuAction`，而是逐格比對兩條流道的 `clsTrayInfo`

@@ -264,6 +264,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
             // 1. 下游 Press Lane 狀態確認
             rValue &= Press_Lane().m_enuAction == BaseLane.enuAction.Load_Waiting ||
+                      Press_Lane().m_enuAction == BaseLane.enuAction.Unload_Done ||
                       Press_Lane().m_enuAction == BaseLane.enuAction.Initial_Done;
 
             //2. Lane料帳確認
