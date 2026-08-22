@@ -3,6 +3,26 @@
 > 新條目加在最上面。每條格式：`## L{編號} [日期] 一行標題`，內文固定三欄：情境／錯誤做法／正確做法，總長 ≤6 行。
 > 動手改程式碼前，先掃一遍標題行。
 
+## L13 [2026-08-22] 同名但不同物件的常數散落在多個檔案，改一個以為全改了，其實漏兩個
+
+情境：把 Magazine Slot 數改成 Recipe 動態值，只改了 `BaseMagazine.m_iSlotMax`。結果「Add Data」測試按鈕在
+Manual 分頁跟 AutoRun 分頁各自灌資料到超過舊上限的 Slot 都沒有效果——追了兩輪(先懷疑資料層邏輯、又懷疑
+UI 顯示元件)才發現 `ucManualForm.cs`、`ucAutoRun.cs` 各自都有一個**自己獨立宣告、剛好同名**的
+`m_iSlotMax`(分別寫死 5 跟 6)，跟 `BaseMagazine.m_iSlotMax` 完全無關，是三個不同的常數。
+錯誤做法：看到 `m_iSlotMax` 就當成同一個東西，只改定義的那個檔案，沒有全專案搜尋這個識別字有幾個宣告。
+正確做法：改任何看起來像「全域上限/設定值」的常數之前，先 `Grep` 整個專案有幾個地方宣告同名識別字
+(不是只搜尋用到的地方，是搜尋 `private/protected/public ... 型別 識別字 =` 這種宣告式)，同名不代表同一個。
+
+## L12 [2026-08-22] WinForms Button 的 TextAlign 置中在按鈕很矮時會有固定留白，看起來像沒置中
+
+情境：Magazine Slot 按鈕縮到 `~15px` 高之後，字型大小已經確認一致(用 debugger 量過 `Font.Height` 兩種
+格數都是 11)，但文字看起來偏上或偏下、留白不均勻。原因是 `TextAlign = MiddleCenter` 靠 GDI 內建的文字
+置中，會保留一段**不隨控制項高度縮放的固定內部留白**，控制項越矮這段固定留白占比就越明顯。
+錯誤做法：以為「字放大/縮小」就能解決留白不均的觀感問題，一直調整字型大小公式。
+正確做法：不要依賴 Button 內建 `TextAlign`，`Text` 留空，改接 `Paint` 事件用
+`TextRenderer.DrawText(..., TextFormatFlags.NoPadding)` 自己量測文字範圍、手動算出正中央座標畫，
+不受那段固定留白影響。
+
 ## L11 [2026-08-22] UI 顯示元件 Initial() 只綁定一次，資料模型改了格數畫面不會跟著動
 
 情境：`clsTrayInfo` 的 Row/Col 改成讀 Recipe 動態值後，實測改 Recipe 為 3×4，debugger 證實 `clsTrayInfo` 建構子

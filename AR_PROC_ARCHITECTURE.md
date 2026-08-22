@@ -385,3 +385,19 @@ Recipe 改變 Row/Col/Slot 數之後，是「下一個新建的物件才套用�
 檔案：[clsTrayInfo.cs](ArtEQ/4_Class(基本類別)/clsTrayInfo.cs)、
 [ucTrayDisplay.cs](ArtEQ/C_Component(介面元件)/ucTrayDisplay.cs)、
 [BaseMagazine.cs](ArtEQ/2_Function(流程)/BaseProc/BaseMagazine.cs)
+
+**後續補完（Magazine Slot 數這條線，2026-08-22）**：`m_iSlotMax`(硬體上限，`BaseMagazine.cs`)後來又
+調成 10。過程中發現 `ucManualForm.cs`／`ucAutoRun.cs` 的「Add Data」測試按鈕**各自宣告了一個同名但完全
+獨立的 `m_iSlotMax`**(分別寫死 5、6)，只改 `BaseMagazine` 那份完全沒用——這是本文件目前唯一一個「改常數
+要先搜尋整個專案有幾個同名宣告」的案例，詳見 `LESSONS.md` L13。
+`ucMagazineDisplay.cs`(Magazine Slot 按鈕清單，跟 `ucTrayDisplay.cs` 是同一層級但獨立的顯示元件)本來就是
+照 `m_trayInfo.Count` 動態產生按鈕，但一樣踩了 L11 那個「`ReflashTimerFunc()` 沒有重新同步」的坑(這次是
+按鈕**顆數**沒跟著變，不是格子大小)，額外還踩到 `AutoScroll` 會在子控制項被點選時自動捲動、把更早的 Slot
+推出畫面，以及 WinForms `Button.TextAlign` 在按鈕矮到一定程度後留白不隨控制項縮放的問題(L12)。
+最終方案：按鈕高度／字型大小都在 `BuildSlots()` 當下依 `flpSlot` 實際可視高度現場計算(不再猜固定像素值)，
+字型大小額外釘住「7 格時的高度」當上限、不再繼續縮小(操作者反饋 7 格字剛好，再縮太小不好讀)，文字改用
+`TextRenderer.DrawText(..., TextFormatFlags.NoPadding)` 在 `Paint` 事件手動置中，不吃 Button 內建 `TextAlign`。
+
+檔案：[ucManualForm.cs](ArtEQ/3_UI(介面管理)/2_Manual(手動模式)/ucManualForm.cs)、
+[ucAutoRun.cs](ArtEQ/3_UI(介面管理)/1_Operator(操作模式)/ucAutoRun.cs)、
+[ucMagazineDisplay.cs](ArtEQ/C_Component(介面元件)/ucMagazineDisplay.cs)
