@@ -71,14 +71,8 @@ namespace ArtEQ._2_Function_流程_.Proc
             return okMagazine.m_enuAction == BaseMagazine.enuAction.Magazine_Unload_Done;
         }
 
-        protected override bool WaitPreviousDoneLoad()
-        {
-            var AOI_Lane = GetPreviousLaneForBill();
-            if (AOI_Lane == null)
-                return false;
-
-            return AOI_Lane.m_enuAction == enuAction.Unload_Waiting_Sign;
-        }
+        // WaitPreviousDoneLoad()：Lane→Lane 交握不需要覆寫，吃 BaseLane 的預設值 (return true) 即可。
+        // 見 LESSONS.md L8、AR_PROC_ARCHITECTURE.md「Lane→Lane 交握」一節。
 
         protected override bool ReadyToLoad()
         {

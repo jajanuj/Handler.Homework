@@ -27,6 +27,16 @@ namespace ArtData
             Ng,
         }
 
+        /// <summary> NG 出料模式 </summary>
+        public enum enuNGDischargeMode
+        {
+            /// <summary> 即時出料：這一輪 OK_Lane 分料結束就出 </summary>
+            Immediate,
+
+            /// <summary> 滿盤出料：NG_Lane 自己收滿整盤才出 </summary>
+            FullTray
+        }
+
         public enum PPStation
         {
             None,

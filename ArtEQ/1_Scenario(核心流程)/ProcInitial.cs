@@ -92,6 +92,12 @@ namespace ArtEQ
                     AR_Press_Station.GetSingleton().RunInitial();
                     AR_AOI_Lane.GetSingleton().RunInitial();
                     AR_AOI_Station.GetSingleton().RunInitial();
+                    AR_OK_Lane.GetSingleton().RunInitial();
+                    AR_Mag_OK_Discharge.GetSingleton().RunInitial();
+                    AR_Mag_NG_Feed.GetSingleton().RunInitial();
+                    AR_NG_Lane.GetSingleton().RunInitial();
+                    AR_Mag_NG_Discharge.GetSingleton().RunInitial();
+                    AR_Sort_Arm.GetSingleton().RunInitial();
 
                     //範例
                     //AR_Mag_LoadOK.GetSingleton().RunInitial();
@@ -133,6 +139,12 @@ namespace ArtEQ
                     ProcInitialDone &= AR_Press_Station.GetSingleton().IsProcOK();
                     ProcInitialDone &= AR_AOI_Lane.GetSingleton().IsProcOK();
                     ProcInitialDone &= AR_AOI_Station.GetSingleton().IsProcOK();
+                    ProcInitialDone &= AR_OK_Lane.GetSingleton().IsProcOK();
+                    ProcInitialDone &= AR_Mag_OK_Discharge.GetSingleton().IsProcOK();
+                    ProcInitialDone &= AR_Mag_NG_Feed.GetSingleton().IsProcOK();
+                    ProcInitialDone &= AR_NG_Lane.GetSingleton().IsProcOK();
+                    ProcInitialDone &= AR_Mag_NG_Discharge.GetSingleton().IsProcOK();
+                    ProcInitialDone &= AR_Sort_Arm.GetSingleton().IsProcOK();
                     //ProcInitialDone &= AR_Seal_Lane.GetSingleton().IsProcOK();
                     //ProcInitialDone &= AR_AOI_Lane.GetSingleton().IsProcOK();
                     //ProcInitialDone &= AR_OK_Lane.GetSingleton().IsProcOK();
@@ -184,6 +196,12 @@ namespace ArtEQ
                     Proc_Press_Station.GetSingleton().RunInitial();
                     Proc_AOI_Lane.GetSingleton().RunInitial();
                     Proc_AOI_Station.GetSingleton().RunInitial();
+                    Proc_OK_Lane.GetSingleton().RunInitial();
+                    Proc_OK_Discharge_Magazine.GetSingleton().RunInitial();
+                    Proc_NG_Feed_Magazine.GetSingleton().RunInitial();
+                    Proc_NG_Lane.GetSingleton().RunInitial();
+                    Proc_NG_Discharge_Magazine.GetSingleton().RunInitial();
+                    Proc_Sort_Arm.GetSingleton().RunInitial();
                     //Proc_Seal_Lane.GetSingleton().RunInitial();
                     //Proc_AOI_Lane.GetSingleton().RunInitial();
                     //Proc_OK_Lane.GetSingleton().RunInitial();
@@ -225,6 +243,12 @@ namespace ArtEQ
                     ProcInitialDone &= Proc_Press_Station.GetSingleton().IsProcOK();
                     ProcInitialDone &= Proc_AOI_Lane.GetSingleton().IsProcOK();
                     ProcInitialDone &= Proc_AOI_Station.GetSingleton().IsProcOK();
+                    ProcInitialDone &= Proc_OK_Lane.GetSingleton().IsProcOK();
+                    ProcInitialDone &= Proc_OK_Discharge_Magazine.GetSingleton().IsProcOK();
+                    ProcInitialDone &= Proc_NG_Feed_Magazine.GetSingleton().IsProcOK();
+                    ProcInitialDone &= Proc_NG_Lane.GetSingleton().IsProcOK();
+                    ProcInitialDone &= Proc_NG_Discharge_Magazine.GetSingleton().IsProcOK();
+                    ProcInitialDone &= Proc_Sort_Arm.GetSingleton().IsProcOK();
                     //ProcInitialDone &= Proc_Seal_Lane.GetSingleton().IsProcOK();
                     //ProcInitialDone &= Proc_AOI_Lane.GetSingleton().IsProcOK();
                     //ProcInitialDone &= Proc_OK_Lane.GetSingleton().IsProcOK();

@@ -5,7 +5,8 @@
 > 內容是逐檔讀出來的架構，不是憑空整理的規格書——拿不準的地方請直接重讀對應檔案確認。
 > **這是活文件**：每次寫新的 AR/Proc 遇到新的架構模式或踩到新的坑，都要回來補進這份檔案，不要只留在對話紀錄裡。
 > 建立：2026-08-21(ASM Lane 組裝流程)。更新：2026-08-22(HS Discharge Magazine、Press Lane/Station、AOI Lane/Station、
-> Lane→Lane 交握 WaitPreviousDoneLoad() 不該覆寫的 bug、CanUnload() 下游狀態清單漏掉 Unload_Done 導致死結的 bug)。
+> Lane→Lane 交握 WaitPreviousDoneLoad() 不該覆寫的 bug、CanUnload() 下游狀態清單漏掉 Unload_Done 導致死結的 bug、
+> OK Lane／NG Feed·Lane·Discharge Magazine、Sort Arm 分流機制與 NG 出料模式)。
 
 ## 核心機制：clsThreadProc + iStepIndex
 
@@ -233,7 +234,11 @@ IC Feed Magazine --(AR_Mag_IC_Feed)--> ASM Lane
                                           |
                                   (AR_AOI_Lane 卸料，需整盤檢測完成)
                                           v
-                                      OK Lane → OK/NG 分流（尚未做 AR，靠 Sort Arm 依 AoiResult 分派）
+                                      OK Lane --(AR_Mag_OK_Discharge，需 Sort_Arm 分完 NG)--> OK Discharge Magazine
+                                          ^
+                                          | AR_Sort_Arm：OK 判定留原地，NG 判定撿走
+                                          v
+NG Feed Magazine --(AR_Mag_NG_Feed，供應空Tray)--> NG Lane --(AR_Mag_NG_Discharge，依 Recipe 出料模式)--> NG Discharge Magazine
 ```
 
 ### ASM 組裝（2026-08-21）
@@ -280,9 +285,57 @@ IC Feed Magazine --(AR_Mag_IC_Feed)--> ASM Lane
 - `AR_AOI_Lane`：跟 `AR_Press_Lane` 同一個模板整段複製，本站從 `Proc_Press_Lane` 換成 `Proc_AOI_Lane`，
   上游從 `Proc_ASM_Lane` 換成 `Proc_Press_Lane`，下游從 `Proc_AOI_Lane` 換成 `Proc_OK_Lane`，`CanUnload()`
   的完成旗標從 `IsPressed` 換成 `IsAoiInspected`。
-- `Proc_AOI_Lane.GetNextLaneForBill()` 目前寫死指向 `Proc_OK_Lane`，NG 品目前不會在 Lane 層被分流——分流(OK/NG)
-  應該是靠 `Proc_Sort_Arm`(檔案已存在，AR 還沒做)之後依每格 `AoiResult` 分別 Pick 到 OK/NG 各自的 Discharge
-  Magazine，不是靠 Lane 選擇下一站。做 Sort Arm 的 AR 之前，先讀 `Proc_Sort_Arm.cs` 確認這個假設。
+- `Proc_AOI_Lane.GetNextLaneForBill()` 目前寫死指向 `Proc_OK_Lane`，NG 品目前不會在 Lane 層被分流。原本以為
+  分流是靠 `Proc_Sort_Arm` 依每格 `AoiResult` 分別 Pick 到 OK/NG——**這個假設查證後發現是錯的**，見下面
+  「Sort Arm 分流機制——還沒搞懂」。
 
 檔案：[AR_AOI_Lane.cs](ArtEQ/2_Function(流程)/AutoRun/AR_AOI_Lane.cs)、
 [AR_AOI_Station.cs](ArtEQ/2_Function(流程)/AutoRun/AR_AOI_Station.cs)
+
+### OK Lane / NG Feed·Lane·Discharge Magazine（2026-08-22）
+
+- `OK_Lane` 的下游是 `Proc_OK_Discharge_Magazine`（Lane→Magazine，跟 `AR_HS_Lane` 的卸料半邊同形狀）。
+  第一版做的時候沒有站別在中間處理，以為不需要完成旗標 gate——後來確認 `Sort_Arm` 分流機制後，補上了
+  「這盤 Tray 裡不能還有殘留 NG 判定格子」的 gate（見下面 Sort Arm 那節）。
+- `NG_Feed_Magazine → NG_Lane → NG_Discharge_Magazine` 整條線跟 `HS_Feed → HS_Lane → HS_Discharge` **形狀
+  完全一樣**，`AR_Mag_NG_Feed`／`AR_NG_Lane`／`AR_Mag_NG_Discharge` 直接照 HS 那三個檔案改名字複製。
+- `Proc_OK_Lane.cs` 也踩了跟 `Proc_Press_Lane`/`Proc_AOI_Lane` 一樣的 `WaitPreviousDoneLoad()` 多餘覆寫，
+  一併拿掉了（第三個中招的檔案，見 `LESSONS.md` L8）。
+
+檔案：[AR_OK_Lane.cs](ArtEQ/2_Function(流程)/AutoRun/AR_OK_Lane.cs)、
+[AR_Mag_OK_Discharge.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Mag_OK_Discharge.cs)、
+[AR_Mag_NG_Feed.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Mag_NG_Feed.cs)、
+[AR_NG_Lane.cs](ArtEQ/2_Function(流程)/AutoRun/AR_NG_Lane.cs)、
+[AR_Mag_NG_Discharge.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Mag_NG_Discharge.cs)
+
+### Sort Arm 分流機制（2026-08-22 確認 + 做完）
+
+`NG_Feed_Magazine` 供應的是**整盤標成 Empty 的空 Tray**（不是預先裝好的 NG 成品），推進 `NG_Lane` 停在那邊
+等 `Sort_Arm` 逐格填。確認後的分流規則：
+
+- `RunPick(PPStation.OK, col, row)`：從 `OK_Lane` 撿——但只挑「有料、`AoiResult=Ng`、還沒搬走」的格子，
+  OK 判定的格子**完全不碰**，手臂不會對它做任何 Pick/Place 動作。
+- `RunPlace(PPStation.NG, col, row)`：放到 `NG_Lane`——**找下一個空格循序塞**，不是跟 `OK_Lane` 同一個
+  (row,col) 對應。位置對應在 `FullTray` 模式下會撞格(同一個位置可能被好幾輪不同批次的 NG 搶用)，所以
+  Pick 跟 Place 用的 (col,row) 一開始就是兩組獨立算出來的，不是同一組數字重複用兩次(跟 `AR_ASM_Arm` 的
+  「同位置」模式不一樣，這是本文件目前唯一一個 Pick/Place 位置不對應的 Arm)。
+
+**NG 出料時機是可設定的**，Recipe 參數 `enuNGDischargeMode`(`ArtData/clsEnum.cs`)：
+- `Immediate`：這一輪(對應目前 `OK_Lane` 那盤)`Sort_Arm` 分完就出料，不等下一輪的 NG 湊在一起。
+- `FullTray`：`NG_Lane` 自己收滿整盤(跨好幾輪 `OK_Lane` 循環)才出料。
+
+目前 `AR_NG_Lane.GetNGDischargeMode()` 是寫死回傳 `FullTray` 的佔位方法，之後要串接真的 Recipe 查詢
+(比照 `BasePressStation`/`BaseAoiStation` 的 `GetPmt()` 包法)。
+
+**「這一輪分完了沒」用鎖定的旗標，不是即時查詢**——`AR_Sort_Arm.bIsSortDone`：`Sort_Arm` 自己在找不到
+`OK_Lane` 裡下一個待搬 NG 格時設成 `true`，下次又找到新的待搬格才清回 `false`。`Immediate` 模式的
+`AR_NG_Lane.CanUnload()` 讀這個旗標，**不直接查 `OK_Lane` 的即時帳**——原因是：如果改成每次都現查
+「`OK_Lane` 現在還有沒有殘留 NG」，一旦查詢的時間點晚於 `OK_Lane` 自己已經出料、開始收下一輪新 Tray，
+查到的「沒有殘留 NG」有可能只是新那盤還沒跑到 AOI 階段的假象，不是「我剛剛收的這批真的分完了」——這跟
+`LESSONS.md` L8／L9 抓到的兩次死結是同一種病(輪詢一個會被別人動態改變的即時狀態，而不是鎖定某個時間點
+的結果)，這次直接用旗標避開，不重蹈覆轍。
+
+`AR_OK_Lane.CanUnload()` 也補上了對稱的 gate：`!AssyRecords.Any(v => v.IsExist && v.AoiResult == AoiResult.Ng)`，
+確保 `OK_Lane` 要等 `Sort_Arm` 把 NG 都搬完才出料到 `OK_Discharge_Magazine`。
+
+檔案：[AR_Sort_Arm.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Sort_Arm.cs)

@@ -117,6 +117,12 @@
     <Compile Include="2_Function%28流程%29\AutoRun\AR_Press_Station.cs" />
     <Compile Include="2_Function%28流程%29\AutoRun\AR_AOI_Lane.cs" />
     <Compile Include="2_Function%28流程%29\AutoRun\AR_AOI_Station.cs" />
+    <Compile Include="2_Function%28流程%29\AutoRun\AR_OK_Lane.cs" />
+    <Compile Include="2_Function%28流程%29\AutoRun\AR_Mag_OK_Discharge.cs" />
+    <Compile Include="2_Function%28流程%29\AutoRun\AR_Mag_NG_Feed.cs" />
+    <Compile Include="2_Function%28流程%29\AutoRun\AR_NG_Lane.cs" />
+    <Compile Include="2_Function%28流程%29\AutoRun\AR_Mag_NG_Discharge.cs" />
+    <Compile Include="2_Function%28流程%29\AutoRun\AR_Sort_Arm.cs" />
     <Compile Include="2_Function%28流程%29\BaseProc\BaseArm.cs" />
     <Compile Include="2_Function%28流程%29\BaseProc\BaseAoiStation.cs" />
     <Compile Include="2_Function%28流程%29\BaseProc\BasePressStation.cs" />
