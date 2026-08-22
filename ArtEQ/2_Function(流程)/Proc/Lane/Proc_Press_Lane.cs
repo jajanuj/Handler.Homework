@@ -70,14 +70,11 @@ namespace ArtEQ._2_Function_流程_.Proc
             return aoiLane.m_enuAction == enuAction.Load_Done;
         }
 
-        protected override bool WaitPreviousDoneLoad()
-        {
-            var ASM_Lane = GetPreviousLaneForBill();
-            if (ASM_Lane == null)
-                return false;
-
-            return ASM_Lane.m_enuAction == enuAction.Unload_Waiting_Sign;
-        }
+        // WaitPreviousDoneLoad()：Lane→Lane 交握不需要覆寫，上游會在自己的 Unload 流程(case 60500)
+        // 主動把帳轉過來、清自己的帳，下游不需要回頭確認。吃 BaseLane 的預設值 (return true) 即可。
+        // 2026-08-22：原本這裡覆寫成輪詢上游 m_enuAction，導致 Press_Lane 卡在 case 50500
+        // （上游轉瞬即逝的狀態，Press_Lane 自己的 sensor 流程比較慢，等到要檢查時上游已經跑到下一輪）。
+        // 詳見 LESSONS.md L8、AR_PROC_ARCHITECTURE.md「Lane→Lane 交握」一節。
 
         protected override bool ReadyToLoad()
         {

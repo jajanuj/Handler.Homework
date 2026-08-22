@@ -5,7 +5,7 @@
 > 內容是逐檔讀出來的架構，不是憑空整理的規格書——拿不準的地方請直接重讀對應檔案確認。
 > **這是活文件**：每次寫新的 AR/Proc 遇到新的架構模式或踩到新的坑，都要回來補進這份檔案，不要只留在對話紀錄裡。
 > 建立：2026-08-21(ASM Lane 組裝流程)。更新：2026-08-22(HS Discharge Magazine、Press Lane/Station、AOI Lane/Station、
-> Lane→Lane 交握輪詢瞬間狀態的 bug)。
+> Lane→Lane 交握 WaitPreviousDoneLoad() 不該覆寫的 bug)。
 
 ## 核心機制：clsThreadProc + iStepIndex
 
@@ -168,23 +168,28 @@ Lane 從上游接帳時（`BaseLane.ReceiveTrayBillFromPrevious`），依 `Mater
 新增一個「會處理整盤、下一站要等它做完才能收料」的站別時，這個旗標要在該站別的 `SetTrayWork()`（或等效方法）
 裡設成 `true`，並且確保 `IsExist` 已經照上表被正確維護，不然這個 gate 又會變成死開關。
 
-### Lane→Lane 交握：不能輪詢「做完就馬上被覆寫」的瞬間狀態
+### Lane→Lane 交握：`WaitPreviousDoneLoad()` 根本不用覆寫
 
-`BaseLane` 的 `WaitPreviousDoneLoad()`／`ReadyToLoad()` 這類 hook 都是用「輪詢上游 Lane 的 `m_enuAction`」實作的，
-但 `m_enuAction` 裡不是每個值都會穩定停留——有些是「終點狀態，設完馬上被下一輪覆寫」，輪詢會有機率完全錯過：
+一開始以為這是「輪詢到不穩定的瞬間狀態」的問題（`m_enuAction` 有些值是迴圈裡才會設、穩定可輪詢，有些是一次性
+終點、設完馬上被下一輪覆寫，輪詢會賭運氣）——這個判斷方向沒錯，但換一個「比較穩定」的狀態繼續輪詢並沒有真正解決，
+只是把賭輸的窗口變大。真正的答案是**這一步的輪詢本身就不該存在**：
 
-- **穩定、可以放心輪詢**：`Unload_Waiting`（`case 60200`，`if (!ReadyToUnloadToNext()) break;`）、`Unload_Waiting_Sign`
-  （`case 60500`，`if (!WaitNextLoadDone()) break;`）——這兩個都是「條件不成立就停在原地」的迴圈狀態，會一直維持
-  到真的成立才離開，輪詢抓得到。
-- **不穩定、輪詢會賭運氣**：`Unload_Done`（`case 60999`，一次性終點）——`AR_ASM_Lane` 這類 AR 一看到上游 Lane
-  到達 `Unload_Done` 就會馬上判斷可以開新一輪 Load（`CanLoad()` 把 `Unload_Done` 當合法閒置狀態），實測只維持
-  231ms 就被蓋掉。2026-08-22 抓到 `Proc_Press_Lane.WaitPreviousDoneLoad()` 就是在輪詢這個，導致卡在
-  `case 50500`（見 `LESSONS.md` L8）；已改成輪詢 `Unload_Waiting_Sign`（照 `Proc_AOI_Lane` 的寫法）。
+- `BaseLane.WaitPreviousDoneLoad()` 的基底預設就是 `return true;`，`Proc_HS_Lane.cs`（唯一另一個實測正常運作的
+  Lane）完全沒有覆寫它。
+- 往回查 `NotifyPreviousLoadDone()` 的「情境 2：上游是 Lane」分支，裡面的註解自己講明白：「上游 Lane 在
+  `Unload_Done` 後會自動清帳，這裡只需要確認上游已經完成 Unload 即可」——程式碼也真的什麼都沒檢查，直接標記完成。
+- 更關鍵的保證：上游在自己的 `case 60500`（`Unload_Waiting_Sign`）偵測到下游到達 `Loading` 時，會**同一個 scan
+  cycle 內**呼叫 `TransferTrayBillToNextLane()` → 下游的 `ReceiveTrayBillFromLane()`，把帳整包轉過去。下游要走到
+  自己的 `WaitPreviousDoneLoad()` 檢查點（`case 50500`），中間還要經過 `50210→50300→50310→50400` 好幾個模擬
+  sensor 延遲，結構上一定比上游轉帳晚到——所以「帳已經轉移完成」這件事，下游檢查的當下必然已經成立，
+  不需要主動確認。
 
-**加新的 Lane→Lane 交握 hook 之前，先確認要輪詢的 `m_enuAction` 是不是「迴圈裡才會設」的穩定狀態，不要挑一次性終點
-狀態（`XXX_Done`）來輪詢。** 這個修法本身還留了一個沒完全排除的疑慮：`Unload_Waiting_Sign` 結束的時機是「下游
-Lane 到達 `Loading`」，比下游真正走到 `WaitPreviousDoneLoad()` 那步早很多，理論上窗口變大但沒歸零——如果之後
-還在別的 Lane→Lane 交握點卡住，先往這個方向查。
+`Proc_Press_Lane.cs`／`Proc_AOI_Lane.cs` 原本都覆寫了這個 hook 去輪詢上游 `m_enuAction`，這段覆寫本身就是多餘
+且會卡死的根源，2026-08-22 已經整段刪除（見 `LESSONS.md` L8）。**以後寫 Lane→Lane 交握，`WaitPreviousDoneLoad()`
+不用覆寫，直接吃預設值。** 真正需要覆寫的是 `ReadyToLoad()`（決定上游準備好了沒，才能開始物理入料）跟
+`ReadyToUnloadToNext()`／`WaitNextLoadDone()`（決定下游準備好了沒），這三個都是「迴圈裡持續檢查、成立前一直
+停在原地」的用法，跟 `WaitPreviousDoneLoad()` 的「單次檢查、檢查完就往下走」用法不一樣，不要照樣造句加了不必要
+的覆寫。
 
 ## 四個容易漏掉的註冊點
 

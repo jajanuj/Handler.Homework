@@ -80,14 +80,10 @@ namespace ArtEQ._2_Function_流程_.Proc
             return okLane.m_enuAction == enuAction.Load_Done;
         }
 
-        protected override bool WaitPreviousDoneLoad()
-        {
-            var Press_Lane = GetPreviousLaneForBill();
-            if (Press_Lane == null)
-                return false;
-
-            return Press_Lane.m_enuAction == enuAction.Unload_Waiting_Sign;
-        }
+        // WaitPreviousDoneLoad()：Lane→Lane 交握不需要覆寫，上游會在自己的 Unload 流程(case 60500)
+        // 主動把帳轉過來、清自己的帳，下游不需要回頭確認。吃 BaseLane 的預設值 (return true) 即可。
+        // 2026-08-22：Proc_Press_Lane.cs 原本用同樣的覆寫方式卡住過，這裡先一起拿掉，
+        // 避免同一個病根之後在這條 Lane 上也發作。詳見 LESSONS.md L8。
 
         protected override bool ReadyToLoad()
         {
