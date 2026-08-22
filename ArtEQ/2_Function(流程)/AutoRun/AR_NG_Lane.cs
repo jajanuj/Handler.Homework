@@ -1,4 +1,5 @@
 using ArtCommonLib;
+using ArtControlLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.Proc;
 using System.Linq;
@@ -287,14 +288,14 @@ namespace ArtEQ._2_Function_流程_.AutoRun
             //5. 依 NG 出料模式，判斷這盤 NG 夠不夠出料
             switch (GetNGDischargeMode())
             {
-                case clsEnum.enuNGDischargeMode.Immediate:
+                case clsEnum.NGDischargeMode.PerCycle:
                     // 這一輪(對應目前 OK_Lane 那盤)分料已經做完，而且這輪真的有收到東西才出，
                     // 避免 OK_Lane 那盤剛好整盤都是 OK、NG_Lane 這輪沒收到任何一顆卻白跑一次出料。
                     rValue &= AR_Sort_Arm.GetSingleton().bIsSortDone;
                     rValue &= NG_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist);
                     break;
 
-                case clsEnum.enuNGDischargeMode.FullTray:
+                case clsEnum.NGDischargeMode.FullTray:
                     // NG_Lane 自己收滿整盤(每一格都有帳)才出料
                     rValue &= NG_Lane().m_Temp_Tray_Info.AssyRecords.All(v => v.IsExist);
                     break;
@@ -308,12 +309,11 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         }
 
         /// <summary>
-        /// TODO: 之後串接 Recipe 參數(比照 ucParameter.GetValueXxx(enuPmtName.Xxx) 的模式)。
-        /// 現在先寫死一個預設值方便測試/看邏輯對不對。
+        /// 讀取分料模式
         /// </summary>
-        private clsEnum.enuNGDischargeMode GetNGDischargeMode()
+        private clsEnum.NGDischargeMode GetNGDischargeMode()
         {
-            return clsEnum.enuNGDischargeMode.FullTray;
+            return (clsEnum.NGDischargeMode)ucParameter.GetValueInt(clsEnum.enuPmtName.Rec_Sort_Type);
         }
 
         #endregion

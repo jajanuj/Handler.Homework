@@ -5,45 +5,13 @@ namespace ArtData
     /// <summary> 與公司底層共用的Enum定義 </summary>
     public class clsEnum
     {
-        public enum WorkStationType
-        {
-            /// <summary> 尚未進入任何站別 </summary>
-            None,
-            /// <summary> 上料站 </summary>
-            Load,
-            /// <summary> 組裝站 </summary>
-            ASM,
-            /// <summary> 壓合站 </summary>
-            Press,
-            /// <summary> AOI 檢測站 </summary>
-            AOI,
-            Ng
-        }
+        #region Enums
 
         public enum AoiResult
         {
             None = 0,
             Ok,
             Ng,
-        }
-
-        /// <summary> NG 出料模式 </summary>
-        public enum enuNGDischargeMode
-        {
-            /// <summary> 即時出料：這一輪 OK_Lane 分料結束就出 </summary>
-            Immediate,
-
-            /// <summary> 滿盤出料：NG_Lane 自己收滿整盤才出 </summary>
-            FullTray
-        }
-
-        public enum PPStation
-        {
-            None,
-            IC = 1,
-            HeatSink = 2,
-            OK = 3,
-            NG
         }
 
         public enum MagazineType
@@ -67,32 +35,79 @@ namespace ArtData
             AbsMoveMode_Mm = 2,
         }
 
-        /// <summary> 
+        /// <summary> NG 出料模式 </summary>
+        public enum NGDischargeMode
+        {
+            /// <summary> 逐輪出料：這一輪 OK_Lane 分料結束就出 </summary>
+            PerCycle,
+
+            /// <summary> 滿盤出料：NG_Lane 自己收滿整盤才出 </summary>
+            FullTray
+        }
+
+        public enum PPStation
+        {
+            None,
+            IC = 1,
+            HeatSink = 2,
+            OK = 3,
+            NG
+        }
+
+        /// <summary>
         /// Tray 盤內單一物件狀態
         /// </summary>
         public enum TrayItemStatus
         {
             /// <summary> 未執行 - 藍色 </summary>
             Pending,
+
             /// <summary> 良品 - 綠色 </summary>
             OK,
+
             /// <summary> 不良品 - 紅色 </summary>
             NG,
+
             /// <summary> 無料 - 灰色 </summary>
             Empty,
+
             /// <summary> 組裝中 - 橘色 </summary>
             Assembly,
+
             /// <summary> 載板 - 藍紫色 </summary>
             Substrate,
+
             /// <summary> 散熱片 - 青色 </summary>
             HeatSink,
+
             /// <summary> 已壓合 - 棕色 </summary>
             Pressed,
+
             /// <summary> 已完成 AOI 檢測 - 粉紅色 </summary>
             AoiInspected
         }
 
+        public enum WorkStationType
+        {
+            /// <summary> 尚未進入任何站別 </summary>
+            None,
+
+            /// <summary> 上料站 </summary>
+            Load,
+
+            /// <summary> 組裝站 </summary>
+            ASM,
+
+            /// <summary> 壓合站 </summary>
+            Press,
+
+            /// <summary> AOI 檢測站 </summary>
+            AOI,
+            Ng
+        }
+
         #region Alarm 代碼
+
         /// <summary> Alarm 代碼 (ArtEQ.dll) ///</summary>
         public enum enuAlarm
         {
@@ -233,6 +248,7 @@ namespace ArtData
 
             #endregion
         }
+
         #endregion
 
         #region AxisID[1~15]
@@ -674,6 +690,7 @@ namespace ArtData
 
         #endregion
 
+
         #region 參數名稱
 
         /// <summary> 參數名稱 (ArtControlLib.dll) </summary>
@@ -689,6 +706,10 @@ namespace ArtData
             Rec_Cell_Pitch_Y,
             Rec_Cell_Width,
             Rec_Cell_Height,
+            Rec_Magazine_Slot_Number,
+            Rec_Tray_Column_Number,
+            Rec_Tray_Row_Number,
+            Rec_Sort_Type,
 
             #endregion
 
@@ -808,6 +829,8 @@ namespace ArtData
             PM_SMEMA_Unload,
             AP_Lane = 101,
         }
+
+        #endregion
 
         #endregion
 

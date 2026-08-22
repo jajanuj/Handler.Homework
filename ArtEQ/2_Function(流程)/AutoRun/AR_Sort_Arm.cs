@@ -9,10 +9,26 @@ namespace ArtEQ._2_Function_流程_.AutoRun
     /// 驅動 Sort Arm 自動運轉：從 OK_Lane 逐格找 AoiResult=Ng 且還沒搬走的格子，
     /// 撿起來放到 NG_Lane 裡下一個空格。OK 判定的格子完全不動、不觸碰。
     /// 每次 Pick+Place 一格；找不到下一個 NG 格子時，代表這一輪(對應目前 OK_Lane 那盤)分料已完成，
-    /// 設定 bIsSortDone，供 AR_NG_Lane 在「即時出料」模式下讀取。
+    /// 設定 bIsSortDone，供 AR_NG_Lane 在「每盤出料」模式下讀取。
     /// </summary>
     internal class AR_Sort_Arm : clsThreadProc
     {
+        #region Fields
+
+        private clsEnum.NGDischargeMode m_enuNgDischargeMode;
+
+        /// <summary>
+        /// 本次分料鎖定的格位：Pick 從 OK_Lane 撿的位置、Place 放到 NG_Lane 的位置。
+        /// 兩邊位置不一定相同(NG_Lane 是找空格循序塞，不是同位置對應)。
+        /// </summary>
+        private int m_iPickCol;
+
+        private int m_iPickRow;
+        private int m_iPlaceCol;
+        private int m_iPlaceRow;
+
+        #endregion
+
         #region Constructors
 
         #region //===================== 建構子 =====================
@@ -22,37 +38,6 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         }
 
         #endregion
-
-        #endregion
-
-        #region Properties
-
-        #region //===================== 全域變數 =====================
-
-        public bool bIsReady { get; protected set; }
-
-        /// <summary>
-        /// 本輪(對應目前 OK_Lane 那盤)NG 分料是否已經做完。
-        /// 這裡自己在偵測到「OK_Lane 沒有殘留未搬的 NG 格子」時設成 true；
-        /// 下一輪重新開始分料(偵測到 OK_Lane 出現新的未搬 NG 格子)時，自己清回 false。
-        /// AR_NG_Lane 只讀，不負責清除。
-        /// </summary>
-        public bool bIsSortDone { get; private set; }
-
-        #endregion
-
-        #endregion
-
-        #region Fields
-
-        /// <summary>
-        /// 本次分料鎖定的格位：Pick 從 OK_Lane 撿的位置、Place 放到 NG_Lane 的位置。
-        /// 兩邊位置不一定相同(NG_Lane 是找空格循序塞，不是同位置對應)。
-        /// </summary>
-        private int m_iPickCol;
-        private int m_iPickRow;
-        private int m_iPlaceCol;
-        private int m_iPlaceRow;
 
         #endregion
 
@@ -159,6 +144,20 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         }
 
         #endregion
+
+        #endregion
+
+        #region //===================== 全域變數 =====================
+
+        public bool bIsReady { get; protected set; }
+
+        /// <summary>
+        /// 本輪(對應目前 OK_Lane 那盤)NG 分料是否已經做完。
+        /// 這裡自己在偵測到「OK_Lane 沒有殘留未搬的 NG 格子」時設成 true；
+        /// 下一輪重新開始分料(偵測到 OK_Lane 出現新的未搬 NG 格子)時，自己清回 false。
+        /// AR_NG_Lane 只讀，不負責清除。
+        /// </summary>
+        public bool bIsSortDone { get; private set; }
 
         #endregion
 

@@ -1,35 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using ArtProcModuleLib;
+﻿using ArtCommonLib;
 using ArtControlLib;
-using ArtCommonLib;
-using ArtData;
+using ArtProcModuleLib;
 using ArtSystem;
+using System;
+using static ArtData.clsEnum;
+using comNumBox = ArtControlLib.comNumBox;
 
 namespace ArtEQ
 {
     public partial class ucFunctionSetting : ucBaseUserControl
     {
+        #region Private Methods
+
+        private void cboSortType_DropDownClosed(object sender, EventArgs e)
+        {
+            comNumBox1._Value = cboNgDischargeMode.SelectedIndex;
+        }
+
+        private void comNumBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (sender is comNumBox comNumBox)
+            {
+                cboNgDischargeMode.SelectedIndex = (int)comNumBox._Value;
+            }
+        }
+
+        #endregion
+
         #region //=====================  區域變數設置 =====================
 
         #endregion
 
         #region //=====================  必要函式設置 =====================
 
-        static private ucFunctionSetting m_Singleton;
+        private static ucFunctionSetting m_Singleton;
+
         /// <summary> 取得唯一物件，避免重覆設置  </summary>
-        static public ucFunctionSetting GetSingleton()
+        public static ucFunctionSetting GetSingleton()
         {
             if (m_Singleton == null)
             {
                 m_Singleton = new ucFunctionSetting();
             }
+
             return m_Singleton;
         }
 
@@ -38,13 +51,17 @@ namespace ArtEQ
         {
             InitializeComponent();
             if (clsArtSystem.bIsProgramOpen == false)
-            { return; }
+            {
+                return;
+            }
+
             ucParameter.Add(this);
-            ucParameter.SaveValue(clsEnum.enuPmtType.System, clsEnum.enuPmtName.Sys_MachineDryRun, 0);
-            ucParameter.SaveValue(clsEnum.enuPmtType.System, clsEnum.enuPmtName.Sys_EnableSafeDoor, 1);
+            ucParameter.SaveValue(enuPmtType.System, enuPmtName.Sys_MachineDryRun, 0);
+            ucParameter.SaveValue(enuPmtType.System, enuPmtName.Sys_EnableSafeDoor, 1);
             clsProcCtrl.GetSingleton().g_bSoftSimulate = clsArtSystem.bIsSoftwareSimulate;
-            this.TimerInterval = 100;
-           
+
+            BindComboBox();
+            TimerInterval = 100;
         }
 
         /// <summary> 物件重置 </summary>
@@ -52,15 +69,19 @@ namespace ArtEQ
         {
             try
             {
-                if (ucParameter.GetValueDouble(clsEnum.enuPmtName.Sys_Timeout_HandShank) == 0)
-                { ucParameter.SaveValue(clsEnum.enuPmtType.System, clsEnum.enuPmtName.Sys_Timeout_HandShank, 30000); }
-                if (ucParameter.GetValueDouble(clsEnum.enuPmtName.Sys_Timeout_LaneTransfer) == 0)
-                {  ucParameter.SaveValue(clsEnum.enuPmtType.System, clsEnum.enuPmtName.Sys_Timeout_HandShank, 30000); }
+                if (ucParameter.GetValueDouble(enuPmtName.Sys_Timeout_HandShank) == 0)
+                {
+                    ucParameter.SaveValue(enuPmtType.System, enuPmtName.Sys_Timeout_HandShank, 30000);
+                }
 
+                if (ucParameter.GetValueDouble(enuPmtName.Sys_Timeout_LaneTransfer) == 0)
+                {
+                    ucParameter.SaveValue(enuPmtType.System, enuPmtName.Sys_Timeout_HandShank, 30000);
+                }
             }
             catch (Exception ex)
             {
-                clsLog.Log(clsEnum.enuLogName.CatchLog, "Source : " + ex.Source + " , StackTrace : " + ex.StackTrace + ", Message : " + ex.Message);
+                clsLog.Log(enuLogName.CatchLog, "Source : " + ex.Source + " , StackTrace : " + ex.StackTrace + ", Message : " + ex.Message);
             }
         }
 
@@ -72,22 +93,27 @@ namespace ArtEQ
             }
             catch (Exception ex)
             {
-                clsLog.Log(clsEnum.enuLogName.CatchLog, "Source : " + ex.Source + " , StackTrace : " + ex.StackTrace + ", Message : " + ex.Message);
+                clsLog.Log(enuLogName.CatchLog, "Source : " + ex.Source + " , StackTrace : " + ex.StackTrace + ", Message : " + ex.Message);
             }
         }
 
         private void ucMachineStatus_VisibleChanged(object sender, EventArgs e)
         {
-            if (this.Visible == true)
+            if (Visible == true)
             {
-                this.UpdateControls();
+                UpdateControls();
             }
+        }
+
+        private void BindComboBox()
+        {
+            //cboNgDischargeMode.DataSource = Enum.GetNames(typeof(NGDischargeMode));
+            cboNgDischargeMode.SelectedIndex = (int)comNumBox1._Value;
         }
 
         #endregion
 
         #region //===================== public 函式設置 =====================
-
 
         #endregion
 
@@ -95,7 +121,7 @@ namespace ArtEQ
 
         #endregion
 
-        #region//===================== 以下為事件處理 =====================
+        #region //===================== 以下為事件處理 =====================
 
         #endregion
     }
