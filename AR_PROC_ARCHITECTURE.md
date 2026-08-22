@@ -6,7 +6,8 @@
 > **這是活文件**：每次寫新的 AR/Proc 遇到新的架構模式或踩到新的坑，都要回來補進這份檔案，不要只留在對話紀錄裡。
 > 建立：2026-08-21(ASM Lane 組裝流程)。更新：2026-08-22(HS Discharge Magazine、Press Lane/Station、AOI Lane/Station、
 > Lane→Lane 交握 WaitPreviousDoneLoad() 不該覆寫的 bug、CanUnload() 下游狀態清單漏掉 Unload_Done 導致死結的 bug、
-> OK Lane／NG Feed·Lane·Discharge Magazine、Sort Arm 分流機制與 NG 出料模式)。
+> OK Lane／NG Feed·Lane·Discharge Magazine、Sort Arm 分流機制與 NG 出料模式、Tray 格數/Magazine Slot 數改成
+> Recipe 動態值、結批(Lot End)機制)。
 
 ## 核心機制：clsThreadProc + iStepIndex
 
@@ -401,3 +402,53 @@ Recipe 改變 Row/Col/Slot 數之後，是「下一個新建的物件才套用�
 檔案：[ucManualForm.cs](ArtEQ/3_UI(介面管理)/2_Manual(手動模式)/ucManualForm.cs)、
 [ucAutoRun.cs](ArtEQ/3_UI(介面管理)/1_Operator(操作模式)/ucAutoRun.cs)、
 [ucMagazineDisplay.cs](ArtEQ/C_Component(介面元件)/ucMagazineDisplay.cs)
+
+### 結批(Lot End)機制（2026-08-22）
+
+**觸發**：UI 按鈕呼叫既有(舊模板留下、原本沒人接的)`clsEditRunThread.LotEnd()`，設定
+`ProcAutoRun.bIsLotEnd = true`。這個旗標是整個結批機制的入口，下面每個環節都是圍繞它展開。
+
+**行為分兩層，語意不能混為一談**：
+
+1. **停止「新原料」進料，但不停止「載具供應」**——`AR_Mag_IC_Feed`／`AR_Mag_HS_Feed`(生產原料)
+   的 `CanLoad()` 單純 `&= !bIsLotEnd`，一結批就停。`AR_Mag_NG_Feed`(供應的是空載具盤，不是原料)
+   則是 `&= !bIsLotEnd || ProcAutoRun.HasUpstreamWorkPendingSort()`——結批期間只要 OK_Lane 或更
+   上游(HS/ASM/Press/AOI Lane)還有料在流，就代表之後還可能分出新的 NG，`NG_Feed` 要繼續補空盤
+   給 `Sort_Arm` 用，不能跟原料一樣直接停。`HasUpstreamWorkPendingSort()` 定義在 `ProcAutoRun.cs`，
+   是個共用靜態方法，`AR_NG_Lane` 的強制出料判斷也用同一份，避免兩邊各寫一份以後改一邊漏一邊。
+
+2. **剩餘流道正常跑完，`NG_Lane` 的強制出料要挑對時機**——結批不會、也不需要對 Lane/Station/Arm
+   的正常流程做任何改動，讓它們照舊把手上的料處理完、往下游送。唯一需要特殊處理的是 `AR_NG_Lane`：
+   正常的 `PerCycle`/`FullTray` 出料判斷保持不變(結批不會提早打斷 `FullTray` 等收滿的邏輯)，
+   只有在 `bIsLotEnd && !ProcAutoRun.HasUpstreamWorkPendingSort()`(上游已經完全流空，確定不會
+   再有新 NG)這個條件下，才切換成強制出料——不管滿不滿、甚至完全空的載具盤都要放行，只需要
+   `AR_Sort_Arm.bIsSortDone` 確認沒有東西還在半路上。這裡踩過兩次坑：
+   - 一開始誤用「只要 `bIsSortDone==true` 就出料」，沒檢查上游是否還有工作，導致空盤在
+     `NG_Feed→NG_Lane→NG_Discharge` 之間瘋狂進出(`bIsSortDone` 在「目前沒有 NG 在等」時本來就是
+     true，這個狀態在上游還有料時也會出現)。
+   - 修正後又不小心讓「有東西就出」的寬鬆條件套用到 `FullTray` 模式的**所有**情況(包括上游還有
+     料在跑時)，導致沒滿的盤子被提早出料。最終版把強制出料的觸發條件收緊到只在
+     `HasUpstreamWorkPendingSort()==false` 時才啟動，上游還有工作時兩種模式完全維持原本邏輯不變。
+
+**淨空偵測**(`ProcAutoRun.cs` `case 2000`)：`bIsLotEnd` 設定後，`ProcAutoRun` 自己的主迴圈開始每個
+Scan 檢查「是否全部流乾淨了」，滿足後自動走 `case 3000`→`9000` 正常停機(`clsCmData.g_NowEqStatus`
+變 `Idle`，跳 `LOT_batch_completed` Alarm)。判斷條件：
+- 六條流道(HS/ASM/Press/AOI/OK/NG Lane)`m_Temp_Tray_Info.bIsExist` 都要是 false。
+- `Proc_ASM_Arm`／`Proc_Sort_Arm`、`Proc_IC_Feed_Magazine`／`Proc_HS_Feed_Magazine`／
+  `Proc_NG_Feed_Magazine` 的 `IsProcOK()` 都要是 true——**這裡要查 `Proc_Xxx`(設備動作層)，不是
+  `AR_Xxx`(AR 決策層)**。AR 一旦被 `Run_AutoRun()` 啟動，就會在自己的 `case 100000`(閒置判斷)→
+  執行→`100000`→...之間無限循環，整個 AutoRun 期間 `iStepIndex` 從來不會回到 `-1`，`AR_Xxx.IsProcOK()`
+  因此天生永遠是 false，不代表設備現在忙不忙。第一版查錯層，實測六條流道都淨空了
+  `bAllDrained` 還是卡 false，改查 `Proc_Xxx` 才對。詳見 `LESSONS.md` L16。
+
+**`bIsSortDone` 的一個既有競態**：`AR_Sort_Arm.MarkSortDoneIfNothingLeft()` 原本有
+`if (!OK_Lane().bIsExist) return;`，如果 Sort_Arm 搬完最後一顆 NG 後回頭檢查的時間點晚於 OK_Lane
+自己已經 Unload 完，這個提早跳出會讓 `bIsSortDone` 永遠設不成 true。平常運轉靠下一輪 OK_Lane 送料
+蓋過去，不會被發現；結批的最後一輪沒有下一輪可以蓋過去，永久卡死(NG_Lane 最後一盤出不去，靠
+使用者提供的 log 才抓到)。已拿掉這個 guard，詳見 `LESSONS.md` L15。
+
+檔案：[ProcAutoRun.cs](ArtEQ/1_Scenario(核心流程)/ProcAutoRun.cs)、
+[AR_Sort_Arm.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Sort_Arm.cs)、
+[AR_NG_Lane.cs](ArtEQ/2_Function(流程)/AutoRun/AR_NG_Lane.cs)、
+[AR_Mag_NG_Feed.cs](ArtEQ/2_Function(流程)/AutoRun/AR_Mag_NG_Feed.cs)、
+[clsEditRunThread.cs](ArtEQ/1_Scenario(核心流程)/clsEditRunThread.cs)
