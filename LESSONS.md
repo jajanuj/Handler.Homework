@@ -3,6 +3,24 @@
 > 新條目加在最上面。每條格式：`## L{編號} [日期] 一行標題`，內文固定三欄：情境／錯誤做法／正確做法，總長 ≤6 行。
 > 動手改程式碼前，先掃一遍標題行。
 
+## L17 [2026-08-23] Lane 的 ReadyToLoad() 沒覆寫，入料模擬跟磁盒實際進度脫鉤
+
+情境：`HS_Lane` 顯示 `Load_Done`(甚至 `NG_Lane` 顯示 `Load_Done` 而不是預期的 `Load_Waiting`)時，
+磁盒(`HS_Feed_Magazine`)可能都還沒開始推料——log 顯示 Lane 的 `Load_Done` 比磁盒真正開始
+`RunLoad()` 早了 21 秒。`Proc_HS_Lane.cs`／`Proc_NG_Lane.cs` 都沒覆寫 `ReadyToLoad()`，吃
+`BaseLane` 預設值(永遠 `return true`)，Lane 自己的入料模擬(靠計時器跑 `case 50100`~`50999`)
+完全不等磁盒實際進度。`Proc_ASM_Lane.cs` 有正確覆寫(等磁盒 `Magazine_Load_Waiting`)，是三個
+Magazine→Lane 入料關係(IC→ASM、HS→HS_Lane、NG→NG_Lane)裡唯一沒漏的一個。
+錯誤做法：只查 AR 層(`AR_HS_Lane.CanLoad()`)有沒有正確判斷磁盒狀態，沒有同時查 Proc 層
+(`Proc_HS_Lane.ReadyToLoad()`)有沒有覆寫——兩層都要接上磁盒狀態，只接一層還是會脫鉤。
+正確做法：比照 `Proc_ASM_Lane.cs` 的樣板，覆寫 `ReadyToLoad()` 檢查上游磁盒是否進入
+`Magazine_Load_Waiting`。**這個坑好消息是沒有真的搞壞資料**——實際帳料轉移是
+`TransferBillAfterUnloading()` 另外獨立處理的，下游消費者(`AR_ASM_Arm.CanAssemble()`、
+`AR_HS_Lane.CanUnload()`)查的是 `bIsExist`，不是 `m_enuAction`，所以脫鉤只造成狀態顯示
+不準，沒有造成撿到空氣或資料錯位。但這也是為什麼一直沒被發現——只有畫面上盯著 `m_enuAction`
+看才會注意到。**此坑只發生在 Magazine→Lane 的入料關係，Lane→Lane(Press/AOI/OK Lane)是不同
+機制(見 L8)，不用比照修改。**
+
 ## L16 [2026-08-22] AR 層的 IsProcOK() 在 AutoRun 模式下永遠是 false，別拿來查「現在忙不忙」
 
 情境：結批的 `case 2000` 淨空偵測，查手臂/Feed Magazine 忙不忙時查的是 `AR_Xxx.GetSingleton().IsProcOK()`。
