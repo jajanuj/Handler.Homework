@@ -2,6 +2,7 @@ using ArtCommonLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.BaseProc;
 using ArtEQ._2_Function_流程_.Proc;
+using ArtEQ._2_Function_流程_.Proc.Arm;
 
 namespace ArtEQ._2_Function_流程_.AutoRun
 {
@@ -10,6 +11,17 @@ namespace ArtEQ._2_Function_流程_.AutoRun
     /// </summary>
     internal class AR_ASM_Arm : clsThreadProc
     {
+        #region Fields
+
+        /// <summary>
+        /// 本次組裝作業鎖定的格子 Row/Column（Pick 與 Place 共用同一個格位）。
+        /// </summary>
+        private int m_iCol;
+
+        private int m_iRow;
+
+        #endregion
+
         #region Constructors
 
         #region //===================== 建構子 =====================
@@ -29,16 +41,6 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         public bool bIsReady { get; protected set; }
 
         #endregion
-
-        #endregion
-
-        #region Fields
-
-        /// <summary>
-        /// 本次組裝作業鎖定的格子 Row/Column（Pick 與 Place 共用同一個格位）。
-        /// </summary>
-        private int m_iCol;
-        private int m_iRow;
 
         #endregion
 

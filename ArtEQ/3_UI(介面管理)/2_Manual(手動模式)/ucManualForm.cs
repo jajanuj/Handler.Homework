@@ -1,5 +1,6 @@
 ﻿using ArtCommonLib;
 using ArtEQ._2_Function_流程_.Proc;
+using ArtEQ._2_Function_流程_.Proc.Arm;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -526,7 +527,6 @@ namespace ArtEQ._3_UI_介面管理_._2_Manual_手動模式_
 
         #endregion
 
-
         #region Process
 
         private Proc_IC_Feed_Magazine m_IC_Magazine;
@@ -550,7 +550,6 @@ namespace ArtEQ._3_UI_介面管理_._2_Manual_手動模式_
         private Proc_AOI_Station m_AOI_Station;
 
         #endregion
-
 
         #region UI 更新
 

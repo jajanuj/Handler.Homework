@@ -59,6 +59,11 @@
 要碰 `AutoRun`／`Scenario`／`AR_*`／`Proc_*` 相關程式碼之前，先讀 [AR_PROC_ARCHITECTURE.md](AR_PROC_ARCHITECTURE.md)——
 這是逐檔讀出來的兩層架構筆記(Proc 設備本體 vs AR 決策層)，包含四個容易漏掉的註冊點，省得每次重新逆向工程一次。
 
+這套 `clsThreadProc`／`iStepIndex`／Proc-AR 分層是公司共用架構，不是 ArtMMI 專屬——跨專案通用的部分
+(核心機制、常見設備原型、常見 bug 模式)另外抽在 [../COMPANY_ARCHITECTURE.md](../COMPANY_ARCHITECTURE.md)，
+`AR_PROC_ARCHITECTURE.md` 只留 ArtMMI 專屬的實作案例。兩份互補，先讀公司通用版建立骨架認知，
+再讀 ArtMMI 這份看實際案例。
+
 ## 踩坑紀錄
 
 實戰中發現的專案特有陷阱記在 [LESSONS.md](LESSONS.md)，新條目加在最上面，固定格式：情境／錯誤做法／正確做法，每條 ≤6 行。

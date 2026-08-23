@@ -3,6 +3,7 @@ using ArtControlLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.AutoRun;
 using ArtEQ._2_Function_流程_.Proc;
+using ArtEQ._2_Function_流程_.Proc.Arm;
 using ArtProcModuleLib;
 using ArtSystem;
 using ArtSystem.MultiSystem;
@@ -145,18 +146,8 @@ namespace ArtEQ
                     ProcInitialDone &= AR_NG_Lane.GetSingleton().IsProcOK();
                     ProcInitialDone &= AR_Mag_NG_Discharge.GetSingleton().IsProcOK();
                     ProcInitialDone &= AR_Sort_Arm.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= AR_Seal_Lane.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= AR_AOI_Lane.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= AR_OK_Lane.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= AR_Mag_UnloadOK.GetSingleton().IsProcOK();
 
-                    //ProcInitialDone &= AR_Mag_LoadNG.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= AR_NG_Lane.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= AR_Mag_UnloadNG.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= AR_Station_Sort.GetSingleton().IsProcOK();
-
-
-                    if (ProcInitialDone == true)
+                    if (ProcInitialDone)
                     {
                         iStepIndex = 1050;
                         Restart();
@@ -202,20 +193,6 @@ namespace ArtEQ
                     Proc_NG_Lane.GetSingleton().RunInitial();
                     Proc_NG_Discharge_Magazine.GetSingleton().RunInitial();
                     Proc_Sort_Arm.GetSingleton().RunInitial();
-                    //Proc_Seal_Lane.GetSingleton().RunInitial();
-                    //Proc_AOI_Lane.GetSingleton().RunInitial();
-                    //Proc_OK_Lane.GetSingleton().RunInitial();
-                    //Proc_Mag_UnloadOK.GetSingleton().RunInitial();
-
-                    //Proc_Mag_LoadNG.GetSingleton().RunInitial();
-                    //Proc_NG_Lane.GetSingleton().RunInitial();
-                    //Proc_Mag_UnloadNG.GetSingleton().RunInitial();
-
-                    //Proc_Station_LoadCup.GetSingleton().RunInitial();
-                    //Proc_Station_PourTea.GetSingleton().RunInitial();
-                    //Proc_Station_Seal.GetSingleton().RunInitial();
-                    //Proc_Station_AOI.GetSingleton().RunInitial();
-                    //Proc_Station_Sort.GetSingleton().RunInitial();
 
                     iStepIndex = 2010;
                     Restart();
@@ -249,22 +226,8 @@ namespace ArtEQ
                     ProcInitialDone &= Proc_NG_Lane.GetSingleton().IsProcOK();
                     ProcInitialDone &= Proc_NG_Discharge_Magazine.GetSingleton().IsProcOK();
                     ProcInitialDone &= Proc_Sort_Arm.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= Proc_Seal_Lane.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= Proc_AOI_Lane.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= Proc_OK_Lane.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= Proc_Mag_UnloadOK.GetSingleton().IsProcOK();
 
-                    //ProcInitialDone &= Proc_Mag_LoadNG.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= Proc_NG_Lane.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= Proc_Mag_UnloadNG.GetSingleton().IsProcOK();
-
-                    //ProcInitialDone &= Proc_Station_LoadCup.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= Proc_Station_PourTea.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= Proc_Station_Seal.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= Proc_Station_AOI.GetSingleton().IsProcOK();
-                    //ProcInitialDone &= Proc_Station_Sort.GetSingleton().IsProcOK();
-
-                    if (ProcInitialDone == true)
+                    if (ProcInitialDone)
                     {
                         iStepIndex = 3000;
                         Restart();
@@ -293,9 +256,10 @@ namespace ArtEQ
 
                     break;
 
+                #region //等待 Step 3 完成
+
                 case 3010:
 
-                #region //等待 Step 3 完成
 
                 {
                     ShowProcBar("Initializing...", 80);
@@ -304,9 +268,10 @@ namespace ArtEQ
                     Restart();
                 }
 
-                #endregion
 
                 break;
+
+                #endregion
 
                 case 9000:
 
@@ -380,12 +345,12 @@ namespace ArtEQ
         {
             try
             {
-                if (clsArtSystem.bIsSoftwareSimulate == true)
+                if (clsArtSystem.bIsSoftwareSimulate)
                 {
                     return;
                 }
 
-                ArtSystem.MultiSystem.clsMultiSystem.SetCardParameter();
+                clsMultiSystem.SetCardParameter();
             }
             catch (Exception ex)
             {
@@ -443,14 +408,14 @@ namespace ArtEQ
             {
                 if (formProcBar.GetSingleton().iProcValue != iPercentage)
                 {
-                    ArtSystem.ucArtMain_Design.GetSingleton().ShowProc(sMessage, iPercentage);
+                    ucArtMain_Design.GetSingleton().ShowProc(sMessage, iPercentage);
                 }
             }
         }
 
         private void HideProcBar()
         {
-            ArtSystem.ucArtMain_Design.GetSingleton().HideProc();
+            ucArtMain_Design.GetSingleton().HideProc();
         }
 
         #endregion

@@ -1,8 +1,8 @@
-using System;
 using ArtCommonLib;
 using ArtControlLib;
 using ArtData;
 using ArtEQ.B_Tools;
+using System;
 using static ArtData.clsEnum;
 
 namespace ArtEQ
@@ -77,6 +77,12 @@ namespace ArtEQ
         /// 是否使用Unload檢知
         /// </summary>
         protected virtual bool UseUnloadSensor => false;
+
+        #endregion
+
+        #region Public Methods
+
+        public bool SetDi(enuDi p_enuDi, bool p_bValue) => clsDioCtrl.SetDi(p_enuDi, p_bValue);
 
         #endregion
 
@@ -551,7 +557,7 @@ namespace ArtEQ
                     iStepIndex = -1;
                     break;
 
-                    #endregion
+                #endregion
             }
         }
 
@@ -881,10 +887,10 @@ namespace ArtEQ
                 // 參數 7：縮回超時的報警訊息 ID
                 // 參數 8：伸出超時的報警訊息 ID
                 m_Stopper.Initial(
-                    m_DO_Stopper,                                                // DO: 控制 Stopper 動作
-                    m_DI_Stopper_Retract, false,                                 // DI: 縮回到位感測器 (正邏輯)
-                    m_DI_Stopper_Extend, false,                                  // DI: 伸出到位感測器 (正邏輯)
-                    CylinderTimeout,                                             // 超時時間
+                    m_DO_Stopper,                                        // DO: 控制 Stopper 動作
+                    m_DI_Stopper_Retract, false,                         // DI: 縮回到位感測器 (正邏輯)
+                    m_DI_Stopper_Extend, false,                          // DI: 伸出到位感測器 (正邏輯)
+                    CylinderTimeout,                                     // 超時時間
                     enuAlarm.Lane_Stopper_Retract_Timeout.ToString("d"), // 縮回超時報警
                     enuAlarm.Lane_Stopper_Extend_Timeout.ToString("d")); // 伸出超時報警
             }
@@ -905,10 +911,10 @@ namespace ArtEQ
                 // 參數 7：縮回超時的報警訊息 ID
                 // 參數 8：伸出超時的報警訊息 ID
                 m_Align.Initial(
-                    m_DO_Align,                                                // DO: 控制 Align 動作
-                    m_DI_Align_Retract, false,                                 // DI: 縮回到位感測器 (正邏輯)
-                    m_DI_Align_Extend, false,                                  // DI: 伸出到位感測器 (正邏輯)
-                    CylinderTimeout,                                           // 超時時間: 3000ms
+                    m_DO_Align,                                        // DO: 控制 Align 動作
+                    m_DI_Align_Retract, false,                         // DI: 縮回到位感測器 (正邏輯)
+                    m_DI_Align_Extend, false,                          // DI: 伸出到位感測器 (正邏輯)
+                    CylinderTimeout,                                   // 超時時間: 3000ms
                     enuAlarm.Lane_Align_Retract_Timeout.ToString("d"), // 縮回超時報警 
                     enuAlarm.Lane_Align_Extend_Timeout.ToString("d")); // 伸出超時報警
             }
@@ -971,8 +977,7 @@ namespace ArtEQ
                     var itemStatus = TrayItemStatus.Empty;
                     //if (m_Temp_Tray_Info.AssyRecords[i].IsExist)
                     {
-                        itemStatus = m_Temp_Tray_Info.Materials[i].MaterialType == MaterialType.HeatSink ?
-                        TrayItemStatus.HeatSink : TrayItemStatus.Substrate;
+                        itemStatus = m_Temp_Tray_Info.Materials[i].MaterialType == MaterialType.HeatSink ? TrayItemStatus.HeatSink : TrayItemStatus.Substrate;
                     }
 
                     m_Temp_Tray_Info.SetItemStatus(i, itemStatus);
@@ -1128,10 +1133,12 @@ namespace ArtEQ
                 {
                     trayItemStatud = TrayItemStatus.Pressed;
                 }
+
                 if (currentStation == WorkStationType.AOI)
                 {
                     trayItemStatud = m_Temp_Tray_Info.ConvertToItemStatus(m_Temp_Tray_Info.AssyRecords[i].AoiResult);
                 }
+
                 if (currentStation == WorkStationType.ASM)
                 {
                     trayItemStatud = TrayItemStatus.Assembly;
@@ -1142,6 +1149,7 @@ namespace ArtEQ
                     trayItemStatud = materialType == MaterialType.IC ? TrayItemStatus.Substrate : TrayItemStatus.Empty;
                     var record = m_Temp_Tray_Info.AssyRecords[i];
                 }
+
                 m_Temp_Tray_Info.SetItemStatus(i, trayItemStatud);
             }
 
@@ -1174,8 +1182,5 @@ namespace ArtEQ
         }
 
         #endregion
-
-        public bool SetDi(enuDi p_enuDi, bool p_bValue) => clsDioCtrl.SetDi(p_enuDi, p_bValue);
-
     }
 }

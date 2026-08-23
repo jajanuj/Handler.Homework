@@ -4,24 +4,35 @@ using Axis = ArtData.clsEnum.enuAxis;
 using Di = ArtData.clsEnum.enuDi;
 using Do = ArtData.clsEnum.enuDo;
 
-namespace ArtEQ._2_Function_流程_.Proc
+namespace ArtEQ._2_Function_流程_.Proc.Arm
 {
     /// <summary>
     /// 組裝手臂
     /// </summary>
     public class Proc_ASM_Arm : BaseArm
     {
-        #region ===================== Singleton 設置 =====================
-
-        public static Proc_ASM_Arm GetSingleton() => GetSingletonInstance(() => new Proc_ASM_Arm("ASM_Arm"));
-
-        #endregion
+        #region Constructors
 
         protected Proc_ASM_Arm(string p_strName) : base(p_strName)
         {
             PickLane = Proc_HS_Lane.GetSingleton();
             PlaceLane = Proc_ASM_Lane.GetSingleton();
         }
+
+        #endregion
+
+        #region Public Methods
+
+        #region ===================== Singleton 設置 =====================
+
+        public static Proc_ASM_Arm GetSingleton() => GetSingletonInstance(() => new Proc_ASM_Arm("ASM_Arm"));
+
+        #endregion
+
+        #endregion
+
+        #region Protected Methods
+
         protected override void BindHardwarePoint()
         {
             m_DI_Vacuum = Di.ASM_Arm_Vacuum;
@@ -31,7 +42,6 @@ namespace ArtEQ._2_Function_流程_.Proc
             m_Motor_X = Axis.ASM_Arm_X;
             m_Motor_Y = Axis.ASM_Arm_Y;
             m_Motor_Z = Axis.ASM_Arm_Z;
-
         }
 
         protected override bool ReadyToPick()
@@ -44,18 +54,20 @@ namespace ArtEQ._2_Function_流程_.Proc
             BaseLane pickLane = null;
             switch (PPStation)
             {
-                case ArtData.clsEnum.PPStation.IC:
+                case PPStation.IC:
                     if (m_pickPlace == PickPlace.Pick)
                     {
                         pickLane = Proc_ASM_Lane.GetSingleton();
                     }
+
                     break;
-                case ArtData.clsEnum.PPStation.None:
-                case ArtData.clsEnum.PPStation.HeatSink:
+                case PPStation.None:
+                case PPStation.HeatSink:
                     if (m_pickPlace == PickPlace.Pick)
                     {
                         pickLane = Proc_HS_Lane.GetSingleton();
                     }
+
                     break;
             }
 
@@ -67,18 +79,20 @@ namespace ArtEQ._2_Function_流程_.Proc
             BaseLane placeLane = null;
             switch (PPStation)
             {
-                case ArtData.clsEnum.PPStation.None:
-                case ArtData.clsEnum.PPStation.IC:
+                case PPStation.None:
+                case PPStation.IC:
                     if (m_pickPlace == PickPlace.Place)
                     {
                         placeLane = Proc_ASM_Lane.GetSingleton();
                     }
+
                     break;
-                case ArtData.clsEnum.PPStation.HeatSink:
+                case PPStation.HeatSink:
                     if (m_pickPlace == PickPlace.Place)
                     {
                         placeLane = Proc_HS_Lane.GetSingleton();
                     }
+
                     break;
             }
 
@@ -105,5 +119,7 @@ namespace ArtEQ._2_Function_流程_.Proc
             AssyRecord.IsExist = false;
             placeLane.m_Temp_Tray_Info.SetItemStatus(index, TrayItemStatus.Assembly);
         }
+
+        #endregion
     }
 }

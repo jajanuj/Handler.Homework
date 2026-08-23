@@ -522,6 +522,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     if (IsTimeOut(m_VacuumDelay, clsCmData.enuSecUnit.MilliSec))
                     {
                         clsEditRunThread.ReportAlarm(enuAlarm.Pickup_Vacuum_Failure);
+                        iStepIndex = 20998;
                     }
 
                     break;
@@ -555,7 +556,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                 case 30000:
                     m_enuAction = enuAction.Place;
 
-                    if (!AssyRecord.IsExist)
+                    if (!AssyRecord.IsExist && !GetDi(m_DI_Vacuum))
                     {
                         clsEditRunThread.ReportAlarm(enuAlarm.Place_Suction_Cup_No_Material);
                         iStepIndex = 30998;

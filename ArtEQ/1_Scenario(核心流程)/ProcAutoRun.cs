@@ -2,6 +2,7 @@ using ArtCommonLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.AutoRun;
 using ArtEQ._2_Function_流程_.Proc;
+using ArtEQ._2_Function_流程_.Proc.Arm;
 
 namespace ArtEQ
 {
@@ -17,7 +18,7 @@ namespace ArtEQ
         /// 代表之後還可能分出新的 NG。AR_Mag_NG_Feed(要不要繼續補空盤)、
         /// AR_NG_Lane(空盤要不要強制出料)共用同一個判斷，避免兩邊各寫一份、以後改一邊漏一邊。
         /// </summary>
-        static public bool HasUpstreamWorkPendingSort()
+        public static bool HasUpstreamWorkPendingSort()
         {
             return Proc_HS_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist
                    || Proc_ASM_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist
@@ -33,22 +34,22 @@ namespace ArtEQ
         #region //=====================  全域變數設置 =====================
 
         /// <summary> LotID </summary>
-        static public string sLotID = "";
+        public static string sLotID = "";
 
         /// <summary> 結批 </summary>
-        static public bool bIsLotEnd = false;
+        public static bool bIsLotEnd = false;
 
         /// <summary> 結批流程已啟動無法取消(bIsLotEnd) </summary>
-        static public bool bIsAlreadyStartLotEnd = false;
+        public static bool bIsAlreadyStartLotEnd = false;
 
         /// <summary> 停止入料 </summary>
-        static public bool bIsStopLoad = false;
+        public static bool bIsStopLoad = false;
 
         /// <summary> 執行模式</summary>
-        static public bool bIsManualMode = false;
+        public static bool bIsManualMode = false;
 
         /// <summary> 執行模式</summary>
-        static public bool bIsAutoRunMode = false;
+        public static bool bIsAutoRunMode = false;
 
         #endregion
 
