@@ -159,6 +159,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
             // 3. 下游 Load_Lane 流程就緒
             rValue &= NextLane().m_enuAction == BaseLane.enuAction.Load_Done ||
+                      NextLane().m_enuAction == BaseLane.enuAction.Load_Waiting ||
                       NextLane().m_enuAction == BaseLane.enuAction.Unload_Done ||
                       NextLane().m_enuAction == BaseLane.enuAction.Initial_Done;
 

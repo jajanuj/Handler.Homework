@@ -41,6 +41,21 @@ namespace ArtEQ._2_Function_流程_.Proc
         protected override BaseMagazine GetPreviousMagazineForBill() => Proc_HS_Feed_Magazine.GetSingleton();
 
         /// <summary>
+        /// 入料前交握：確認上游 HS Feed Magazine 準備推料。
+        /// 照 Proc_ASM_Lane.cs 的樣板補上——原本沒覆寫，吃 BaseLane 預設值(永遠 return true)，
+        /// 導致 Lane 自己的入料模擬(靠計時器跑完 50100~50999)完全不等磁盒實際有沒有推料，
+        /// 兩邊狀態會脫鉤(Lane 顯示 Load_Done 時磁盒可能都還沒開始推)。
+        /// </summary>
+        protected override bool ReadyToLoad()
+        {
+            var HS_Magazine = GetPreviousMagazineForBill();
+            if (HS_Magazine == null)
+                return false;
+
+            return HS_Magazine.m_enuAction == BaseMagazine.enuAction.Magazine_Load_Waiting;
+        }
+
+        /// <summary>
         /// 出料前交握：確認下一站 HS Magazine 準備收料
         /// </summary>
         protected override bool ReadyToUnloadToNext()

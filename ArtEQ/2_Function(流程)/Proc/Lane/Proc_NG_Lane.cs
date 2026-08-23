@@ -40,6 +40,21 @@ namespace ArtEQ._2_Function_流程_.Proc
         protected override BaseMagazine GetPreviousMagazineForBill() => Proc_NG_Feed_Magazine.GetSingleton();
 
         /// <summary>
+        /// 入料前交握：確認上游 NG Feed Magazine 準備推料。
+        /// 照 Proc_ASM_Lane.cs 的樣板補上，同一個坑跟 Proc_HS_Lane.cs 一樣：原本沒覆寫，
+        /// 吃 BaseLane 預設值(永遠 return true)，導致 Lane 自己的入料模擬完全不等磁盒
+        /// 實際有沒有推料，兩邊狀態脫鉤。
+        /// </summary>
+        protected override bool ReadyToLoad()
+        {
+            var NG_Magazine = GetPreviousMagazineForBill();
+            if (NG_Magazine == null)
+                return false;
+
+            return NG_Magazine.m_enuAction == BaseMagazine.enuAction.Magazine_Load_Waiting;
+        }
+
+        /// <summary>
         /// 出料前交握：確認下一站 NG Magazine 準備收料
         /// </summary>
         protected override bool ReadyToUnloadToNext()
