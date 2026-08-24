@@ -1,15 +1,16 @@
-﻿using System;
-using ArtCommonLib;
+﻿using ArtCommonLib;
 using ArtControlLib;
-using ArtData;
 using ArtEQ.B_Tools;
 using ArtTeach;
+using System;
 using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.BaseProc
 {
     public abstract class BaseAoiStation : clsThreadProc
     {
+        #region Enums
+
         #region ===================== Action 定義 =====================
 
         public enum enuAction
@@ -41,10 +42,18 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
         #endregion
 
+        #endregion
+
+        #region Constant
+
         /// <summary>
-        /// 馬達復歸後，延遲時間 1000 (ms)。
+        /// 馬達移動速度
         /// </summary>
-        protected readonly int m_iHomeDelay = 1000;
+        protected const double m_dMotorSpeed = 200;
+
+        #endregion
+
+        #region Fields
 
         /// <summary>
         /// 模擬視覺工作延遲時間 1000 (ms)。
@@ -52,38 +61,42 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         protected readonly int m_iAoiDelay = 1000;
 
         /// <summary>
-        /// 馬達移動速度
+        /// 馬達復歸後，延遲時間 1000 (ms)。
         /// </summary>
-        protected const double m_dMotorSpeed = 200;
+        protected readonly int m_iHomeDelay = 1000;
 
         /// <summary>
         /// 隨機產生AOI檢測結果
         /// </summary>
         private readonly Random m_rnd = new Random();
 
+        protected double m_dBaseCellPosX = ucPosPmt.GetValueDouble(enuPosName.AOI_BasePos_X);
+
+        protected double m_dBaseCellPosY = ucPosPmt.GetValueDouble(enuPosName.AOI_BasePos_Y);
+
+        protected double m_dFocusPosZ = ucPosPmt.GetValueDouble(enuPosName.AOI_FocusPos_Z);
+
         /// <summary>
         /// Z軸安全位置
         /// </summary>
         protected double m_dSafePos_Z = ucPosPmt.GetValueDouble(enuPosName.AOI_SafePos_Z);
 
-        protected double m_dBaseCellPosX = ucPosPmt.GetValueDouble(enuPosName.AOI_BasePos_X);
+        #endregion
 
-        protected double m_dBaseCellPosY = ucPosPmt.GetValueDouble(enuPosName.AOI_BasePos_Y);
+        #region Constructors
 
-        private int m_iTotalCell = 6;
+        public BaseAoiStation(string name) : base(name)
+        {
+        }
 
-        private int m_iNowWorkCell = 0;
+        #endregion
 
-        private int m_iPutterTimeout => GetPmt(enuPmtName.Sys_Timeout_Putter);
-        private int m_iPutterBeforeDelay => GetPmt(enuPmtName.Sys_Delay_Putter_Before);
-        private int m_iPutterAfterDelay => GetPmt(enuPmtName.Sys_Delay_Putter_After);
-        private int GetPmt(clsEnum.enuPmtName name) => ucParameter.GetValueInt(name);
+        #region Properties
 
         /// <summary>
         /// 本站帳料
         /// </summary>
         public clsTrayInfo m_Temp_Tray_Info { get; set; } = new clsTrayInfo();
-
 
         public bool bReady { get; protected set; }
 
@@ -107,68 +120,11 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         /// </summary>
         public abstract BaseLane AOILane { get; }
 
+        #endregion
+
+        #region Public Methods
+
         public bool IsProcOK() => !bIsProcessing && m_bIsReady;
-
-        public BaseAoiStation(string name) : base(name)
-        {
-        }
-
-        #region ===================== 控制盒 =====================
-
-        /// <summary>
-        /// 控制盒：把多個氣缸 / 軸控動作加進來後，用 Action() 等待完成
-        /// </summary>
-        protected clsControlBox m_CtrlBox = new clsControlBox();
-
-        /// <summary>
-        /// 檢測馬達X軸
-        /// </summary>
-        protected clsBoxMotion m_Motion_X = new clsBoxMotion();
-
-        /// <summary>
-        /// 檢測馬達Y軸
-        /// </summary>
-        protected clsBoxMotion m_Motion_Y = new clsBoxMotion();
-
-        /// <summary>
-        /// 檢測馬達Z軸
-        /// </summary>
-        protected clsBoxMotion m_Motion_Z = new clsBoxMotion();
-        #endregion
-
-        #region ===================== Axis / Pos / IO =====================
-
-        /// <summary>
-        /// 馬達X軸
-        /// </summary>
-        protected enuAxis m_Axis_X;
-
-        /// <summary>
-        /// 馬達Y軸
-        /// </summary>
-        protected enuAxis m_Axis_Y;
-
-        /// <summary>
-        /// 馬達Z軸
-        /// </summary>
-        protected enuAxis m_Axis_Z;
-
-        /// <summary>
-        /// 工作的欄
-        /// </summary>
-        protected int m_workColumn;
-
-        /// <summary>
-        /// 工作的列
-        /// </summary>
-        protected int m_workRow;
-
-        /// <summary>
-        /// 目前檢測結果
-        /// </summary>
-        protected AoiResult m_enuAoiResult;
-        #endregion
-
 
         /// <summary> 執行檢測流程 </summary>
         public void RunAOI(int col, int row)
@@ -204,8 +160,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
             }
         }
 
-        protected static T GetSingletonInstance<T>(Func<T> factory) where T : class => SingletonHelper<T>.GetOrCreate(factory);
-
         public void InitialSet()
         {
             // X 軸初始化
@@ -224,6 +178,30 @@ namespace ArtEQ._2_Function_流程_.BaseProc
             clsMotionCtrl.SetServo(m_Axis_Z, true);
         }
 
+        public void GetCellCenterPos(int iCol, int iRow, out double dPosX, out double dPosY)
+        {
+            var m_dCellWidth = GetPmt(enuPmtName.Rec_Cell_Width);
+            var m_dCellHeight = GetPmt(enuPmtName.Rec_Cell_Height);
+            var m_dCellPitchX = GetPmt(enuPmtName.Rec_Cell_Pitch_X);
+            var m_dCellPitchY = GetPmt(enuPmtName.Rec_Cell_Pitch_Y);
+
+            // Step1：從 Row0,Col0 的教點，用 Pitch 換算出指定 Row/Col 那顆 Cell 的左上角座標
+            double dCellTopLeftX = m_dBaseCellPosX + iCol * m_dCellPitchX;
+            double dCellTopLeftY = m_dBaseCellPosY + iRow * m_dCellPitchY;
+
+            // Step2：從左上角推算中心點 (加上 Cell 自身尺寸的一半)
+            dPosX = dCellTopLeftX + m_dCellWidth / 2.0;
+            dPosY = dCellTopLeftY + m_dCellHeight / 2.0;
+            dPosX = 0;
+            dPosY = 0;
+        }
+
+        #endregion
+
+        #region Protected Methods
+
+        protected static T GetSingletonInstance<T>(Func<T> factory) where T : class => SingletonHelper<T>.GetOrCreate(factory);
+
         protected override void Scenario()
         {
             switch (iStepIndex)
@@ -231,10 +209,12 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                 #region ===================== Initial (初始化流程 10000-10999) =====================
 
                 #region 【初始化開始】
+
                 case 10000:
                     m_enuAction = enuAction.Initial;
                     iStepIndex = 10100;
                     break;
+
                 #endregion
 
                 // 將 Z 軸回原點動作加入控制盒
@@ -296,21 +276,25 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     break;
 
                 #region 【初始化失敗】設定狀態，結束流程
+
                 case 10998:
                     m_enuAction = enuAction.Initial_Fail;
                     m_bIsReady = false;
                     bIsProcessing = false;
                     iStepIndex = -1;
                     break;
+
                 #endregion
 
                 #region 【 初始化完成】視覺檢測站 已就緒
+
                 case 10999:
                     m_enuAction = enuAction.Initial_Done;
                     m_bIsReady = true;
                     bIsProcessing = false;
                     iStepIndex = -1;
                     break;
+
                 #endregion
 
                 #endregion
@@ -323,13 +307,11 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     iStepIndex = 20010;
                     break;
 
-                //todo 0821
                 // 檢查AOI站帳籍有料 && AOI流道到位檢知
                 case 20010:
-                    if (AOILane.m_Temp_Tray_Info.bIsExist && AOILane.ArrivalSignal)
+                    if (ReadyToInspect())
                     {
                         iStepIndex = 20200;
-                        break;
                     }
                     else
                     {
@@ -338,24 +320,20 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     }
 
                     break;
-                //todo 對焦Z
+
+                // 設定Z軸移動到對焦位置
                 case 20100:
                     m_CtrlBox.Clear();
-                    SetAddMotorZMoveAbsolute(m_dSafePos_Z);
+                    SetAddMotorZMoveAbsolute(m_dFocusPosZ);
                     iStepIndex = 20110;
                     break;
 
+                // 執行Z軸移動到對焦位置
                 case 20110:
                     m_CtrlBox.Action(ref iStepIndex, 20200, 20998);
                     break;
 
-                // 等待AOI流道是否準備完成，判斷有無料盤
                 case 20200:
-                    m_enuAction = enuAction.AOI_Waiting;
-                    iStepIndex = ReadyToPress() ? 20300 : 20998;
-                    break;
-
-                case 20300:
                     GetCellCenterPos(m_workColumn, m_workRow, out double posX, out double posY);
                     m_CtrlBox.Clear();
                     SetAddMotorXMoveAbsolute(posX);
@@ -380,6 +358,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     {
                         iStepIndex = 20500;
                     }
+
                     break;
 
                 //過帳
@@ -405,8 +384,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     iStepIndex = -1;
                     break;
 
-                    #endregion
-
+                #endregion
             }
         }
 
@@ -414,13 +392,17 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         /// 判斷壓合站有無料，是否可以進行取料動作。
         /// </summary>
         /// <returns></returns>
-        protected virtual bool ReadyToPress()
-        {
-            return AOILane.IsProcOK() && AOILane.m_Temp_Tray_Info.bIsExist;
-        }
+        protected virtual bool ReadyToInspect() => AOILane.IsProcOK() && AOILane.m_Temp_Tray_Info.bIsExist && AOILane.ArrivalSignal;
+
         protected abstract void BindHardwarePoint();
 
         protected abstract bool SetTrayWork();
+
+        #endregion
+
+        #region Private Methods
+
+        private int GetPmt(enuPmtName name) => ucParameter.GetValueInt(name);
 
         private void RunAction(enuAction p_enuAction)
         {
@@ -444,25 +426,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         private bool GetDi(enuDi p_enuDi) => clsDioCtrl.GetDi(p_enuDi);
         private bool SetDi(enuDi p_enuDi, bool p_bValue) => clsDioCtrl.SetDi(p_enuDi, p_bValue);
         private bool SetDo(enuDo p_enuDo, bool p_bValue) => clsDioCtrl.SetDo(p_enuDo, p_bValue);
-
-        public void GetCellCenterPos(int iCol, int iRow, out double dPosX, out double dPosY)
-        {
-            //todo :要改成讀取recipe參數
-            var m_dCellWidth = 10;
-            var m_dCellLength = 10;
-            var m_dCellPitchX = 10;
-            var m_dCellPitchY = 0;
-
-            // Step1：從 Row0,Col0 的教點，用 Pitch 換算出指定 Row/Col 那顆 Cell 的左上角座標
-            double dCellTopLeftX = m_dBaseCellPosX + (iCol * m_dCellPitchX);
-            double dCellTopLeftY = m_dBaseCellPosY + (iRow * m_dCellPitchY);
-
-            // Step2：從左上角推算中心點 (加上 Cell 自身尺寸的一半)
-            dPosX = dCellTopLeftX + (m_dCellWidth / 2.0);
-            dPosY = dCellTopLeftY + (m_dCellLength / 2.0);
-            dPosX = 0;
-            dPosY = 0;
-        }
 
         /// <summary>
         /// 設定並加入馬達X絕對移動動作
@@ -497,5 +460,64 @@ namespace ArtEQ._2_Function_流程_.BaseProc
             m_CtrlBox.Add(m_Motion_Z);
         }
 
+        #endregion
+
+        #region ===================== 控制盒 =====================
+
+        /// <summary>
+        /// 控制盒：把多個氣缸 / 軸控動作加進來後，用 Action() 等待完成
+        /// </summary>
+        protected clsControlBox m_CtrlBox = new clsControlBox();
+
+        /// <summary>
+        /// 檢測馬達X軸
+        /// </summary>
+        protected clsBoxMotion m_Motion_X = new clsBoxMotion();
+
+        /// <summary>
+        /// 檢測馬達Y軸
+        /// </summary>
+        protected clsBoxMotion m_Motion_Y = new clsBoxMotion();
+
+        /// <summary>
+        /// 檢測馬達Z軸
+        /// </summary>
+        protected clsBoxMotion m_Motion_Z = new clsBoxMotion();
+
+        #endregion
+
+        #region ===================== Axis / Pos / IO =====================
+
+        /// <summary>
+        /// 馬達X軸
+        /// </summary>
+        protected enuAxis m_Axis_X;
+
+        /// <summary>
+        /// 馬達Y軸
+        /// </summary>
+        protected enuAxis m_Axis_Y;
+
+        /// <summary>
+        /// 馬達Z軸
+        /// </summary>
+        protected enuAxis m_Axis_Z;
+
+        /// <summary>
+        /// 工作的欄
+        /// </summary>
+        protected int m_workColumn;
+
+        /// <summary>
+        /// 工作的列
+        /// </summary>
+        protected int m_workRow;
+
+        /// <summary>
+        /// 目前檢測結果
+        /// </summary>
+        protected AoiResult m_enuAoiResult;
+
+        #endregion
     }
 }

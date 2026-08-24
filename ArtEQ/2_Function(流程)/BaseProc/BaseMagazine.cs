@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using ArtCommonLib;
+﻿using ArtCommonLib;
 using ArtControlLib;
 using ArtData;
 using ArtEQ.B_Tools;
 using ArtTeach;
+using System;
+using System.Collections.Generic;
 using static ArtData.clsEnum;
-
 
 namespace ArtEQ
 {
@@ -787,7 +786,6 @@ namespace ArtEQ
         /// <param name="p_iSlotNo">槽位編號（從1開始）</param>
         protected double CalculateSlotPosZ(int p_iSlotNo)
         {
-            //todo: 要補上UI點位元件
             double firstSlotPos = ucPosPmt.GetValueDouble(m_posSlot1_Z);
             double pitch = GetPmt(enuPmtName.Rec_Load_Magazine_Pitch);
 
@@ -830,10 +828,14 @@ namespace ArtEQ
             EnsureMagazineInfo();
 
             if (m_MagazineInfo == null || m_MagazineInfo.m_trayInfo == null)
+            {
                 return;
+            }
 
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
+            {
                 return;
+            }
 
             m_MagazineInfo.bIsExist = true;
             clsTrayInfo tray = m_MagazineInfo.m_trayInfo[p_iSlotNo];
@@ -878,10 +880,14 @@ namespace ArtEQ
             EnsureMagazineInfo();
 
             if (m_MagazineInfo == null || m_MagazineInfo.m_trayInfo == null)
+            {
                 return;
+            }
 
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
+            {
                 return;
+            }
 
             m_MagazineInfo.bIsExist = true;
             clsTrayInfo tray = m_MagazineInfo.m_trayInfo[p_iSlotNo];
@@ -921,10 +927,14 @@ namespace ArtEQ
             EnsureMagazineInfo();
 
             if (m_MagazineInfo == null || m_MagazineInfo.m_trayInfo == null)
+            {
                 return;
+            }
 
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
+            {
                 return;
+            }
 
             m_MagazineInfo.bIsExist = true;
             clsTrayInfo tray = m_MagazineInfo.m_trayInfo[p_iSlotNo];
@@ -963,10 +973,14 @@ namespace ArtEQ
             EnsureMagazineInfo();
 
             if (m_MagazineInfo == null || m_MagazineInfo.m_trayInfo == null)
+            {
                 return;
+            }
 
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
+            {
                 return;
+            }
 
             m_MagazineInfo.bIsExist = true;
             clsTrayInfo tray = m_MagazineInfo.m_trayInfo[p_iSlotNo];
@@ -1032,7 +1046,9 @@ namespace ArtEQ
                 // 如果 Slot 編號 < 1 或 > 使用者設定的數量，標記為待移除
                 // 例如：m_iUseSlotCount = 3，則 Slot 4、5 會被加入 removeKeys
                 if (slot < 1 || slot > m_iUseSlotCount)
+                {
                     removeKeys.Add(slot);
+                }
             }
 
             // ========== 第五段：實際移除超出範圍的 Slot ==========
@@ -1048,12 +1064,16 @@ namespace ArtEQ
             {
                 // 如果字典中沒有該 Slot，新增一個空的 TrayInfo
                 if (!m_MagazineInfo.m_trayInfo.ContainsKey(slot))
+                {
                     m_MagazineInfo.m_trayInfo.Add(slot, new clsTrayInfo());
+                }
 
                 // 如果該 Slot 的 TrayInfo 是 null，重新建立一個新實例
                 // 這是雙重保險，避免後續存取時發生 NullReferenceException
                 if (m_MagazineInfo.m_trayInfo[slot] == null)
+                {
                     m_MagazineInfo.m_trayInfo[slot] = new clsTrayInfo();
+                }
             }
         }
 
@@ -1069,12 +1089,16 @@ namespace ArtEQ
             clsLog.Log(nameof(enuLogName.ProcessLog), log);
 
             if (!IsSlotInUseRange(p_iSlotNo))
+            {
                 return false;
+            }
 
             EnsureMagazineInfo();
 
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
+            {
                 return false;
+            }
 
             clsTrayInfo tray = m_MagazineInfo.m_trayInfo[p_iSlotNo];
 
@@ -1087,12 +1111,16 @@ namespace ArtEQ
         public clsTrayInfo GetSlotTrayBill(int p_iSlotNo)
         {
             if (!IsSlotInUseRange(p_iSlotNo))
+            {
                 return null;
+            }
 
             EnsureMagazineInfo();
 
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
+            {
                 return null;
+            }
 
             return m_MagazineInfo.m_trayInfo[p_iSlotNo];
         }
@@ -1118,7 +1146,9 @@ namespace ArtEQ
             EnsureMagazineInfo();
 
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
+            {
                 return;
+            }
 
             clsTrayInfo tray = m_MagazineInfo.m_trayInfo[p_iSlotNo];
 
@@ -1128,55 +1158,21 @@ namespace ArtEQ
             tray.sTrayID = (m_iTestTrayID++).ToString();
             tray.iRowID = p_iSlotNo;
             tray.iColumnID = 1;
-
-            //todo: delete
-            // 測試用：只有 Cup 有帳，Recipe / AOIResult 都沒有
-            //if (tray.m_CupInfo != null)
-            //{
-            //    tray.m_CupInfo.bIsExist = true;
-            //    tray.m_CupInfo.sCupID = tray.sTrayID;
-
-            //    if (tray.m_CupInfo.m_RecipeInfo != null)
-            //        tray.m_CupInfo.m_RecipeInfo.Clear();
-
-            //    if (tray.m_CupInfo.m_AOIResult != null)
-            //        tray.m_CupInfo.m_AOIResult.Clear();
-            //}
-
-
-            // 【新增】六杯獨立帳料也一併建立，維持與 m_CupInfo 一致
-            //if (tray.m_CupInfoList != null)
-            //{
-            //    for (int i = 0; i < clsTrayInfo.CUP_COUNT; i++)
-            //    {
-            //        if (tray.m_CupInfoList[i] == null)
-            //            continue;
-
-            //        tray.m_CupInfoList[i].bIsExist = true;
-            //        tray.m_CupInfoList[i].sCupID = $"{tray.sTrayID}-{i + 1}";
-
-            //        if (tray.m_CupInfoList[i].m_RecipeInfo != null)
-            //            tray.m_CupInfoList[i].m_RecipeInfo.Clear();
-
-            //        if (tray.m_CupInfoList[i].m_AOIResult != null)
-            //            tray.m_CupInfoList[i].m_AOIResult.Clear();
-            //    }
-            //}
-
-            //clsLog.Log(
-            //    clsEnum.enuLogName.ProcessLog.ToString(),
-            //    $"{strThreadLogName} : Set Point Test Tray Bill. Slot={p_iSlotNo}, TrayID={tray.sTrayID}, CupCount={clsTrayInfo.CUP_COUNT}");
         }
 
         public void ClearSlotTrayBill(int p_iSlotNo)
         {
             if (!IsSlotInUseRange(p_iSlotNo))
+            {
                 return;
+            }
 
             EnsureMagazineInfo();
 
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
+            {
                 return;
+            }
 
             m_MagazineInfo.m_trayInfo[p_iSlotNo].Clear();
 
@@ -1195,7 +1191,9 @@ namespace ArtEQ
             foreach (var item in m_MagazineInfo.m_trayInfo)
             {
                 if (item.Value != null)
+                {
                     item.Value.Clear();
+                }
             }
 
             m_bWaitDownstreamLoadDone = false;
@@ -1212,17 +1210,23 @@ namespace ArtEQ
         public string GetSlotBillText(int p_iSlotNo)
         {
             if (!IsSlotInUseRange(p_iSlotNo))
+            {
                 return "No Slot";
+            }
 
             EnsureMagazineInfo();
 
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(p_iSlotNo))
+            {
                 return "No Slot";
+            }
 
             clsTrayInfo tray = m_MagazineInfo.m_trayInfo[p_iSlotNo];
 
             if (tray == null || !tray.bIsExist)
+            {
                 return "Empty";
+            }
 
             return $"TrayID={tray.sTrayID}";
         }
@@ -1234,20 +1238,28 @@ namespace ArtEQ
         {
             // 上一筆已經複製給下游，但還沒收到下游 ACK，不准再推
             if (m_bWaitDownstreamLoadDone)
+            {
                 return false;
+            }
 
             // 指定 Slot 必須有帳
             if (!HasSlotTrayBill(m_iSlotNo))
+            {
                 return false;
+            }
 
             BaseLane lane = GetDownstreamLaneForBill();
 
             if (lane == null)
+            {
                 return false;
+            }
 
             // 下游已經有帳，不准覆蓋
             if (lane.HasTrayBill())
+            {
                 return false;
+            }
 
             return true;
         }
@@ -1261,15 +1273,21 @@ namespace ArtEQ
             EnsureMagazineInfo();
 
             if (!m_bWaitDownstreamLoadDone)
+            {
                 return;
+            }
 
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(m_iPendingClearSlotNo))
+            {
                 return;
+            }
 
             clsTrayInfo slotTray = m_MagazineInfo.m_trayInfo[m_iPendingClearSlotNo];
 
             if (slotTray != null)
+            {
                 slotTray.Clear();
+            }
 
             clsLog.Log(
                 nameof(enuLogName.ProcessLog),
@@ -1296,7 +1314,6 @@ namespace ArtEQ
             m_Motion_Z.iSimulateDelayTime = 500;
             clsMotionCtrl.SetServo(m_Motor_Z, true);
 
-
             if (b_Simulation)
             {
                 SetDi(m_DI_Magazine_Present, false);
@@ -1310,12 +1327,19 @@ namespace ArtEQ
 
         public bool IsProcStop()
         {
-            if (IsProcOK()) return true;
+            if (IsProcOK())
+            {
+                return true;
+            }
+
             if (iStepIndex > 0 &&
                 clsThreadProcManage.bIsStepProc &&
                 !bIsKeepProc &&
                 iStepIndex % 100 == 0)
+            {
                 return true;
+            }
+
             return false;
         }
 
@@ -1399,29 +1423,6 @@ namespace ArtEQ
             }
         }
 
-        public bool DI_MagExist() => clsDioCtrl.GetDi(m_DI_Magazine_Present);
-
-        public bool IsPointTray(clsTrayInfo tray)
-        {
-            if (tray == null)
-                return false;
-
-            if (!tray.bIsExist)
-                return false;
-
-            //todo : delete
-            //if (tray.m_CupInfo == null || !tray.m_CupInfo.bIsExist)
-            //    return false;
-
-            //if (tray.m_CupInfo.m_RecipeInfo != null && tray.m_CupInfo.m_RecipeInfo.bIsExist)
-            //    return false;
-
-            //if (tray.m_CupInfo.m_AOIResult != null && tray.m_CupInfo.m_AOIResult.bIsExist)
-            //    return false;
-
-            return true;
-        }
-
         #region //===================== Magazine Slot 帳初始化 =====================
 
         /// <summary>
@@ -1430,10 +1431,14 @@ namespace ArtEQ
         private int NormalizeSlotCount(int p_iSlotCount)
         {
             if (p_iSlotCount < 1)
+            {
                 return 1;
+            }
 
             if (p_iSlotCount > m_iSlotMax)
+            {
                 return m_iSlotMax;
+            }
 
             return p_iSlotCount;
         }
@@ -1474,7 +1479,9 @@ namespace ArtEQ
             m_iUseSlotCount = NormalizeSlotCount(m_iUseSlotCount);
 
             if (m_MagazineInfo == null)
+            {
                 m_MagazineInfo = new clsMagazineInfo();
+            }
 
             // Init 時依使用者設定的 Slot 數重新建立總帳。
             // 例如 m_iUseSlotCount = 3，只建立 Slot 1~3。

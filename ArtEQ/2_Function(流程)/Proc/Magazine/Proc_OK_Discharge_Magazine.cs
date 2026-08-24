@@ -37,11 +37,12 @@ namespace ArtEQ._2_Function_流程_.Proc
         /// </summary>
         protected override bool ReadyToUnload()
         {
-            //todo: 這裡要改成下游站的交握判斷。
             var laneOK = Proc_OK_Lane.GetSingleton();
 
             if (laneOK == null)
+            {
                 return false;
+            }
 
             // 1. 先檢查帳：
             //    Slot 有帳、下游沒帳、沒有等待上一筆 ACK。
@@ -63,7 +64,9 @@ namespace ArtEQ._2_Function_流程_.Proc
         {
             var okLane = PreviousLane;
             if (okLane == null)
+            {
                 return false;
+            }
 
             return okLane.m_enuAction == BaseLane.enuAction.Unload_Waiting_Sign;
         }
@@ -72,7 +75,6 @@ namespace ArtEQ._2_Function_流程_.Proc
         /// 前一站的 Lane 是OK Lane，因為 Magazine 是收料站。
         /// </summary>
         public override BaseLane PreviousLane => Proc_OK_Lane.GetSingleton();
-
 
         /// <summary>
         /// 確認收料完成。
@@ -98,24 +100,26 @@ namespace ArtEQ._2_Function_流程_.Proc
         /// </summary>
         protected override void TransferBillAfterUnloading()
         {
-            //todo: 這裡要改成下游站的交握判斷。
-
             EnsureMagazineInfo();
 
             BaseLane lane = GetDownstreamLaneForBill();
 
             if (lane == null)
+            {
                 return;
+            }
 
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(m_iSlotNo))
+            {
                 return;
+            }
 
             clsTrayInfo slotTray = m_MagazineInfo.m_trayInfo[m_iSlotNo];
 
             if (slotTray == null || !slotTray.bIsExist)
             {
                 clsLog.Log(
-                    clsEnum.enuLogName.ProcessLog.ToString(),
+                    nameof(clsEnum.enuLogName.ProcessLog),
                     $"{strThreadLogName} : Slot[{m_iSlotNo}] no bill. Mechanism done only.");
                 return;
             }
@@ -123,7 +127,7 @@ namespace ArtEQ._2_Function_流程_.Proc
             if (lane.HasTrayBill())
             {
                 clsLog.Log(
-                    clsEnum.enuLogName.ProcessLog.ToString(),
+                    nameof(clsEnum.enuLogName.ProcessLog),
                     $"{strThreadLogName} : Downstream already has bill. Transfer bill denied.");
                 return;
             }
@@ -136,7 +140,7 @@ namespace ArtEQ._2_Function_流程_.Proc
             m_iPendingClearSlotNo = m_iSlotNo;
 
             clsLog.Log(
-                clsEnum.enuLogName.ProcessLog.ToString(),
+                nameof(clsEnum.enuLogName.ProcessLog),
                 $"{strThreadLogName} : Copy Bill Slot[{m_iSlotNo}] Magazine -> Downstream. Wait Load_Done ACK.");
         }
 

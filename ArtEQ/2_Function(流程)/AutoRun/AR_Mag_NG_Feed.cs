@@ -81,7 +81,11 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                     break;
 
                 case 201000:
-                    if (!Mag_NG_Feed().IsProcOK()) break;
+                    if (!Mag_NG_Feed().IsProcOK())
+                    {
+                        break;
+                    }
+
                     if (Mag_NG_Feed().m_enuAction == BaseMagazine.enuAction.Magazine_Load_Done)
                     {
                         clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog),
@@ -89,7 +93,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                         iStepIndex = 100000;
                         if (CheckNextSlotNo() < 0)
                         {
-                            // TODO 料盒內無料
+                            //clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
                         }
                     }
                     else if (Mag_NG_Feed().m_enuAction == BaseMagazine.enuAction.Magazine_Load_Fail)
@@ -99,7 +103,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                         iStepIndex = 100000;
                         if (CheckNextSlotNo() < 0)
                         {
-                            clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
+                            //clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
                         }
                     }
 

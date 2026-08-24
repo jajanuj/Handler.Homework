@@ -113,7 +113,6 @@ namespace ArtData
         {
             [Description("未定義錯誤碼")] Error_Code_Undifine = 0,
 
-
             #region //Level 2 Alarm (System Down, 掛機) - 第一個數值為9
 
             //Alarm Code 第一個數值為9 ,clsAlarmCodeBuilder 會自行定義成 Level 2 的 Alarm, 索引 : @AlarmCodeBuilder-LV2@
@@ -242,7 +241,6 @@ namespace ArtData
             [Description("壓合站壓合前無料")] Press_Is_Empty,
 
             [Description("AOI站檢測前無料")] AOI_Is_Empty = 893501,
-
 
             [Description("LOT 結批完畢")] LOT_batch_completed = 893901,
 
@@ -680,7 +678,6 @@ namespace ArtData
             /// <summary> 單動流程開始與結束 </summary>
             ProcessLog,
 
-
             AlarmLog,
             ButtonLog,
             TeachLog,
@@ -709,6 +706,7 @@ namespace ArtData
             Rec_Tray_Column_Number,
             Rec_Tray_Row_Number,
             Rec_Sort_Type,
+            Rec_Press_Time,
 
             #endregion
 
@@ -718,11 +716,11 @@ namespace ArtData
             Sys_TeachEnable = 210011,
             Sys_EnableSafeDoor = 210012,
             Sys_EnableSMEMA = 210030,
+
             /// <summary>
             /// 啟用壓合站
             /// </summary>
             Sys_EnablePressStation,
-
 
             Sys_LaneMotorHighSpeed = 210201,
             Sys_LaneMotorLowSpeed = 210202,
@@ -753,7 +751,6 @@ namespace ArtData
             Sys_Delay_SMEMASingal = 221003,
             Sys_Delay_Putter_After,
             Sys_Delay_Putter_Before,
-            Sys_Delay_Press_Time,
             Sys_Delay_Simulate_Motor_Time,
 
             #endregion
@@ -819,6 +816,7 @@ namespace ArtData
             AOI_SafePos_Z,
             AOI_BasePos_X,
             AOI_BasePos_Y,
+            AOI_FocusPos_Z,
         }
 
         #endregion

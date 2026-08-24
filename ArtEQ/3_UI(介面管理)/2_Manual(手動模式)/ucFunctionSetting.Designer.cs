@@ -39,6 +39,8 @@
             this.label42 = new System.Windows.Forms.Label();
             this.cbtn_CheckCorner = new ArtControlLib.comImgButton();
             this.tPage_Recipe = new System.Windows.Forms.TabPage();
+            this.cnbPressTime = new ArtControlLib.comNumBox();
+            this.lblPressTime = new System.Windows.Forms.Label();
             this.lblNgDischargeMode = new System.Windows.Forms.Label();
             this.comNumBox1 = new ArtControlLib.comNumBox();
             this.cboNgDischargeMode = new System.Windows.Forms.ComboBox();
@@ -208,6 +210,8 @@
             // 
             // tPage_Recipe
             // 
+            this.tPage_Recipe.Controls.Add(this.cnbPressTime);
+            this.tPage_Recipe.Controls.Add(this.lblPressTime);
             this.tPage_Recipe.Controls.Add(this.lblNgDischargeMode);
             this.tPage_Recipe.Controls.Add(this.comNumBox1);
             this.tPage_Recipe.Controls.Add(this.cboNgDischargeMode);
@@ -232,6 +236,54 @@
             this.tPage_Recipe.TabIndex = 1;
             this.tPage_Recipe.Text = "Recipe Setting";
             this.tPage_Recipe.UseVisualStyleBackColor = true;
+            // 
+            // cnbPressTime
+            // 
+            this.cnbPressTime._DecimalPlaces = 0;
+            this.cnbPressTime._DefaultValue = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.cnbPressTime._IsSaveToIni = true;
+            this.cnbPressTime._IsSaveToLog = true;
+            this.cnbPressTime._IsShowCurrentValue = false;
+            this.cnbPressTime._IsShowPopForm = true;
+            this.cnbPressTime._Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.cnbPressTime._Minimum = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.cnbPressTime._PmtName = ArtData.clsEnum.enuPmtName.Rec_Press_Time;
+            this.cnbPressTime._PmtType = ArtData.clsEnum.enuPmtType.Recipe;
+            this.cnbPressTime._TempValue = null;
+            this.cnbPressTime._Value = new decimal(new int[] {
+            3000,
+            0,
+            0,
+            0});
+            this.cnbPressTime.Font = new System.Drawing.Font("Verdana", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cnbPressTime.Location = new System.Drawing.Point(525, 35);
+            this.cnbPressTime.Name = "cnbPressTime";
+            this.cnbPressTime.ReadOnly = true;
+            this.cnbPressTime.Size = new System.Drawing.Size(67, 26);
+            this.cnbPressTime.TabIndex = 492;
+            this.cnbPressTime.Text = "3000";
+            this.cnbPressTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // lblPressTime
+            // 
+            this.lblPressTime.AutoSize = true;
+            this.lblPressTime.Location = new System.Drawing.Point(373, 40);
+            this.lblPressTime.Name = "lblPressTime";
+            this.lblPressTime.Size = new System.Drawing.Size(113, 16);
+            this.lblPressTime.TabIndex = 491;
+            this.lblPressTime.Text = "Press Time (ms)";
             // 
             // lblNgDischargeMode
             // 
@@ -679,5 +731,7 @@
         private System.Windows.Forms.Label lblNgDischargeMode;
         private System.Windows.Forms.Label lblEnablePressStation;
         private ArtControlLib.comImgButton comImgButton1;
+        private ArtControlLib.comNumBox cnbPressTime;
+        private System.Windows.Forms.Label lblPressTime;
     }
 }

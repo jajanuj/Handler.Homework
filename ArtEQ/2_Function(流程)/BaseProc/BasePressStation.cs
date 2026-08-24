@@ -1,9 +1,8 @@
-﻿using System;
-using ArtCommonLib;
+﻿using ArtCommonLib;
 using ArtControlLib;
-using ArtData;
 using ArtEQ._2_Function_流程_.Proc;
 using ArtEQ.B_Tools;
+using System;
 using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.BaseProc
@@ -67,12 +66,12 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         /// <summary>
         /// 系統設定 壓合時間
         /// </summary>
-        public int PressTime => GetPmt(enuPmtName.Sys_Delay_Press_Time);
+        public int PressTime => GetPmt(enuPmtName.Rec_Press_Time);
+
         /// <summary>
         /// 本站帳料
         /// </summary>
         public clsTrayInfo m_Temp_Tray_Info { get; set; } = new clsTrayInfo();
-
 
         public bool bReady { get; protected set; }
 
@@ -101,7 +100,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         #region Public Methods
 
         public bool IsProcOK() => !bIsProcessing && m_bIsReady;
-
 
         /// <summary> 壓合流程 </summary>
         public void RunPress()
@@ -224,7 +222,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
                 #endregion
 
-                //todo :0821
                 //等待取料流道是否準備完成，判斷有無料盤
                 case 20200:
                     m_enuAction = enuAction.Press_Waiting;
@@ -255,6 +252,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     {
                         iStepIndex = 20500;
                     }
+
                     break;
 
                 // 設定壓合氣缸後退-上升
@@ -299,7 +297,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     iStepIndex = -1;
                     break;
 
-                    #endregion
+                #endregion
             }
         }
 
@@ -321,7 +319,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
         #region Private Methods
 
-        private int GetPmt(clsEnum.enuPmtName name) => ucParameter.GetValueInt(name);
+        private int GetPmt(enuPmtName name) => ucParameter.GetValueInt(name);
 
         private void RunAction(enuAction p_enuAction)
         {

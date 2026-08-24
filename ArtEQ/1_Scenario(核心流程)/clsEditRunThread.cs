@@ -1,53 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Windows.Forms;
 using ArtCommonLib;
 using ArtControlLib;
 using ArtData;
 using ArtProcModuleLib;
 using ArtSystem;
 using ArtSystem.MultiSystem;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Windows.Forms;
+
 namespace ArtEQ
 {
     /// <summary> 軟體核心流程 </summary>
     public class clsEditRunThread : ArtCommonLib.clsArtThread
     {
-        #region //=====================  變數設置 =====================
-
-        static private ProcInitial m_ProcInitial = new ProcInitial("ProcInitial");
-        static private ProcAutoRun m_ProcAutoRun = new ProcAutoRun("ProcAutoRun");
-        static private ProcDetectIO m_ProcDetectIO = new ProcDetectIO("ProcDetectIO");
-
-        /// <summary>機台是否動作中</summary>
-        static public bool IsRunning//幾乎沒在使用
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>設置主流程動作狀態</summary>
-        static public bool RunThread
-        {
-            get;
-            set;
-        }
-
-        /// <summary>設置Core 2流程動作狀態，需3核心CPU以上</summary>
-        static public bool RunThreadCore2
-        {
-            get;
-            set;
-        }
-
-        /// <summary>設置Core 3流程動作狀態，需4核心CPU以上</summary>
-        static public bool RunThreadCore3
-        {
-            get;
-            set;
-        }
-
-        #endregion
+        #region Enums
 
         #region //===================== Enum 宣告 =====================
 
@@ -56,22 +23,51 @@ namespace ArtEQ
         {
             /// <summary> 初始化流程 </summary>
             Initial,
+
             /// <summary> 自動流程 </summary>
             AutoRun,
+
             /// <summary> 單動流程 </summary>
             ManualRun,
         }
 
         #endregion
 
+        #endregion
+
+        #region //=====================  變數設置 =====================
+
+        static private ProcInitial m_ProcInitial = new ProcInitial("ProcInitial");
+        static private ProcAutoRun m_ProcAutoRun = new ProcAutoRun("ProcAutoRun");
+        static private ProcDetectIO m_ProcDetectIO = new ProcDetectIO("ProcDetectIO");
+
+        /// <summary>機台是否動作中</summary>
+        static public bool IsRunning //幾乎沒在使用
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>設置主流程動作狀態</summary>
+        static public bool RunThread { get; set; }
+
+        /// <summary>設置Core 2流程動作狀態，需3核心CPU以上</summary>
+        static public bool RunThreadCore2 { get; set; }
+
+        /// <summary>設置Core 3流程動作狀態，需4核心CPU以上</summary>
+        static public bool RunThreadCore3 { get; set; }
+
+        #endregion
+
         #region //=====================  必要函式設置 =====================
+
         /// <summary> 建立Thread 並開始動作 </summary>
         static public void ThreadStart()
         {
             clsEditRunThread mRunThread = new clsEditRunThread();
             clsCmData.g_bIsRunThreadAlive = true;
 
-            CreatProc();//把所有流程加入執行緒列表(Debug) 
+            CreatProc(); //把所有流程加入執行緒列表(Debug) 
 
             RunThread = true;
             mRunThread.start();
@@ -122,9 +118,11 @@ namespace ArtEQ
                     }
                 }
             }
+
             ReportProcAlarm(m_Source, p_NeedEqStop);
             ReportProcAlarm(m_Target, p_NeedEqStop);
         }
+
         /// <summary>  PM呼叫Alarm </summary>
         static public void ReportProcAlarm(clsBaseProc p_Proc, bool p_NeedEqStop = true)
         {
@@ -148,7 +146,6 @@ namespace ArtEQ
                     }
                 }
             }
-
         }
 
         static public void ReportAlarm(clsEnum.enuAlarm p_Alarm, clsEnum.enuDi AlarmNote, bool NeedEqStop = true)
@@ -158,8 +155,10 @@ namespace ArtEQ
             {
                 LstDIEnum.Add((clsEnum.enuDi)AlarmNote);
             }
+
             ReportAlarm(p_Alarm, LstDIEnum, NeedEqStop);
         }
+
         static public void ReportAlarm(clsEnum.enuAlarm p_Alarm, List<clsEnum.enuDi> AlarmNote, bool NeedEqStop = true)
         {
             string strNote = "";
@@ -175,8 +174,10 @@ namespace ArtEQ
                     strNote = "DI" + eDINote.ToString("D") + ", ";
                 }
             }
+
             ReportAlarm(p_Alarm, NeedEqStop, strNote);
         }
+
         static public void ReportAlarm(clsEnum.enuAlarm p_Alarm, bool NeedEqStop = true, string AlarmNote = null, string p_strTroubleShootingNote = null)
         {
             int Code = (int)p_Alarm;
@@ -189,6 +190,7 @@ namespace ArtEQ
                 ReportAlarmString(Code.ToString(), NeedEqStop, p_Alarm.ToString(), p_strTroubleShootingNote);
             }
         }
+
         static public void ReportAlarmString(string p_Alarm, bool NeedEqStop = true, string AlarmNote = null, string p_strTroubleShootingNote = null)
         {
             LinkedList<clsObjAlarm> temp = formAlarmReport.GetSingleton().lstAlarmData;
@@ -199,11 +201,14 @@ namespace ArtEQ
                     return;
                 }
             }
+
             if (NeedEqStop == true)
             {
                 clsEditRunThread.EqStop();
             }
-            #region//ReportAlarm前要先切換狀態 (這樣消除所有Alarm後才會顯示對應的狀態)
+
+            #region //ReportAlarm前要先切換狀態 (這樣消除所有Alarm後才會顯示對應的狀態)
+
             if (clsCmData.g_bIsinitialized == true)
             {
                 if (clsCmData.g_NowEqStatus == clsCmData.enuEqStatus.Run && NeedEqStop)
@@ -215,16 +220,16 @@ namespace ArtEQ
             {
                 clsCmData.g_NowEqStatus = clsCmData.enuEqStatus.Default;
             }
+
             #endregion
+
             formAlarmReport.ReportAlm(p_Alarm, null, AlarmNote, p_strTroubleShootingNote);
-
-
         }
-
 
         #endregion
 
         #region //===================== 運轉指令 =====================
+
         //ManualRun, AutoRun 的旗標說明
         //ProcAutoRun.bIsAutoRunMode    :標準來說,啟動AutoRunMode後,無法執行單動流程，如果需要切換成單動模式(請執行Initial)
         //ProcAutoRun.bIsManualMode     :標準來說,啟動ManualMode後,無法執行自動流程，如果需要切換自動模式(請執行Initial)
@@ -240,7 +245,9 @@ namespace ArtEQ
                 formAlarmReport.GetSingleton().Show();
                 return false;
             }
-            #region//Auto Run Mode Confirm
+
+            #region //Auto Run Mode Confirm
+
             if (eRunMode != enuRunMode.Initial
                 && clsCmData.g_bIsinitialized == false)
             {
@@ -248,19 +255,22 @@ namespace ArtEQ
                 return false;
             }
             else if (eRunMode == enuRunMode.AutoRun
-                && ProcAutoRun.bIsManualMode == true)
+                     && ProcAutoRun.bIsManualMode == true)
             {
                 formMessageBox.Show("Please Initial To Change Manual Mode To AutoRun Mode");
                 NoAlarm = false;
             }
             else if (eRunMode == enuRunMode.ManualRun
-                && ProcAutoRun.bIsAutoRunMode == true)
+                     && ProcAutoRun.bIsAutoRunMode == true)
             {
                 formMessageBox.Show("Please Initial To Change AutoRun Mode To Manual Mode");
                 return false;
             }
+
             #endregion
-            #region//確保所有所有馬達ServoOn (Initial不用判斷, ProcInitial會自行啟動所有馬達)
+
+            #region //確保所有所有馬達ServoOn (Initial不用判斷, ProcInitial會自行啟動所有馬達)
+
             if (eRunMode != enuRunMode.Initial)
             {
                 if (ConfirmServoOn() == false)
@@ -268,15 +278,19 @@ namespace ArtEQ
                     return false;
                 }
             }
+
             #endregion
-            #region//SafeDoor 安全門檢查
+
+            #region //SafeDoor 安全門檢查
+
             if (ucParameter.GetValueBool(clsEnum.enuPmtName.Sys_EnableSafeDoor) == true)
             {
                 clsDioCtrl.SetDo(clsEnum.enuDo.Safety_Door_Lock, true);
-                clsDioCtrl.RefreshDoData();//強制刷新輸出給DO卡.
+                clsDioCtrl.RefreshDoData(); //強制刷新輸出給DO卡.
                 if (clsDioCtrl.GetDi(clsEnum.enuDi.SafeDoor_B) == false)
                 {
-                    #region//@1.0.0.12-8@ (安全門鎖檢查Error)
+                    #region //@1.0.0.12-8@ (安全門鎖檢查Error)
+
                     int Delay = 500;
                     while (Delay > 0)
                     {
@@ -289,17 +303,22 @@ namespace ArtEQ
                             break;
                         }
                     }
+
                     if (clsDioCtrl.GetDi(clsEnum.enuDi.SafeDoor_B) == false)
                     {
                         clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Machine_Error_SafeDoor_Open, clsEnum.enuDi.SafeDoor_B);
                         return false;
                     }
+
                     #endregion
                 }
             }
+
             #endregion
+
             return NoAlarm;
         }
+
         /// <summary> 確保所有馬達都是ServoOn的狀態 </summary>
         static public bool ConfirmServoOn()
         {
@@ -310,21 +329,24 @@ namespace ArtEQ
                 {
                     //如果是步進馬達需要continue跳過
                     if (false
-                        //|| eAxis == clsEnum.enuAxis.Axis1
-                        )
+                       //|| eAxis == clsEnum.enuAxis.Axis1
+                       )
                     {
                         continue;
                     }
+
                     if (clsMotionCtrl.GetIoStatus(eAxis, clsMotionCtrl.enuMotionIoName.SVON) == false)
                     {
                         ServoIsOn = false;
                     }
                 }
+
                 if (ServoIsOn == true)
                 {
                     return true;
                 }
-                else if (formMessageBox.Show("Have Motor Servo Off, Click \"OK\" Trun It On.", "Servo On", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+                else if (formMessageBox.Show("Have Motor Servo Off, Click \"OK\" Trun It On.", "Servo On", MessageBoxButtons.OKCancel,
+                             MessageBoxIcon.Question) == DialogResult.OK)
                 {
                     ProcInitial.SetMotionServo(true);
                     Thread.Sleep(100);
@@ -335,6 +357,7 @@ namespace ArtEQ
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -346,20 +369,23 @@ namespace ArtEQ
             {
                 return 1;
             }
+
             DialogResult result = DialogResult.No;
             if (!p_IsPass)
             {
                 result = formMessageBox.Show("Are you sure to Start Running?", "Auto Run", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             }
+
             if (result == DialogResult.Yes || p_IsPass)
             {
-                #region//AutoRun Setup
+                #region //AutoRun Setup
+
                 //[ArtEQ]
                 clsEditRunThread.IsRunning = true;
                 clsEditRunThread.RunThread = true;
 
                 //[ArtCommonLib] 單步動作流程，清除狀態後繼續未完成動作
-                clsThreadProcManage.bIsStepProc = false;//(100號停止主要Flag)
+                clsThreadProcManage.bIsStepProc = false; //(100號停止主要Flag)
                 clsThreadProcManage.bStartStepRun = false;
 
                 //[ArtEQ] ProcAutoRun.cs
@@ -369,66 +395,78 @@ namespace ArtEQ
                 {
                     m_ProcAutoRun.iStepIndex = 0;
                 }
+
                 m_ProcAutoRun.bIsProcessing = true;
                 if (ProcAutoRun.bIsLotEnd == true)
                 {
-                    ProcAutoRun.bIsAlreadyStartLotEnd = true;//啟動後確保無法結批
+                    ProcAutoRun.bIsAlreadyStartLotEnd = true; //啟動後確保無法結批
                 }
 
                 clsCmData.g_NowEqStatus = clsCmData.enuEqStatus.Run;
+
                 #endregion
+
                 return 0;
             }
+
             return -1;
         }
+
         /// <summary> 強制停止運轉 </summary>
         static public void EqStop()
         {
             ArtSystem.ucArtMain_Design.GetSingleton().HideProc();
-            #region//強制停止Initial流程
+
+            #region //強制停止Initial流程
+
             m_ProcInitial.iStepIndex = -1;
             m_ProcInitial.bIsProcessing = false;
+
             #endregion
-            SetAllProcessKeepProc();//將所有Process的KeepProc設定為false
-            if (clsCmData.g_bIsinitialized == false)//機台是否在正常狀態 (完成Initial)
+
+            SetAllProcessKeepProc();                 //將所有Process的KeepProc設定為false
+            if (clsCmData.g_bIsinitialized == false) //機台是否在正常狀態 (完成Initial)
             {
-                #region//不是正常停止 (舉例：EMO, InitialFail, ...)
+                #region //不是正常停止 (舉例：EMO, InitialFail, ...)
+
                 clsCmData.g_bIsinitialized = false;
                 if (clsCmData.g_NowEqStatus != clsCmData.enuEqStatus.Down)
                 {
                     clsCmData.g_NowEqStatus = clsCmData.enuEqStatus.Default;
                 }
 
-                m_ProcDetectIO.bIsKeepProc = true;//強制停止運轉-停止所有流程除了(ProcDetectIO)
+                m_ProcDetectIO.bIsKeepProc = true; //強制停止運轉-停止所有流程除了(ProcDetectIO)
                 clsThreadProcManage.SetAllStop();
 
-                ProcInitial.SetMotionStop();//停止所有馬達
+                ProcInitial.SetMotionStop(); //停止所有馬達
                 ProcInitial.SetMotionServo(false);
 
-                clsThreadProcManage.bIsStepProc = true;//EqStopFlag
+                clsThreadProcManage.bIsStepProc = true; //EqStopFlag
 
-                clsDioCtrl.SetDo(clsEnum.enuDo.Safety_Door_Lock, false);//開門
+                clsDioCtrl.SetDo(clsEnum.enuDo.Safety_Door_Lock, false); //開門
+
                 #endregion
             }
             else if (formAlarmReport.IsAlarmOccur() == true)
             {
                 clsCmData.g_NowEqStatus = clsCmData.enuEqStatus.Warning;
-                clsThreadProcManage.bIsStepProc = true;//EqStopFlag
-                clsEditRunThread.RunThread = true;//Always True
+                clsThreadProcManage.bIsStepProc = true; //EqStopFlag
+                clsEditRunThread.RunThread = true;      //Always True
             }
             else if (m_ProcAutoRun.bIsProcessing == false)
             {
                 clsCmData.g_NowEqStatus = clsCmData.enuEqStatus.Idle;
-                clsThreadProcManage.bIsStepProc = true;//EqStopFlag
-                clsEditRunThread.RunThread = true;//Always True
+                clsThreadProcManage.bIsStepProc = true; //EqStopFlag
+                clsEditRunThread.RunThread = true;      //Always True
             }
             else
             {
                 clsCmData.g_NowEqStatus = clsCmData.enuEqStatus.Stop;
-                clsThreadProcManage.bIsStepProc = true;//EqStopFlag
-                clsEditRunThread.RunThread = true;//Always True
+                clsThreadProcManage.bIsStepProc = true; //EqStopFlag
+                clsEditRunThread.RunThread = true;      //Always True
             }
         }
+
         /// <summary>初始化</summary>
         static public void Initial()
         {
@@ -436,6 +474,7 @@ namespace ArtEQ
             {
                 return;
             }
+
             DialogResult result = DialogResult.No;
             if (ProcAutoRun.sLotID != "" && ProcAutoRun.sLotID != null)
             {
@@ -445,56 +484,40 @@ namespace ArtEQ
                     ProcAutoRun.sLotID = "";
                 }
             }
+
             result = formMessageBox.Show("Are you sure to Initial?", "Initial", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (result == DialogResult.Yes)
             {
                 clsLog.Log(clsEnum.enuLogName.ButtonLog, clsCmData.g_strNowUser + ", Clicked Initial Start Process");
-                clsCmData.g_bIsinitialized = false;//清除 完成初始化的Flag
-                clsArtSystem.ResetCatchOccour();//清除 Warning Catch Log 提示
-                formAlarmReport.AlarmClear();//清除 所有Alarm Message
+                clsCmData.g_bIsinitialized = false; //清除 完成初始化的Flag
+                clsArtSystem.ResetCatchOccour();    //清除 Warning Catch Log 提示
+                formAlarmReport.AlarmClear();       //清除 所有Alarm Message
 
                 EqStop();
 
-                clsCmData.g_NowEqStatus = clsCmData.enuEqStatus.Initial;//切換 EqStatus
+                clsCmData.g_NowEqStatus = clsCmData.enuEqStatus.Initial; //切換 EqStatus
 
-                clsThreadProcManage.bIsStepProc = false;//EqStop的Flag
+                clsThreadProcManage.bIsStepProc = false; //EqStop的Flag
                 clsThreadProcManage.bStartStepRun = false;
 
                 m_ProcInitial.iStepIndex = 0;
                 m_ProcInitial.bIsProcessing = true;
 
                 // Initial 才清 Closing 旗標
-                ProcAutoRun.bIsLotEnd = false;//duncan
+                ProcAutoRun.bIsLotEnd = false; //duncan
                 ProcAutoRun.bIsAlreadyStartLotEnd = false;
                 ProcAutoRun.bIsStopLoad = false;
 
                 //[ProcAutRun]
-                ProcAutoRun.bIsAutoRunMode = false;//Reset 機台運轉模式
-                ProcAutoRun.bIsManualMode = false;//Reset 機台運轉模式
-                m_ProcAutoRun.iStepIndex = -1;//停止流程
-                m_ProcAutoRun.bIsProcessing = false;//停止流程
+                ProcAutoRun.bIsAutoRunMode = false;  //Reset 機台運轉模式
+                ProcAutoRun.bIsManualMode = false;   //Reset 機台運轉模式
+                m_ProcAutoRun.iStepIndex = -1;       //停止流程
+                m_ProcAutoRun.bIsProcessing = false; //停止流程
 
-                //todo: 範例
-                //Proc_Mag_LoadOK.GetSingleton().RunInitial();
-                //Proc_loadCup_lane.GetSingleton().RunInitial();
-                //Proc_Station_LoadCup.GetSingleton().RunInitial();
-                //Proc_FillTea_Lane.GetSingleton().RunInitial();
-                //Proc_Station_PourTea.GetSingleton().RunInitial();
-                //Proc_Seal_Lane.GetSingleton().RunInitial();
-                //Proc_Station_Seal.GetSingleton().RunInitial();
-                //Proc_AOI_Lane.GetSingleton().RunInitial();
-                //Proc_Station_AOI.GetSingleton().RunInitial(); ;
-                //Proc_OK_Lane.GetSingleton().RunInitial();
-                //Proc_Mag_UnloadOK.GetSingleton().RunInitial();
-
-                //Proc_Mag_LoadNG.GetSingleton().RunInitial();
-                //Proc_NG_Lane.GetSingleton().RunInitial();
-                //Proc_Mag_UnloadNG.GetSingleton().RunInitial();
-                //Proc_Station_Sort.GetSingleton().RunInitial();
-
-                clsEditRunThread.RunThread = true;//Always True
+                clsEditRunThread.RunThread = true; //Always True
             }
         }
+
         /// <summary>手動動作使用</summary>
         static public bool EqManualRun()
         {
@@ -502,9 +525,10 @@ namespace ArtEQ
             {
                 return false;
             }
+
             ProcAutoRun.bIsAutoRunMode = false;
             ProcAutoRun.bIsManualMode = true;
-            clsThreadProcManage.bIsStepProc = true;//單動流程不可以讓此Flag設為false (如果設定為false，所有流程都會繼續執行)
+            clsThreadProcManage.bIsStepProc = true; //單動流程不可以讓此Flag設為false (如果設定為false，所有流程都會繼續執行)
             //如果要讓單一流程自己執行，可以指定流程中的KeepProc設定為true，讓其單動流程可以運行。
             return true;
         }
@@ -529,19 +553,17 @@ namespace ArtEQ
         }
 
         /// <summary> 確認所有流程動作完全停止 </summary>
-        static public bool CheckAllProcessStop()//!!
+        static public bool CheckAllProcessStop() //!!
         {
             return true;
         }
-
 
         #endregion
 
         #region //===================== public/private 函式設置 =====================
 
-
         /// <summary> 把所有流程加入執行緒列表(Debug) </summary>
-        static public void CreatProc()            // tao
+        static public void CreatProc() // tao
         {
             // 如果這裡沒有先呼叫 GetSingleton() 建立流程物件，
             // DebugForm 裡面的 Case Log 有機會無法顯示其流程。
@@ -549,23 +571,6 @@ namespace ArtEQ
             #region //===================== Tarot Proc =====================
 
             //! 自動運轉入口如果本身沒有 Singleton，就不要放這裡。
-            //TODO: ProcAutoRun 通常由主程式建立，不一定是 GetSingleton 架構。
-
-            // todo: 範例
-            //Proc_Mag_LoadOK.GetSingleton();
-            //Proc_loadCup_lane.GetSingleton();
-            //Proc_FillTea_Lane.GetSingleton(); // 新增
-            //Proc_Seal_Lane.GetSingleton(); // 新增
-            //Proc_AOI_Lane.GetSingleton(); // 新增
-            //Proc_OK_Lane.GetSingleton();
-            //Proc_NG_Lane.GetSingleton(); // 新增：獨立 NG 站點線
-            //Proc_Mag_LoadNG.GetSingleton(); // 新增
-            //Proc_Mag_UnloadNG.GetSingleton(); // 新增
-            //Proc_Mag_UnloadOK.GetSingleton();
-            //Proc_Station_LoadCup.GetSingleton(); // 新增：LoadCup 展點站
-            //Proc_Station_PourTea.GetSingleton(); // 新增：PourTea 展點站
-            //Proc_Station_Seal.GetSingleton(); // 新增：Seal 展點站
-            //Proc_Station_AOI.GetSingleton(); // 新增：AOI 展點站
 
             #endregion
 
@@ -584,6 +589,7 @@ namespace ArtEQ
             #endregion
 
             #region //===================== Tarot Proc Singleton 初始化 =====================
+
             // 依目前專案 Proc 資料夾維護。
             // 舊範本的 Proc_Mgz_xxx / Proc_loadCup_lane_xxx / Proc_Laser / Proc_Transfer 全部不要用。
 
@@ -602,7 +608,6 @@ namespace ArtEQ
             //Proc_UnloadLane.GetSingleton();
 
             #endregion
-
         }
 
         /// <summary> 關閉所有流程的KeepProcessFlag (ProcDetectIO例外) </summary>
@@ -623,18 +628,18 @@ namespace ArtEQ
 
         #endregion
 
-        #region//===================== 以下為主要流程 =====================
+        #region //===================== 以下為主要流程 =====================
 
         /// <summary> 主流程非必要勿調整 </summary>
         protected override void ThreadScenario()
         {
-            CreatProc();//把所有流程加入執行緒列表(Debug) 
+            CreatProc(); //把所有流程加入執行緒列表(Debug) 
             clsAPI.timeBeginPeriod(1);
             do
             {
                 //DIO 更新
-                clsDioCtrl.RefreshDiData();//集中收集DI狀態更新至clsDioCtrl
-                clsDioCtrl.RefreshDoData();//集中將clsDioCtrl的狀態設定至DO
+                clsDioCtrl.RefreshDiData(); //集中收集DI狀態更新至clsDioCtrl
+                clsDioCtrl.RefreshDoData(); //集中將clsDioCtrl的狀態設定至DO
                 if (RunThread)
                 {
                     // 先複製一份，避免 foreach 時 Dictionary 被修改
@@ -661,9 +666,10 @@ namespace ArtEQ
                         }
                     }
                 }
+
                 Thread.Sleep(1);
-            }
-            while (clsCmData.g_bIsRunThreadAlive);
+            } while (clsCmData.g_bIsRunThreadAlive);
+
             clsAPI.timeEndPeriod(1);
         }
 
@@ -675,10 +681,10 @@ namespace ArtEQ
                 while (!RunThreadCore2 && clsCmData.g_bIsRunThreadAlive)
                 {
                 }
+
                 //以下加入流程動作
                 Thread.Sleep(1);
-            }
-            while (clsCmData.g_bIsRunThreadAlive);
+            } while (clsCmData.g_bIsRunThreadAlive);
         }
 
         /// <summary> Core 3動作流程 </summary>
@@ -689,10 +695,10 @@ namespace ArtEQ
                 while (!RunThreadCore3 && clsCmData.g_bIsRunThreadAlive)
                 {
                 }
+
                 //以下加入流程動作
                 Thread.Sleep(1);
-            }
-            while (clsCmData.g_bIsRunThreadAlive);
+            } while (clsCmData.g_bIsRunThreadAlive);
         }
 
         #endregion

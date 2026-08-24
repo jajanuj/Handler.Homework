@@ -5,17 +5,32 @@ namespace ArtEQ._2_Function_流程_.Proc
 {
     public class Proc_IC_Feed_Magazine : BaseMagazine
     {
+        #region Constructors
+
+        #region ===================== 建構子 =====================
+
+        public Proc_IC_Feed_Magazine(string p_strName) : base(p_strName)
+        {
+            BindHardwarePoint();
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Public Methods
+
         #region ===================== Singleton 設置 =====================
 
         public static Proc_IC_Feed_Magazine GetSingleton() => GetSingletonInstance(() => new Proc_IC_Feed_Magazine("IC_Feed_Magazine"));
 
         #endregion
 
-        #region ===================== 建構子 =====================
-        public Proc_IC_Feed_Magazine(string p_strName) : base(p_strName)
+        public void SetDiValue(clsEnum.enuDi di, bool bOn)
         {
-            BindHardwarePoint();
+            SetDi(di, bOn);
         }
+
         #endregion
 
         #region ===================== 流程邏輯覆寫 =====================
@@ -27,11 +42,12 @@ namespace ArtEQ._2_Function_流程_.Proc
         /// </summary>
         protected override bool ReadyToUnload()
         {
-            //todo: 這裡要改成下游站的交握判斷。
             var laneASM = Proc_ASM_Lane.GetSingleton();
 
             if (laneASM == null)
+            {
                 return false;
+            }
 
             // 1. 先檢查帳：
             //    Slot 有帳、下游沒帳、沒有等待上一筆 ACK。
@@ -79,17 +95,19 @@ namespace ArtEQ._2_Function_流程_.Proc
         /// </summary>
         protected override void TransferBillAfterUnloading()
         {
-            //todo: 這裡要改成下游站的交握判斷。
-
             EnsureMagazineInfo();
 
             BaseLane lane = GetDownstreamLaneForBill();
 
             if (lane == null)
+            {
                 return;
+            }
 
             if (!m_MagazineInfo.m_trayInfo.ContainsKey(m_iSlotNo))
+            {
                 return;
+            }
 
             clsTrayInfo slotTray = m_MagazineInfo.m_trayInfo[m_iSlotNo];
 
@@ -159,11 +177,5 @@ namespace ArtEQ._2_Function_流程_.Proc
         }
 
         #endregion
-
-        public void SetDiValue(clsEnum.enuDi di, bool bOn)
-        {
-            SetDi(di, bOn);
-        }
-
     }
 }

@@ -68,7 +68,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                         int slotNo = CheckNextSlotNo();
                         if (slotNo < 0)
                         {
-                            clsLog.Log(clsEnum.enuLogName.ProcessLog.ToString(), strThreadLogName + " : 無有效 Slot，回閒置");
+                            clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : 無有效 Slot，回閒置");
                             iStepIndex = 100000;
                             break;
                         }
@@ -81,20 +81,24 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                     break;
 
                 case 201000:
-                    if (!Mag_IC_Feed().IsProcOK()) break;
+                    if (!Mag_IC_Feed().IsProcOK())
+                    {
+                        break;
+                    }
+
                     if (Mag_IC_Feed().m_enuAction == BaseMagazine.enuAction.Magazine_Load_Done)
                     {
-                        clsLog.Log(clsEnum.enuLogName.ProcessLog.ToString(),
+                        clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog),
                             $"{strThreadLogName} : {Mag_IC_Feed().m_enuAction.ToString()} : Load Done → 回閒置等處理");
                         iStepIndex = 100000;
                         if (CheckNextSlotNo() < 0)
                         {
-                            // TODO 料盒內無料
+                            clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
                         }
                     }
                     else if (Mag_IC_Feed().m_enuAction == BaseMagazine.enuAction.Magazine_Load_Fail)
                     {
-                        clsLog.Log(clsEnum.enuLogName.ProcessLog.ToString(),
+                        clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog),
                             $"{strThreadLogName} : {Mag_IC_Feed().m_enuAction.ToString()} : Load Fail → 回閒置等處理");
                         iStepIndex = 100000;
                         if (CheckNextSlotNo() < 0)
@@ -202,7 +206,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         {
             iStepIndex = -1;
             bIsReady = true;
-            clsLog.Log(clsEnum.enuLogName.ProcessLog.ToString(), strThreadLogName + " : RunInitial Done");
+            clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : RunInitial Done");
         }
 
         public void Run_AutoRun()

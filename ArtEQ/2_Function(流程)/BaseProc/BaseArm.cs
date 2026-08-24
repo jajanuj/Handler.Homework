@@ -1,9 +1,9 @@
-﻿using System;
-using ArtCommonLib;
+﻿using ArtCommonLib;
 using ArtControlLib;
 using ArtEQ._4_Class_基本類別_;
 using ArtEQ.B_Tools;
 using ArtTeach;
+using System;
 using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.BaseProc
@@ -102,7 +102,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         /// Z軸安全位置
         /// </summary>
         protected double m_dSafePos_Z = ucPosPmt.GetValueDouble(enuPosName.SafePos_Z);
-
 
         private PPStation m_enuPPStation;
         protected int m_iPickColumn;
@@ -436,9 +435,12 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     break;
 
                 case 20210:
-                    m_Motion_X.iSimulateDelayTime = ucParameter.GetValueInt(enuPmtName.Sys_Delay_Simulate_Motor_Time); ;
-                    m_Motion_Y.iSimulateDelayTime = ucParameter.GetValueInt(enuPmtName.Sys_Delay_Simulate_Motor_Time); ;
-                    m_Motion_Z.iSimulateDelayTime = ucParameter.GetValueInt(enuPmtName.Sys_Delay_Simulate_Motor_Time); ;
+                    m_Motion_X.iSimulateDelayTime = ucParameter.GetValueInt(enuPmtName.Sys_Delay_Simulate_Motor_Time);
+                    ;
+                    m_Motion_Y.iSimulateDelayTime = ucParameter.GetValueInt(enuPmtName.Sys_Delay_Simulate_Motor_Time);
+                    ;
+                    m_Motion_Z.iSimulateDelayTime = ucParameter.GetValueInt(enuPmtName.Sys_Delay_Simulate_Motor_Time);
+                    ;
                     iStepIndex = 20300;
                     break;
 
@@ -461,8 +463,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                 //馬達Z軸設定取料位置
                 case 20400:
                     m_CtrlBox.Clear();
-
-                    //todo: 需要再處理站別轉點位
                     var posZ = ucPosPmt.GetValueDouble(enuPosName.PickPos_HSLane_Z);
                     SetAddMotorZMoveAbsolute(posZ);
                     iStepIndex = 20410;
@@ -612,8 +612,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                 //馬達Z軸設定放料位置
                 case 30400:
                     m_CtrlBox.Clear();
-
-                    //todo: 需要再處理站別轉點位
                     var placePosZ = ucPosPmt.GetValueDouble(enuPosName.PlacePos_HSLane_Z);
                     SetAddMotorZMoveAbsolute(placePosZ);
                     iStepIndex = 30410;
@@ -702,7 +700,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     iStepIndex = -1;
                     break;
 
-                    #endregion
+                #endregion
             }
         }
 
@@ -748,7 +746,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
             m_Motion_Z.iSimulateDelayTime = iSimulateDelayTime;
             clsMotionCtrl.SetServo(m_Motor_Z, true);
 
-
             if (b_Simulation)
             {
                 SetDi(m_DI_Vacuum, false);
@@ -762,7 +759,9 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         {
             var pickLane = GetPickLane();
             if (pickLane == null)
+            {
                 return;
+            }
 
             var index = pickLane.m_Temp_Tray_Info.GetIndexFromRowCol(m_iPickRow, m_iPickColumn);
             pickLane.m_Temp_Tray_Info.AssyRecords[index].CopyTo(AssyRecord);
