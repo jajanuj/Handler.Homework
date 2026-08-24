@@ -84,7 +84,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                     break;
 
                 case 201000:
-                    if (Mag_OK_Discharge().IsProcOK()) break;
+                    if (!Mag_OK_Discharge().IsProcOK()) break;
                     if (Mag_OK_Discharge().m_enuAction == BaseMagazine.enuAction.Magazine_Unload_Done)
                     {
                         clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog),

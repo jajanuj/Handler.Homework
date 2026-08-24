@@ -1,10 +1,10 @@
-﻿using ArtCommonLib;
+﻿using System;
+using System.Collections.Generic;
+using ArtCommonLib;
 using ArtControlLib;
 using ArtData;
 using ArtEQ.B_Tools;
 using ArtTeach;
-using System;
-using System.Collections.Generic;
 using static ArtData.clsEnum;
 
 
@@ -602,6 +602,7 @@ namespace ArtEQ
                     // 【流程結束】記錄最終狀態，設定為就緒，結束流程
                     clsLog.Log(nameof(enuLogName.ProcessLog), strThreadLogName + " : " + m_enuAction.ToString());
                     m_bIsReady = true;
+                    bIsProcessing = false;
                     iStepIndex = -1;
                     break;
 

@@ -138,6 +138,14 @@ Station 型的 AR 有**兩種模板**，對應上面「整盤型」跟「逐格�
 > 型別對得上。加新 AR 時，尤其是複製既有檔案再改的情況，每一個 helper method（`XxxLane()`／`Mag_Xxx()`）
 > 實際指向誰、跟這個 AR 真正的上下游關係對不對得起來，要重新過一遍，不要只看變數名稱順眼就跳過。
 
+> ⚠️ **`case 20X000`(等待 Proc 執行結果)開頭的 `if (!Xxx().IsProcOK()) break;` 一定要有 `!`。**
+> 六個 `AR_Mag_*.cs`(IC_Feed/HS_Feed/HS_Discharge/NG_Feed/NG_Discharge/OK_Discharge)複製範本時都漏了這個
+> `!`，變成「Proc 一做完、`IsProcOK()` 變 true 就直接卡死，永遠不會往下檢查 `m_enuAction==_Done`」。這個坑
+> 潛伏很久沒被發現，是因為跟 `BaseMagazine.cs` 另一個「`case 999` 沒重置 `bIsProcessing`」的 bug 互相遮蔽
+> (後者在時 `IsProcOK()` 永遠 false，這裡不會提早 break)，兩個 bug 疊加才會意外正常運作，單獨修好其中一個
+> 反而會讓另一個現形——結批到最後一盤才炸出來。詳見 `LESSONS.md` L18。新寫或複製 AR 檔案時，這一行要跟
+> `AR_NG_Lane.cs`／`AR_OK_Lane.cs` 等已確認正確的檔案逐字比對。
+
 ## 帳料資料結構：clsTrayInfo / TrayItemStatus / clsAssyRecord
 
 每條 Lane、每個 Magazine 槽位都有一個 `clsTrayInfo m_Temp_Tray_Info`，代表一個 Row×Col 的格子盤（預設 2×3）：

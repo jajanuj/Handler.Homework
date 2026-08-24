@@ -3,6 +3,23 @@
 > 新條目加在最上面。每條格式：`## L{編號} [日期] 一行標題`，內文固定三欄：情境／錯誤做法／正確做法，總長 ≤6 行。
 > 動手改程式碼前，先掃一遍標題行。
 
+## L18 [2026-08-24] AR_Mag_* 六個檔案的 case 201000 判斷式少了 `!`，跟另一個 bug 互相遮蔽，結批到最後一盤才炸
+
+情境：結批(bIsLotEnd)強制出料時，`NG_Lane` 卡在 `Unload_Waiting`、`NG_Discharge_Magazine` 停在上一輪的
+`Magazine_Unload_Done` 不再往前動。查到 `AR_Mag_NG_Discharge.cs` 的 `case 201000` 寫成
+`if (Mag_NG_Discharge().IsProcOK()) break;`（少了 `!`，跟其他所有 AR 檔案的慣例相反）——一旦磁盒完成動作、
+`IsProcOK()` 變 true，就直接卡死在這個 case，永遠不會往下走到檢查 `m_enuAction==_Done` 那段。`grep` 全部
+`AR_Mag_*.cs`(IC_Feed/HS_Feed/HS_Discharge/NG_Feed/NG_Discharge/OK_Discharge) 六個檔案**全部**同一個坑，
+是複製範本時一起漏掉的。
+這個 bug 潛伏很久沒被發現，是因為跟 `BaseMagazine.cs` 的另一個 bug(`case 999` 收尾沒重置 `bIsProcessing`，
+見本檔案沒有獨立條目、直接在這次一起修掉)互相抵銷——後者存在時 `IsProcOK()` 永遠是 false，這裡的判斷式
+永遠不會提早 break，兩個 bug 疊加剛好正常運作；先補好 `bIsProcessing` 的 reset 之後，這個判斷式反而變成
+真的會卡死，而且卡不卡跟磁盒收尾兩個狀態更新之間的 1~2ms 排程窗口有沒有被輪詢到有關，時好時壞。
+錯誤做法：修完一個 bug 只驗證症狀消失就結案，沒想過「修好一個 bug 讓另一個潛伏的 bug 現形」；複製 AR
+檔案當範本時也沒有逐行核對 `IsProcOK()` 判斷式的 `!` 有沒有抄對(同類「複製範本漏改」坑見 L10)。
+正確做法：六個 `AR_Mag_*.cs` 的 `case 201000` 都改成 `if (!Mag_Xxx().IsProcOK()) break;`，跟其他 AR 檔案
+一致；`BaseMagazine.cs:case 999` 補上 `bIsProcessing = false`。
+
 ## L17 [2026-08-23] Lane 的 ReadyToLoad() 沒覆寫，入料模擬跟磁盒實際進度脫鉤
 
 情境：`HS_Lane` 顯示 `Load_Done`(甚至 `NG_Lane` 顯示 `Load_Done` 而不是預期的 `Load_Waiting`)時，
