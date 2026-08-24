@@ -690,7 +690,6 @@ namespace ArtData
 
         #endregion
 
-
         #region 參數名稱
 
         /// <summary> 參數名稱 (ArtControlLib.dll) </summary>

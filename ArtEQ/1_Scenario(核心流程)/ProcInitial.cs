@@ -1,13 +1,14 @@
-﻿using ArtCommonLib;
+﻿using System;
+using ArtCommonLib;
 using ArtControlLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.AutoRun;
 using ArtEQ._2_Function_流程_.Proc;
 using ArtEQ._2_Function_流程_.Proc.Arm;
+using ArtEQ._3_UI_介面管理_._1_Operator_操作模式_;
 using ArtProcModuleLib;
 using ArtSystem;
 using ArtSystem.MultiSystem;
-using System;
 
 //using ArtDeepCloner;
 
@@ -125,43 +126,43 @@ namespace ArtEQ
                 #region //等待 Tarot AR 初始化完成
 
                 case 1010:
-                {
-                    ShowProcBar("Initializing...", 40);
-
-                    bool ProcInitialDone = true;
-
-                    ProcInitialDone &= AR_HS_Lane.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_Mag_HS_Feed.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_Mag_IC_Feed.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_ASM_Lane.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_ASM_Arm.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_Mag_HS_Discharge.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_Press_Lane.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_Press_Station.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_AOI_Lane.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_AOI_Station.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_OK_Lane.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_Mag_OK_Discharge.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_Mag_NG_Feed.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_NG_Lane.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_Mag_NG_Discharge.GetSingleton().IsProcOK();
-                    ProcInitialDone &= AR_Sort_Arm.GetSingleton().IsProcOK();
-
-                    if (ProcInitialDone)
                     {
-                        iStepIndex = 1050;
-                        Restart();
-                    }
-                    else if (IsTimeOut(60000, clsCmData.enuSecUnit.MilliSec))
-                    {
-                        iStepIndex = -9000;
-                        Restart();
-                    }
-                }
+                        ShowProcBar("Initializing...", 40);
 
-                #endregion
+                        bool ProcInitialDone = true;
 
-                break;
+                        ProcInitialDone &= AR_HS_Lane.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_Mag_HS_Feed.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_Mag_IC_Feed.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_ASM_Lane.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_ASM_Arm.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_Mag_HS_Discharge.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_Press_Lane.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_Press_Station.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_AOI_Lane.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_AOI_Station.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_OK_Lane.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_Mag_OK_Discharge.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_Mag_NG_Feed.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_NG_Lane.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_Mag_NG_Discharge.GetSingleton().IsProcOK();
+                        ProcInitialDone &= AR_Sort_Arm.GetSingleton().IsProcOK();
+
+                        if (ProcInitialDone)
+                        {
+                            iStepIndex = 1050;
+                            Restart();
+                        }
+                        else if (IsTimeOut(60000, clsCmData.enuSecUnit.MilliSec))
+                        {
+                            iStepIndex = -9000;
+                            Restart();
+                        }
+                    }
+
+                    #endregion
+
+                    break;
 
                 case 1050:
                     // 帳初始化
@@ -204,50 +205,50 @@ namespace ArtEQ
                 #region //等待 Proc 初始化完成
 
                 case 2010:
-                {
-                    ShowProcBar("Initializing...", 60);
-
-                    bool ProcInitialDone = true;
-
-                    //範例
-                    ProcInitialDone &= Proc_HS_Feed_Magazine.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_HS_Lane.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_IC_Feed_Magazine.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_ASM_Lane.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_ASM_Arm.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_HS_Discharge_Magazine.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_Press_Lane.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_Press_Station.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_AOI_Lane.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_AOI_Station.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_OK_Lane.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_OK_Discharge_Magazine.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_NG_Feed_Magazine.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_NG_Lane.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_NG_Discharge_Magazine.GetSingleton().IsProcOK();
-                    ProcInitialDone &= Proc_Sort_Arm.GetSingleton().IsProcOK();
-
-                    if (ProcInitialDone)
                     {
-                        iStepIndex = 3000;
-                        Restart();
+                        ShowProcBar("Initializing...", 60);
+
+                        bool ProcInitialDone = true;
+
+                        //範例
+                        ProcInitialDone &= Proc_HS_Feed_Magazine.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_HS_Lane.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_IC_Feed_Magazine.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_ASM_Lane.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_ASM_Arm.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_HS_Discharge_Magazine.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_Press_Lane.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_Press_Station.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_AOI_Lane.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_AOI_Station.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_OK_Lane.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_OK_Discharge_Magazine.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_NG_Feed_Magazine.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_NG_Lane.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_NG_Discharge_Magazine.GetSingleton().IsProcOK();
+                        ProcInitialDone &= Proc_Sort_Arm.GetSingleton().IsProcOK();
+
+                        if (ProcInitialDone)
+                        {
+                            iStepIndex = 3000;
+                            Restart();
+                        }
+                        else if (IsTimeOut(60000, clsCmData.enuSecUnit.MilliSec))
+                        {
+                            iStepIndex = -9000;
+                            Restart();
+                        }
                     }
-                    else if (IsTimeOut(60000, clsCmData.enuSecUnit.MilliSec))
-                    {
-                        iStepIndex = -9000;
-                        Restart();
-                    }
-                }
 
 
-                break;
+                    break;
 
                 #endregion
 
                 case 3000:
 
                     #region //Initial - Step 3
-
+                    InitAllData();
                     ShowProcBar("Initializing...", 70);
                     iStepIndex = 3010;
                     Restart();
@@ -259,17 +260,13 @@ namespace ArtEQ
                 #region //等待 Step 3 完成
 
                 case 3010:
+                    {
+                        ShowProcBar("Initializing...", 80);
+                        iStepIndex = 9000;
+                        Restart();
+                    }
 
-
-                {
-                    ShowProcBar("Initializing...", 80);
-
-                    iStepIndex = 9000;
-                    Restart();
-                }
-
-
-                break;
+                    break;
 
                 #endregion
 
@@ -392,6 +389,41 @@ namespace ArtEQ
         #endregion
 
         #region //===================== private 函式設置 =====================
+
+        private void InitAllData()
+        {
+            if (PublicDeclare.bIsSimulate)
+            {
+                foreach (var keyValueParir in ucAutoRun.GetSingleton().m_Magazines)
+                {
+                    var magazine = keyValueParir.Value;
+                    var magazineName = keyValueParir.Key;
+
+                    if (magazine == null)
+                        continue;
+
+                    // 依這顆 Magazine 現在實際的 Slot 數灌測試資料
+                    for (int slotNo = 1; slotNo <= magazine.GetMagazineSlotCount(); slotNo++)
+                    {
+                        switch (magazineName)
+                        {
+                            case "IC_Feed":
+                                magazine.CreateIcTrayInfo(slotNo);
+                                break;
+                            case "HS_Feed":
+                                magazine.CreateHeatSinkTrayInfo(slotNo);
+                                break;
+                            case "NG_Feed":
+                                magazine.CreateEmptyMaterialTrayInfo(slotNo);
+                                break;
+                            default:
+                                magazine.CreateEmptyTrayInfo(slotNo);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
 
         private void ShowProcBar(string sMessage, int iPercentage)
         {

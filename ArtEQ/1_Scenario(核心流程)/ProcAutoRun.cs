@@ -95,60 +95,46 @@ namespace ArtEQ
                     AR_NG_Lane.GetSingleton().Run_AutoRun();
                     AR_Mag_NG_Discharge.GetSingleton().Run_AutoRun();
                     AR_Sort_Arm.GetSingleton().Run_AutoRun();
-                    //AR_Mag_UnLoadNG.GetSingleton().Run_AutoRun();
-                    //AR_Lane_Top.GetSingleton().Run_AutoRun();
-                    //AR_Lane_Bottom.GetSingleton().Run_AutoRun();
-                    //AR_Lane_FrontBack.GetSingleton().Run_AutoRun();
-                    //AR_Lane_LeftRight.GetSingleton().Run_AutoRun();
-                    //AR_Lane_OK.GetSingleton().Run_AutoRun();
-                    //AR_Lane_NG.GetSingleton().Run_AutoRun();
-                    //AR_AOI_Top.GetSingleton().Run_AutoRun();
-                    //AR_AOI_Bottom.GetSingleton().Run_AutoRun();
-                    //AR_AOI_FrontBack.GetSingleton().Run_AutoRun();
-                    //AR_AOI_LeftRight.GetSingleton().Run_AutoRun();
-                    //AR_Pick_FrontBack.GetSingleton().Run_AutoRun();
-                    //AR_Pick_LeftRight.GetSingleton().Run_AutoRun();
-                    //AR_Pick_OKNG.GetSingleton().Run_AutoRun();
 
                     iStepIndex = 2000;
                     break;
 
                 case 2000:
-                {
-                    if (bIsLotEnd || bIsStopLoad)
                     {
-                        bool bAllDrained = true;
-
-                        // 六條流道都要淨空(沒有帳)才算流完。
-                        bAllDrained &= !Proc_HS_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
-                        bAllDrained &= !Proc_ASM_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
-                        bAllDrained &= !Proc_Press_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
-                        bAllDrained &= !Proc_AOI_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
-                        bAllDrained &= !Proc_OK_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
-                        bAllDrained &= !Proc_NG_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
-
-                        // 兩隻手臂也要閒置——流道剛好淨空的那一瞬間，手臂有可能正夾著料
-                        // 走在 Pick 完、Place 還沒完成的半路上，這段期間料只存在手臂身上，
-                        // 不會反映在任何一條流道的帳上，只看流道會漏掉這個狀態。
-                        bAllDrained &= Proc_ASM_Arm.GetSingleton().IsProcOK();
-                        bAllDrained &= Proc_Sort_Arm.GetSingleton().IsProcOK();
-
-                        // 三個 Feed Magazine 也要閒置——結批按下的當下如果剛好在推料，
-                        // 料還沒真正過帳到下游流道之前，同樣不會反映在流道的帳上。同樣查 Proc_Xxx。
-                        bAllDrained &= Proc_IC_Feed_Magazine.GetSingleton().IsProcOK();
-                        bAllDrained &= Proc_HS_Feed_Magazine.GetSingleton().IsProcOK();
-                        bAllDrained &= Proc_NG_Feed_Magazine.GetSingleton().IsProcOK();
-
-                        // 強制結批：AR_NG_Lane.CanUnload() 在 bIsLotEnd 時已經改成不用等收滿
-                        if (bAllDrained)
+                        if (bIsLotEnd || bIsStopLoad)
                         {
-                            clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : 結批 - 所有流道已淨空，準備停機");
-                            iStepIndex = 3000;
+                            bool bAllDrained = true;
+
+                            // 六條流道都要淨空(沒有帳)才算流完。
+                            bAllDrained &= !Proc_HS_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+                            bAllDrained &= !Proc_ASM_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+                            bAllDrained &= !Proc_Press_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+                            bAllDrained &= !Proc_AOI_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+                            bAllDrained &= !Proc_OK_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+                            bAllDrained &= !Proc_NG_Lane.GetSingleton().m_Temp_Tray_Info.bIsExist;
+
+                            // 兩隻手臂也要閒置——流道剛好淨空的那一瞬間，手臂有可能正夾著料
+                            // 走在 Pick 完、Place 還沒完成的半路上，這段期間料只存在手臂身上，
+                            // 不會反映在任何一條流道的帳上，只看流道會漏掉這個狀態。
+                            bAllDrained &= Proc_ASM_Arm.GetSingleton().IsProcOK();
+                            bAllDrained &= Proc_Sort_Arm.GetSingleton().IsProcOK();
+
+                            // 三個 Feed Magazine 也要閒置——結批按下的當下如果剛好在推料，
+                            // 料還沒真正過帳到下游流道之前，同樣不會反映在流道的帳上。
+                            bAllDrained &= Proc_IC_Feed_Magazine.GetSingleton().IsProcOK();
+                            bAllDrained &= Proc_HS_Feed_Magazine.GetSingleton().IsProcOK();
+                            bAllDrained &= Proc_NG_Feed_Magazine.GetSingleton().IsProcOK();
+
+                            // 強制結批：AR_NG_Lane.CanUnload() 在 bIsLotEnd 時已經改成不用等收滿
+                            if (bAllDrained)
+                            {
+                                clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : 結批 - 所有流道已淨空，準備停機");
+                                iStepIndex = 3000;
+                            }
                         }
                     }
-                }
 
-                break;
+                    break;
 
                 case 3000:
                     iStepIndex = 9000;

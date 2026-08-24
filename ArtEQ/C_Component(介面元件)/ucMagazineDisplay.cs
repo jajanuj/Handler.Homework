@@ -138,7 +138,7 @@ namespace ArtEQ
         /// </summary>
         /// <param name="p_MagInfo">料盒資訊物件 (必要)</param>
         /// <param name="cboSlot">要雙向連動的外部 ComboBox，若不需要連動可傳 null</param>
-        public void Initial(clsMagazineInfo p_MagInfo, ComboBox cboSlot)
+        public void Initial(clsMagazineInfo p_MagInfo, ComboBox cboSlot = null)
         {
             try
             {

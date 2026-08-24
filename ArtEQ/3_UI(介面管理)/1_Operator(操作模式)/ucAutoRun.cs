@@ -1,10 +1,10 @@
-﻿using ArtCommonLib;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using ArtCommonLib;
 using ArtEQ._2_Function_流程_.Proc;
 using ArtEQ._2_Function_流程_.Proc.Arm;
 using ArtEQ.B_Tools;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
 
 namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
 {
@@ -12,7 +12,7 @@ namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
     {
         #region Fields
 
-        private Dictionary<string, BaseMagazine> m_Magazines = new Dictionary<string, BaseMagazine>();
+        public Dictionary<string, BaseMagazine> m_Magazines { get; } = new Dictionary<string, BaseMagazine>();
 
         #endregion
 
@@ -80,39 +80,6 @@ namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
             m_AOI_Station = Proc_AOI_Station.GetSingleton();
         }
 
-        private void btnAddData_Click(object sender, EventArgs e)
-        {
-            foreach (var keyValueParir in m_Magazines)
-            {
-                var magazine = keyValueParir.Value;
-                var magazineName = keyValueParir.Key;
-
-                if (magazine == null)
-                    continue;
-
-                // 依這顆 Magazine 現在實際的 Slot 數灌測試資料，不寫死數字——
-                // 跟 ucManualForm.cs 的 btnAddData_Click() 同一個坑，這裡是獨立複製的一份。
-                for (int slotNo = 1; slotNo <= magazine.GetMagazineSlotCount(); slotNo++)
-                {
-                    switch (magazineName)
-                    {
-                        case "IC_Feed":
-                            magazine.CreateIcTrayInfo(slotNo);
-                            break;
-                        case "HS_Feed":
-                            magazine.CreateHeatSinkTrayInfo(slotNo);
-                            break;
-                        case "NG_Feed":
-                            magazine.CreateEmptyMaterialTrayInfo(slotNo);
-                            break;
-                        default:
-                            magazine.CreateEmptyTrayInfo(slotNo);
-                            break;
-                    }
-                }
-            }
-        }
-
         private void btnLotEnd_Click(object sender, EventArgs e)
         {
             clsEditRunThread.LotEnd();
@@ -166,6 +133,15 @@ namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
 
             UpdatePressStation();
             UpdateAOIStation();
+
+            UpdateLotEndStatus();
+        }
+
+        private void UpdateLotEndStatus()
+        {
+            btnLotEnd.Enabled = !ProcAutoRun.bIsLotEnd || clsCmData.g_bIsinitialized;
+            btnLotEnd.BackColor = ProcAutoRun.bIsLotEnd ? Color.Khaki : Color.Salmon;
+            btnLotEnd.Text = ProcAutoRun.bIsLotEnd ? "Ending Lot.." : "Lot End";
         }
 
         /// <summary>
@@ -198,12 +174,12 @@ namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
             m_Magazines.Add("NG_Feed", m_NG_Feed_Magazine);
             m_Magazines.Add("NG_Discharge", m_NG_Discharge_Magazine);
 
-            ucIC_Feed_Magazine_View.Initial(m_IC_Magazine.m_MagazineInfo, cboICFeedSlot);
-            ucOK_Discharge_Magazine_View.Initial(m_OK_Discharge_Magazine.m_MagazineInfo, cboOKDischargeSlot);
-            ucHS_Feed_Magazine_View.Initial(m_HS_Feed_Magazine.m_MagazineInfo, cboHSFeedSlot);
-            ucHS_Discharge_Magazine_View.Initial(m_HS_Discharge_Magazine.m_MagazineInfo, cboHSDischargeSlot);
-            ucNG_Feed_Magazine_View.Initial(m_NG_Feed_Magazine.m_MagazineInfo, cboNGFeedSlot);
-            ucNG_Discharge_Magazine_View.Initial(m_NG_Discharge_Magazine.m_MagazineInfo, cboNGDischargeSlot);
+            ucIC_Feed_Magazine_View.Initial(m_IC_Magazine.m_MagazineInfo);
+            ucOK_Discharge_Magazine_View.Initial(m_OK_Discharge_Magazine.m_MagazineInfo);
+            ucHS_Feed_Magazine_View.Initial(m_HS_Feed_Magazine.m_MagazineInfo);
+            ucHS_Discharge_Magazine_View.Initial(m_HS_Discharge_Magazine.m_MagazineInfo);
+            ucNG_Feed_Magazine_View.Initial(m_NG_Feed_Magazine.m_MagazineInfo);
+            ucNG_Discharge_Magazine_View.Initial(m_NG_Discharge_Magazine.m_MagazineInfo);
         }
 
         private void UpdateAOIStation()
@@ -407,5 +383,87 @@ namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
         }
 
         #endregion
+
+        private void btnIcFeedRefill_Click(object sender, EventArgs e)
+        {
+            var magazine = m_IC_Magazine;
+            for (int slotNo = 1; slotNo <= magazine.GetMagazineSlotCount(); slotNo++)
+            {
+                magazine.CreateIcTrayInfo(slotNo);
+                //switch (magazineName)
+                //{
+                //    case "IC_Feed":
+                //        break;
+                //    case "HS_Feed":
+                //        magazine.CreateHeatSinkTrayInfo(slotNo);
+                //        break;
+                //    case "NG_Feed":
+                //        magazine.CreateEmptyMaterialTrayInfo(slotNo);
+                //        break;
+                //    default:
+                //        magazine.CreateEmptyTrayInfo(slotNo);
+                //        break;
+                //}
+            }
+        }
+
+        private void btnHsFeedRefill_Click(object sender, EventArgs e)
+        {
+            var magazine = m_HS_Feed_Magazine;
+            for (int slotNo = 1; slotNo <= magazine.GetMagazineSlotCount(); slotNo++)
+            {
+                magazine.CreateHeatSinkTrayInfo(slotNo);
+                //switch (magazineName)
+                //{
+                //    case "IC_Feed":
+                //        break;
+                //    case "HS_Feed":
+                //        magazine.CreateHeatSinkTrayInfo(slotNo);
+                //        break;
+                //    case "NG_Feed":
+                //        magazine.CreateEmptyMaterialTrayInfo(slotNo);
+                //        break;
+                //    default:
+                //        magazine.CreateEmptyTrayInfo(slotNo);
+                //        break;
+                //}
+            }
+        }
+
+        private void btnHsDischargeRefill_Click(object sender, EventArgs e)
+        {
+            var magazine = m_HS_Discharge_Magazine;
+            for (int slotNo = 1; slotNo <= magazine.GetMagazineSlotCount(); slotNo++)
+            {
+                magazine.CreateEmptyTrayInfo(slotNo);
+            }
+        }
+
+        private void btnNgFeedRefill_Click(object sender, EventArgs e)
+        {
+            var magazine = m_NG_Feed_Magazine;
+            for (int slotNo = 1; slotNo <= magazine.GetMagazineSlotCount(); slotNo++)
+            {
+                magazine.CreateEmptyMaterialTrayInfo(slotNo);
+            }
+        }
+
+        private void btnNgDischargeRefill_Click(object sender, EventArgs e)
+        {
+            var magazine = m_NG_Discharge_Magazine;
+            for (int slotNo = 1; slotNo <= magazine.GetMagazineSlotCount(); slotNo++)
+            {
+                magazine.CreateEmptyTrayInfo(slotNo);
+            }
+        }
+
+        private void btnOkDischargeRefill_Click(object sender, EventArgs e)
+        {
+            var magazine = m_OK_Discharge_Magazine;
+            for (int slotNo = 1; slotNo <= magazine.GetMagazineSlotCount(); slotNo++)
+            {
+                magazine.CreateEmptyTrayInfo(slotNo);
+            }
+        }
     }
 }
