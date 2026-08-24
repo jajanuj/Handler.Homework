@@ -1,9 +1,9 @@
-﻿using ArtCommonLib;
+﻿using System;
+using ArtCommonLib;
 using ArtControlLib;
 using ArtEQ._4_Class_基本類別_;
 using ArtEQ.B_Tools;
 using ArtTeach;
-using System;
 using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.BaseProc
@@ -432,7 +432,14 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                 //等待取料流道是否準備完成，判斷有無料盤
                 case 20200:
                     m_enuAction = enuAction.Pick_Waiting;
-                    iStepIndex = ReadyToPick() ? 20300 : 20998;
+                    iStepIndex = ReadyToPick() ? 20210 : 20998;
+                    break;
+
+                case 20210:
+                    m_Motion_X.iSimulateDelayTime = ucParameter.GetValueInt(enuPmtName.Sys_Delay_Simulate_Motor_Time); ;
+                    m_Motion_Y.iSimulateDelayTime = ucParameter.GetValueInt(enuPmtName.Sys_Delay_Simulate_Motor_Time); ;
+                    m_Motion_Z.iSimulateDelayTime = ucParameter.GetValueInt(enuPmtName.Sys_Delay_Simulate_Motor_Time); ;
+                    iStepIndex = 20300;
                     break;
 
                 //計算點位，馬達X/Y設定取料位置
@@ -695,7 +702,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     iStepIndex = -1;
                     break;
 
-                #endregion
+                    #endregion
             }
         }
 

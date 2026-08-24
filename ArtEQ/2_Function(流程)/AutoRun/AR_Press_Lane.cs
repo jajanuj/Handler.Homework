@@ -1,7 +1,7 @@
+using System.Linq;
 using ArtCommonLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.Proc;
-using System.Linq;
 
 namespace ArtEQ._2_Function_流程_.AutoRun
 {
@@ -276,8 +276,8 @@ namespace ArtEQ._2_Function_流程_.AutoRun
             rValue &= Press_Lane().m_enuAction == BaseLane.enuAction.Initial_Done ||
                       Press_Lane().m_enuAction == BaseLane.enuAction.Load_Done;
 
-            //5. 判斷盤子裡有料的格子是否都已經壓合完成，避免未壓合的半成品被卸走
-            rValue &= !Press_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsPressed);
+            //5. 判斷盤子裡有料的格子是否都已經壓合(或被壓合站關閉放行)完成
+            rValue &= !Press_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsPressed && !v.IsPressSkipped);
 
             return rValue;
         }

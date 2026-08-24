@@ -1,5 +1,5 @@
-﻿using ArtData;
-using ArtEQ._2_Function_流程_.BaseProc;
+﻿using ArtEQ._2_Function_流程_.BaseProc;
+using static ArtData.clsEnum;
 using Di = ArtData.clsEnum.enuDi;
 using Do = ArtData.clsEnum.enuDo;
 
@@ -23,7 +23,14 @@ namespace ArtEQ._2_Function_流程_.Proc
             BindHardwarePoint();
         }
 
-        protected override bool SetTrayWork()
+        /// <summary>
+        /// 過帳：整盤有料的格子都推進到「壓合站已放行」。
+        /// </summary>
+        /// <param name="p_bPhysicallyPressed">
+        /// true=氣缸真的有壓合過(case 20400)；false=壓合站被關閉、直接放行(case 21000)，
+        /// 只推進流程，不能標記成真的壓合過。
+        /// </param>
+        protected override bool SetTrayWork(bool p_bPhysicallyPressed)
         {
             var tray = PressLane.m_Temp_Tray_Info;
             for (int i = 0; i < tray.AssyRecords.Count; i++)
@@ -31,9 +38,24 @@ namespace ArtEQ._2_Function_流程_.Proc
                 var assyRecord = tray.AssyRecords[i];
                 if (!assyRecord.IsExist) continue;
 
-                assyRecord.IsPressed = true;
-                tray.SetItemStatus(i, clsEnum.TrayItemStatus.Pressed);
-                assyRecord.CurrentStation = clsEnum.WorkStationType.Press;
+                assyRecord.IsPressed = p_bPhysicallyPressed;
+                assyRecord.IsPressSkipped = !p_bPhysicallyPressed;
+                TrayItemStatus itemStatus;
+                if (p_bPhysicallyPressed)
+                {
+                    itemStatus = TrayItemStatus.Pressed;
+                    tray.SetItemStatus(i, itemStatus);
+                    assyRecord.CurrentStation = WorkStationType.Press;
+                }
+                else
+                {
+                    itemStatus = TrayItemStatus.Assembly;
+                    tray.SetItemStatus(i, itemStatus);
+                    assyRecord.CurrentStation = WorkStationType.ASM;
+                }
+
+                tray.SetItemStatus(i, itemStatus);
+                assyRecord.CurrentStation = WorkStationType.ASM;
             }
             return true;
         }

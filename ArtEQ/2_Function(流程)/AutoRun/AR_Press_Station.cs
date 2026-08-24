@@ -1,8 +1,10 @@
+using System.Linq;
 using ArtCommonLib;
+using ArtControlLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.BaseProc;
 using ArtEQ._2_Function_流程_.Proc;
-using System.Linq;
+using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.AutoRun
 {
@@ -65,6 +67,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                     break;
 
                 #endregion
+
 
                 #region //============== 壓合 ==============
 
@@ -134,8 +137,10 @@ namespace ArtEQ._2_Function_流程_.AutoRun
             if (!rValue)
                 return false;
 
-            // 4. 還有格子有料但尚未壓合完成，才需要壓；全部壓完就不用再觸發
-            return Press_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsPressed);
+            // 4. 還有格子有料但尚未壓合(或被壓合站關閉放行)完成，才需要觸發；全部完成就不用再觸發。
+            //    壓合站關閉時 SetTrayWork(false) 會把 IsPressSkipped 標成 true，一樣算完成，
+            //    不需要另外查 Sys_EnablePressStation。
+            return Press_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsPressed && !v.IsPressSkipped);
         }
 
         #endregion

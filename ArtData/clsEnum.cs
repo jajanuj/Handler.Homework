@@ -718,6 +718,10 @@ namespace ArtData
             Sys_TeachEnable = 210011,
             Sys_EnableSafeDoor = 210012,
             Sys_EnableSMEMA = 210030,
+            /// <summary>
+            /// 啟用壓合站
+            /// </summary>
+            Sys_EnablePressStation,
 
 
             Sys_LaneMotorHighSpeed = 210201,
@@ -749,6 +753,8 @@ namespace ArtData
             Sys_Delay_SMEMASingal = 221003,
             Sys_Delay_Putter_After,
             Sys_Delay_Putter_Before,
+            Sys_Delay_Press_Time,
+            Sys_Delay_Simulate_Motor_Time,
 
             #endregion
 

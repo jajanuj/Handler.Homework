@@ -30,6 +30,8 @@
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tPage_System = new System.Windows.Forms.TabPage();
+            this.lblEnablePressStation = new System.Windows.Forms.Label();
+            this.comImgButton1 = new ArtControlLib.comImgButton();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.comImgButton6 = new ArtControlLib.comImgButton();
@@ -72,6 +74,8 @@
             // tPage_System
             // 
             this.tPage_System.AllowDrop = true;
+            this.tPage_System.Controls.Add(this.lblEnablePressStation);
+            this.tPage_System.Controls.Add(this.comImgButton1);
             this.tPage_System.Controls.Add(this.label6);
             this.tPage_System.Controls.Add(this.label5);
             this.tPage_System.Controls.Add(this.comImgButton6);
@@ -85,6 +89,35 @@
             this.tPage_System.TabIndex = 0;
             this.tPage_System.Text = "System Setting";
             this.tPage_System.UseVisualStyleBackColor = true;
+            // 
+            // lblEnablePressStation
+            // 
+            this.lblEnablePressStation.AutoSize = true;
+            this.lblEnablePressStation.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblEnablePressStation.Location = new System.Drawing.Point(408, 48);
+            this.lblEnablePressStation.Name = "lblEnablePressStation";
+            this.lblEnablePressStation.Size = new System.Drawing.Size(178, 18);
+            this.lblEnablePressStation.TabIndex = 456;
+            this.lblEnablePressStation.Text = "Enable Press Station";
+            // 
+            // comImgButton1
+            // 
+            this.comImgButton1._DefaultStatus = false;
+            this.comImgButton1._ImgBackground = true;
+            this.comImgButton1._ImgFalse = global::ArtEQ.Properties.Resources.No;
+            this.comImgButton1._ImgTrue = global::ArtEQ.Properties.Resources.Yes;
+            this.comImgButton1._IsSaveToIni = true;
+            this.comImgButton1._IsSaveToLog = true;
+            this.comImgButton1._PmtName = ArtData.clsEnum.enuPmtName.Sys_EnablePressStation;
+            this.comImgButton1._PmtType = ArtData.clsEnum.enuPmtType.System;
+            this.comImgButton1._Status = false;
+            this.comImgButton1.BackgroundImage = global::ArtEQ.Properties.Resources.No;
+            this.comImgButton1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.comImgButton1.Location = new System.Drawing.Point(357, 36);
+            this.comImgButton1.Name = "comImgButton1";
+            this.comImgButton1.Size = new System.Drawing.Size(45, 45);
+            this.comImgButton1.TabIndex = 455;
+            this.comImgButton1.UseVisualStyleBackColor = true;
             // 
             // label6
             // 
@@ -100,7 +133,7 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(482, 99);
+            this.label5.Location = new System.Drawing.Point(87, 150);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(164, 18);
             this.label5.TabIndex = 454;
@@ -138,7 +171,7 @@
             this.comImgButton5._Status = false;
             this.comImgButton5.BackgroundImage = global::ArtEQ.Properties.Resources.No;
             this.comImgButton5.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.comImgButton5.Location = new System.Drawing.Point(431, 87);
+            this.comImgButton5.Location = new System.Drawing.Point(36, 138);
             this.comImgButton5.Name = "comImgButton5";
             this.comImgButton5.Size = new System.Drawing.Size(45, 45);
             this.comImgButton5.TabIndex = 453;
@@ -148,7 +181,7 @@
             // 
             this.label42.AutoSize = true;
             this.label42.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label42.Location = new System.Drawing.Point(482, 48);
+            this.label42.Location = new System.Drawing.Point(87, 99);
             this.label42.Name = "label42";
             this.label42.Size = new System.Drawing.Size(150, 18);
             this.label42.TabIndex = 446;
@@ -167,7 +200,7 @@
             this.cbtn_CheckCorner._Status = false;
             this.cbtn_CheckCorner.BackgroundImage = global::ArtEQ.Properties.Resources.No;
             this.cbtn_CheckCorner.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.cbtn_CheckCorner.Location = new System.Drawing.Point(431, 36);
+            this.cbtn_CheckCorner.Location = new System.Drawing.Point(36, 87);
             this.cbtn_CheckCorner.Name = "cbtn_CheckCorner";
             this.cbtn_CheckCorner.Size = new System.Drawing.Size(45, 45);
             this.cbtn_CheckCorner.TabIndex = 445;
@@ -644,5 +677,7 @@
         private System.Windows.Forms.ComboBox cboNgDischargeMode;
         private ArtControlLib.comNumBox comNumBox1;
         private System.Windows.Forms.Label lblNgDischargeMode;
+        private System.Windows.Forms.Label lblEnablePressStation;
+        private ArtControlLib.comImgButton comImgButton1;
     }
 }

@@ -1,9 +1,9 @@
-﻿using ArtCommonLib;
+﻿using System;
+using ArtCommonLib;
 using ArtControlLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.Proc;
 using ArtEQ.B_Tools;
-using System;
 using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.BaseProc
@@ -55,10 +55,19 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
         #region Properties
 
+        /// <summary>
+        /// 啟用壓合站功能
+        /// </summary>
+        public bool EnablePressStation => ucParameter.GetValueBool(enuPmtName.Sys_EnablePressStation);
+
         private int m_iPutterTimeout => GetPmt(enuPmtName.Sys_Timeout_Putter);
         private int m_iPutterBeforeDelay => GetPmt(enuPmtName.Sys_Delay_Putter_Before);
         private int m_iPutterAfterDelay => GetPmt(enuPmtName.Sys_Delay_Putter_After);
 
+        /// <summary>
+        /// 系統設定 壓合時間
+        /// </summary>
+        public int PressTime => GetPmt(enuPmtName.Sys_Delay_Press_Time);
         /// <summary>
         /// 本站帳料
         /// </summary>
@@ -194,7 +203,8 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
                 case 20000:
                     m_enuAction = enuAction.Press;
-                    iStepIndex = 20010;
+
+                    iStepIndex = EnablePressStation ? 20010 : 21000;
                     break;
 
                 case 20010:
@@ -233,11 +243,44 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     m_CtrlBox.Action(ref iStepIndex, 20400, 20998);
                     break;
 
-                //todo :壓和時間,上升
+                // 設定壓合時間
+                case 20400:
+                    Restart();
+                    iStepIndex = 20410;
+                    break;
+
+                // 等待壓合時間
+                case 20410:
+                    if (IsTimeOut(PressTime, clsCmData.enuSecUnit.MilliSec))
+                    {
+                        iStepIndex = 20500;
+                    }
+                    break;
+
+                // 設定壓合氣缸後退-上升
+                case 20500:
+                    m_CtrlBox.Clear();
+                    AddPressCylinder(false);
+                    iStepIndex = 20510;
+                    break;
+
+                // 開始壓合氣缸動作
+                case 20510:
+                    m_CtrlBox.Action(ref iStepIndex, 20600, 20998);
+                    break;
 
                 //過帳
-                case 20400:
-                    SetTrayWork();
+                case 20600:
+                    SetTrayWork(true);
+                    iStepIndex = 20999;
+                    break;
+
+                case 21000:
+                    // 跳過實體氣缸動作，但流程放行(SetTrayWork)不能跳過，否則
+                    // AR_Press_Station.CanPress() 永遠找得到「有料但沒放行」的格子，
+                    // 陷入 100000->200000->200100->100000 無限重觸發。傳 false 只推進
+                    // 流程(IsPressSkipped=true)，不冒充成真的物理壓合過(IsPressed 維持 false)。
+                    SetTrayWork(false);
                     iStepIndex = 20999;
                     break;
 
@@ -256,7 +299,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     iStepIndex = -1;
                     break;
 
-                #endregion
+                    #endregion
             }
         }
 
@@ -272,7 +315,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
         protected abstract void BindHardwarePoint();
 
-        protected abstract bool SetTrayWork();
+        protected abstract bool SetTrayWork(bool p_bPhysicallyPressed);
 
         #endregion
 

@@ -1,8 +1,8 @@
-﻿using ArtCommonLib;
+﻿using System;
+using ArtCommonLib;
 using ArtControlLib;
 using ArtProcModuleLib;
 using ArtSystem;
-using System;
 using static ArtData.clsEnum;
 using comNumBox = ArtControlLib.comNumBox;
 
