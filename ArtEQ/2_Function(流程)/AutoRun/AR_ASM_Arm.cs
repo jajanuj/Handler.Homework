@@ -204,6 +204,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
             if (hsTray == null || asmTray == null)
                 return false;
 
+            //可拿掉，確定tray是相同
             int iCount = System.Math.Min(hsTray.iRows * hsTray.iCols, asmTray.iRows * asmTray.iCols);
 
             for (int i = 0; i < iCount; i++)

@@ -7,7 +7,6 @@ using ArtControlLib;
 using ArtData;
 using ArtEQ._3_UI_介面管理_._1_Operator_操作模式_;
 using ArtEQ._3_UI_介面管理_._2_Manual_手動模式_;
-using ArtProcModuleLib;
 using ArtSystem;
 using ArtSystem.MultiSystem;
 
@@ -99,10 +98,10 @@ namespace ArtEQ
 
             AddFunc(new clsObjFunc(clsCmData.enuMainFunc.Manual, "Manual Form", ucManualForm.GetSingleton()));
             AddFunc(new clsObjFunc(clsCmData.enuMainFunc.Manual, "Function Setting", ucFunctionSetting.GetSingleton()));
-            AddFunc(new clsObjFunc(clsCmData.enuMainFunc.Manual, "Product Setting", ucBoatSetting.GetSingleton()));
-            AddFunc(new clsObjFunc(clsCmData.enuMainFunc.Manual, "Motion Teach", ucMotionTeach.GetSingleton()));
+            //AddFunc(new clsObjFunc(clsCmData.enuMainFunc.Manual, "Product Setting", ucBoatSetting.GetSingleton()));
+            //AddFunc(new clsObjFunc(clsCmData.enuMainFunc.Manual, "Motion Teach", ucMotionTeach.GetSingleton()));
             AddFunc(new clsObjFunc(clsCmData.enuMainFunc.Manual, "Time Setting", ucTimeSetting.GetSingleton()));
-            AddFunc(new clsObjFunc(clsCmData.enuMainFunc.Manual, "Parameter Setting", ucParameterForm.GetSingleton()));
+            //AddFunc(new clsObjFunc(clsCmData.enuMainFunc.Manual, "Parameter Setting", ucParameterForm.GetSingleton()));
 
             #endregion
 

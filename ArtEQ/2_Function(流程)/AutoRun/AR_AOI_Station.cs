@@ -1,7 +1,8 @@
 using ArtCommonLib;
-using ArtData;
+using ArtControlLib;
 using ArtEQ._2_Function_流程_.BaseProc;
 using ArtEQ._2_Function_流程_.Proc;
+using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.AutoRun
 {
@@ -28,6 +29,11 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         #region //===================== 全域變數 =====================
 
         public bool bIsReady { get; protected set; }
+
+        /// <summary>
+        /// Recipe是否啟用檢測站
+        /// </summary>
+        bool EnableAoiStation = ucParameter.GetValueBool(enuPmtName.Rec_Enable_Aoi);
 
         #endregion
 
@@ -56,7 +62,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                 case 1:
                     bIsReady = false;
                     Restart();
-                    clsLog.Log(clsEnum.enuLogName.ProcessLog, strThreadLogName + ", AutoRun - Start");
+                    clsLog.Log(enuLogName.ProcessLog, strThreadLogName + ", AutoRun - Start");
                     iStepIndex = 100000;
                     break;
 
@@ -66,6 +72,11 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
                 case 100000:
                     if (!Station().IsProcOK()) break;
+
+                    if (!EnableAoiStation)
+                    {
+                        break;
+                    }
 
                     if (CanInspect(out m_iCol, out m_iRow))
                     {
@@ -82,7 +93,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                     if (!Station().IsProcOK()) break;
 
                     Station().RunInspect(m_iCol, m_iRow);
-                    clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), $"{strThreadLogName} : RunInspect Col[{m_iCol}] Row[{m_iRow}]");
+                    clsLog.Log(nameof(enuLogName.ProcessLog), $"{strThreadLogName} : RunInspect Col[{m_iCol}] Row[{m_iRow}]");
                     iStepIndex = 200100;
                     break;
 
@@ -91,12 +102,12 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
                     if (Station().m_enuAction == BaseAoiStation.enuAction.AOI_Done)
                     {
-                        clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), $"{strThreadLogName} : AOI Done → 回閒置等處理");
+                        clsLog.Log(nameof(enuLogName.ProcessLog), $"{strThreadLogName} : AOI Done → 回閒置等處理");
                         iStepIndex = 100000;
                     }
                     else if (Station().m_enuAction == BaseAoiStation.enuAction.AOI_Fail)
                     {
-                        clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), $"{strThreadLogName} : AOI Fail → 回閒置等處理");
+                        clsLog.Log(nameof(enuLogName.ProcessLog), $"{strThreadLogName} : AOI Fail → 回閒置等處理");
                         iStepIndex = 100000;
                     }
 
@@ -217,7 +228,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         {
             iStepIndex = -1;
             bIsReady = true;
-            clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : RunInitial Done");
+            clsLog.Log(nameof(enuLogName.ProcessLog), strThreadLogName + " : RunInitial Done");
         }
 
         public void Run_AutoRun()

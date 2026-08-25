@@ -227,7 +227,7 @@ namespace ArtData
             [Description("需要上料盒")] Need_Magazine_To_Load,
 
             [Description("過壓警報")] Over_Press_Alarm,
-
+            [Description("料盒層數計算異常")] Magazine_Slot_Number_Error,
             [Description("手臂吸嘴上有物料")] Arm_Has_Material_On_Suction_Cup = 893201,
 
             [Description("手臂吸嘴真空失敗")] Pickup_Vacuum_Failure,
@@ -707,6 +707,8 @@ namespace ArtData
             Rec_Tray_Row_Number,
             Rec_Sort_Type,
             Rec_Press_Time,
+            Rec_Enable_Press,
+            Rec_Enable_Aoi,
 
             #endregion
 
@@ -716,11 +718,6 @@ namespace ArtData
             Sys_TeachEnable = 210011,
             Sys_EnableSafeDoor = 210012,
             Sys_EnableSMEMA = 210030,
-
-            /// <summary>
-            /// 啟用壓合站
-            /// </summary>
-            Sys_EnablePressStation,
 
             Sys_LaneMotorHighSpeed = 210201,
             Sys_LaneMotorLowSpeed = 210202,

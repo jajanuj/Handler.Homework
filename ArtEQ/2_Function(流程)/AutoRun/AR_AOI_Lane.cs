@@ -1,7 +1,8 @@
-using ArtCommonLib;
-using ArtData;
-using ArtEQ._2_Function_流程_.Proc;
 using System.Linq;
+using ArtCommonLib;
+using ArtControlLib;
+using ArtEQ._2_Function_流程_.Proc;
+using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.AutoRun
 {
@@ -25,6 +26,11 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
         public bool bIsReady { get; protected set; }
 
+        /// <summary>
+        /// Recipe是否啟用檢測站
+        /// </summary>
+        bool EnableAoiStation = ucParameter.GetValueBool(enuPmtName.Rec_Enable_Aoi);
+
         #endregion
 
         #endregion
@@ -42,7 +48,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                 case 1:
                     bIsReady = false;
                     Restart();
-                    clsLog.Log(clsEnum.enuLogName.ProcessLog, strThreadLogName + ", AutoRun - Start");
+                    clsLog.Log(enuLogName.ProcessLog, strThreadLogName + ", AutoRun - Start");
                     iStepIndex = 100000;
                     break;
 
@@ -90,7 +96,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                     if (!AOI_Lane().IsProcOK()) break;
 
                     AOI_Lane().RunLoad();
-                    clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), $"{strThreadLogName} : RunLoad");
+                    clsLog.Log(nameof(enuLogName.ProcessLog), $"{strThreadLogName} : RunLoad");
                     iStepIndex = 200200;
 
                     #endregion
@@ -105,12 +111,12 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
                     if (AOI_Lane().m_enuAction == BaseLane.enuAction.Load_Done)
                     {
-                        clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), $"{strThreadLogName} : Load Done → 回閒置等處理");
+                        clsLog.Log(nameof(enuLogName.ProcessLog), $"{strThreadLogName} : Load Done → 回閒置等處理");
                         iStepIndex = 100000;
                     }
                     else if (AOI_Lane().m_enuAction == BaseLane.enuAction.Load_Fail)
                     {
-                        clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), $"{strThreadLogName} : Load Fail → 回閒置等處理");
+                        clsLog.Log(nameof(enuLogName.ProcessLog), $"{strThreadLogName} : Load Fail → 回閒置等處理");
                         iStepIndex = 100000;
                     }
 
@@ -141,7 +147,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                     #region 執行
 
                     AOI_Lane().RunUnload();
-                    clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), $"{strThreadLogName} : RunUnload");
+                    clsLog.Log(nameof(enuLogName.ProcessLog), $"{strThreadLogName} : RunUnload");
                     iStepIndex = 300200;
 
                     #endregion
@@ -154,12 +160,12 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
                     if (AOI_Lane().m_enuAction == BaseLane.enuAction.Unload_Done)
                     {
-                        clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), $"{strThreadLogName} : Unload Done → 回閒置等處理");
+                        clsLog.Log(nameof(enuLogName.ProcessLog), $"{strThreadLogName} : Unload Done → 回閒置等處理");
                         iStepIndex = 100000;
                     }
                     else if (AOI_Lane().m_enuAction == BaseLane.enuAction.Unload_Fail)
                     {
-                        clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), $"{strThreadLogName} : Unload Fail → 回閒置等處理");
+                        clsLog.Log(nameof(enuLogName.ProcessLog), $"{strThreadLogName} : Unload Fail → 回閒置等處理");
                         iStepIndex = 100000;
                     }
 
@@ -276,8 +282,8 @@ namespace ArtEQ._2_Function_流程_.AutoRun
             rValue &= AOI_Lane().m_enuAction == BaseLane.enuAction.Initial_Done ||
                       AOI_Lane().m_enuAction == BaseLane.enuAction.Load_Done;
 
-            //5. 判斷盤子裡有料的格子是否都已經檢測完成，避免未檢測的半成品被卸走
-            rValue &= !AOI_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsAoiInspected);
+            //5. 判斷盤子裡有料的格子是否都已經檢測完成或不啟用檢測站，避免未檢測的半成品被卸走
+            rValue &= !AOI_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsAoiInspected) || !EnableAoiStation;
 
             return rValue;
         }
@@ -292,7 +298,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         {
             iStepIndex = -1;
             bIsReady = true;
-            clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : RunInitial Done");
+            clsLog.Log(nameof(enuLogName.ProcessLog), strThreadLogName + " : RunInitial Done");
         }
 
         public void Run_AutoRun()

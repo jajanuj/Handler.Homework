@@ -1,7 +1,9 @@
 using System.Linq;
 using ArtCommonLib;
+using ArtControlLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.Proc;
+using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.AutoRun
 {
@@ -24,6 +26,12 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         #region //===================== 全域變數 =====================
 
         public bool bIsReady { get; protected set; }
+
+        /// <summary>
+        /// Recipe是否啟用壓盒站
+        /// </summary>
+        bool EnablePressStation = ucParameter.GetValueBool(enuPmtName.Rec_Enable_Press);
+
 
         #endregion
 
@@ -277,7 +285,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                       Press_Lane().m_enuAction == BaseLane.enuAction.Load_Done;
 
             //5. 判斷盤子裡有料的格子是否都已經壓合(或被壓合站關閉放行)完成
-            rValue &= !Press_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsPressed && !v.IsPressSkipped);
+            rValue &= !Press_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsPressed) || !EnablePressStation;
 
             return rValue;
         }

@@ -1,8 +1,8 @@
-﻿using ArtCommonLib;
+﻿using System;
+using ArtCommonLib;
 using ArtControlLib;
 using ArtEQ._2_Function_流程_.Proc;
 using ArtEQ.B_Tools;
-using System;
 using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.BaseProc
@@ -54,11 +54,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
         #region Properties
 
-        /// <summary>
-        /// 啟用壓合站功能
-        /// </summary>
-        public bool EnablePressStation => ucParameter.GetValueBool(enuPmtName.Sys_EnablePressStation);
-
         private int m_iPutterTimeout => GetPmt(enuPmtName.Sys_Timeout_Putter);
         private int m_iPutterBeforeDelay => GetPmt(enuPmtName.Sys_Delay_Putter_Before);
         private int m_iPutterAfterDelay => GetPmt(enuPmtName.Sys_Delay_Putter_After);
@@ -67,6 +62,8 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         /// 系統設定 壓合時間
         /// </summary>
         public int PressTime => GetPmt(enuPmtName.Rec_Press_Time);
+
+        public double ElapsedTime => Elapsed(clsCmData.enuSecUnit.MilliSec);
 
         /// <summary>
         /// 本站帳料
@@ -201,8 +198,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
                 case 20000:
                     m_enuAction = enuAction.Press;
-
-                    iStepIndex = EnablePressStation ? 20010 : 21000;
+                    iStepIndex = 20010;
                     break;
 
                 case 20010:
@@ -273,15 +269,6 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     iStepIndex = 20999;
                     break;
 
-                case 21000:
-                    // 跳過實體氣缸動作，但流程放行(SetTrayWork)不能跳過，否則
-                    // AR_Press_Station.CanPress() 永遠找得到「有料但沒放行」的格子，
-                    // 陷入 100000->200000->200100->100000 無限重觸發。傳 false 只推進
-                    // 流程(IsPressSkipped=true)，不冒充成真的物理壓合過(IsPressed 維持 false)。
-                    SetTrayWork(false);
-                    iStepIndex = 20999;
-                    break;
-
                 // 【壓合 失敗】取料流程失敗
                 case 20998:
                     m_enuAction = enuAction.Press_Fail;
@@ -297,7 +284,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     iStepIndex = -1;
                     break;
 
-                #endregion
+                    #endregion
             }
         }
 
@@ -313,6 +300,11 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
         protected abstract void BindHardwarePoint();
 
+        /// <summary>
+        /// 設定壓盒站工作狀態，目前假定都有壓合
+        /// </summary>
+        /// <param name="p_bPhysicallyPressed">物理實際有無壓合動作</param>
+        /// <returns></returns>
         protected abstract bool SetTrayWork(bool p_bPhysicallyPressed);
 
         #endregion

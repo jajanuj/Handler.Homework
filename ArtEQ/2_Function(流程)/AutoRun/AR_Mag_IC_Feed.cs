@@ -1,7 +1,7 @@
-﻿using ArtCommonLib;
+﻿using System.Linq;
+using ArtCommonLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.Proc;
-using System.Linq;
 
 namespace ArtEQ._2_Function_流程_.AutoRun
 {
@@ -68,6 +68,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                         int slotNo = CheckNextSlotNo();
                         if (slotNo < 0)
                         {
+                            clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Magazine_Slot_Number_Error, NeedEqStop: false);
                             clsLog.Log(nameof(clsEnum.enuLogName.ProcessLog), strThreadLogName + " : 無有效 Slot，回閒置");
                             iStepIndex = 100000;
                             break;
@@ -93,7 +94,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                         iStepIndex = 100000;
                         if (CheckNextSlotNo() < 0)
                         {
-                            clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
+                            //clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
                         }
                     }
                     else if (Mag_IC_Feed().m_enuAction == BaseMagazine.enuAction.Magazine_Load_Fail)
@@ -103,7 +104,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                         iStepIndex = 100000;
                         if (CheckNextSlotNo() < 0)
                         {
-                            clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
+                            //clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
                         }
                     }
 
@@ -167,7 +168,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                       NextLane().m_enuAction == BaseLane.enuAction.Unload_Done ||
                       NextLane().m_enuAction == BaseLane.enuAction.Initial_Done;
 
-            // 4. 下游 Load_Lane 無 Boat、無帳料、狀態為 Lane_Loading 等待中
+            // 4. 下游 Load_Lane 無 Tray、無帳料
             rValue &= !NextLane().m_Temp_Tray_Info.bIsExist;
 
             // 5. 結批

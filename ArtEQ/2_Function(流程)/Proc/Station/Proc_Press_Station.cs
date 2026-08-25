@@ -39,7 +39,6 @@ namespace ArtEQ._2_Function_流程_.Proc
                 if (!assyRecord.IsExist) continue;
 
                 assyRecord.IsPressed = p_bPhysicallyPressed;
-                assyRecord.IsPressSkipped = !p_bPhysicallyPressed;
                 TrayItemStatus itemStatus;
                 if (p_bPhysicallyPressed)
                 {
@@ -54,8 +53,8 @@ namespace ArtEQ._2_Function_流程_.Proc
                     assyRecord.CurrentStation = WorkStationType.ASM;
                 }
 
-                tray.SetItemStatus(i, itemStatus);
-                assyRecord.CurrentStation = WorkStationType.ASM;
+                //tray.SetItemStatus(i, itemStatus);
+                //assyRecord.CurrentStation = WorkStationType.ASM;
             }
             return true;
         }

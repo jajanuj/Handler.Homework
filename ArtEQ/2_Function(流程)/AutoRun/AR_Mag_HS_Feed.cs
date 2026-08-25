@@ -1,7 +1,7 @@
-﻿using ArtCommonLib;
+﻿using System.Linq;
+using ArtCommonLib;
 using ArtData;
 using ArtEQ._2_Function_流程_.Proc;
-using System.Linq;
 
 namespace ArtEQ._2_Function_流程_.AutoRun
 {
@@ -93,7 +93,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                         iStepIndex = 100000;
                         if (CheckNextSlotNo() < 0)
                         {
-                            clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
+                            //clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
                         }
                     }
                     else if (Mag_HS_Feed().m_enuAction == BaseMagazine.enuAction.Magazine_Load_Fail)
@@ -103,7 +103,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
                         iStepIndex = 100000;
                         if (CheckNextSlotNo() < 0)
                         {
-                            clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
+                            //clsEditRunThread.ReportAlarm(clsEnum.enuAlarm.Need_Magazine_To_Load, NeedEqStop: false);
                         }
                     }
 

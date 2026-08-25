@@ -31,6 +31,12 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
         public bool bIsReady { get; protected set; }
 
+
+        /// <summary>
+        /// Recipe是否啟用壓盒站
+        /// </summary>
+        bool EnablePressStation = ucParameter.GetValueBool(enuPmtName.Rec_Enable_Press);
+
         #endregion
 
         #endregion
@@ -58,6 +64,11 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
                 case 100000:
                     if (!Station().IsProcOK()) break;
+
+                    if (!EnablePressStation)
+                    {
+                        break;
+                    }
 
                     if (CanPress())
                     {
@@ -137,10 +148,8 @@ namespace ArtEQ._2_Function_流程_.AutoRun
             if (!rValue)
                 return false;
 
-            // 4. 還有格子有料但尚未壓合(或被壓合站關閉放行)完成，才需要觸發；全部完成就不用再觸發。
-            //    壓合站關閉時 SetTrayWork(false) 會把 IsPressSkipped 標成 true，一樣算完成，
-            //    不需要另外查 Sys_EnablePressStation。
-            return Press_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsPressed && !v.IsPressSkipped);
+            // 4. 還有格子有料但尚未壓合完成，才需要觸發；全部完成就不用再觸發。
+            return Press_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsPressed);
         }
 
         #endregion

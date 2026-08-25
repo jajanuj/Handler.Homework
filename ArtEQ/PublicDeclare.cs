@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Windows.Forms;
 using ART.Security;
 using ArtCommonLib;
 using ArtControlLib;
@@ -52,18 +54,36 @@ namespace ArtEQ
 
         #region//========== Recipe管理 ==========
 
-        static public bool RecipeCopy(string SourceFile, string TargetFile)
+        /// <summary>
+        /// 複製配方檔（Recipe ini）到新的路徑。目的資料夾不存在會自動建立，
+        /// 目的檔案已存在則直接覆蓋。
+        /// </summary>
+        /// <param name="sourceFile">來源配方檔完整路徑，例如 D:\Recipe\Ok.ini</param>
+        /// <param name="targetFile">目的配方檔完整路徑，例如 D:\Recipe\123.ini</param>
+        /// <returns>複製是否成功</returns>
+        public static bool RecipeCopy(string sourceFile, string targetFile)
         {
-            bool rValue = true;
+            if (!File.Exists(sourceFile))
+            {
+                MessageBox.Show("來源配方檔不存在：" + sourceFile);
+                return false;
+            }
+
             try
             {
+                string targetDir = Path.GetDirectoryName(targetFile);
+                if (!string.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir))
+                    Directory.CreateDirectory(targetDir);
 
+                File.Copy(sourceFile, targetFile, true); // true = 覆蓋已存在的目的檔
+                return true;
             }
             catch (Exception ex)
             {
                 clsLog.Log(clsEnum.enuLogName.CatchLog, "Source : " + ex.Source + " , StackTrace : " + ex.StackTrace + ", Message : " + ex.Message);
+                MessageBox.Show("複製配方檔失敗：" + ex.Message);
+                return false;
             }
-            return rValue;
         }
 
         #endregion

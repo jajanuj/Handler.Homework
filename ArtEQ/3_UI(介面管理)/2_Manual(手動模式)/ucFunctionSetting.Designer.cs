@@ -30,8 +30,6 @@
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tPage_System = new System.Windows.Forms.TabPage();
-            this.lblEnablePressStation = new System.Windows.Forms.Label();
-            this.comImgButton1 = new ArtControlLib.comImgButton();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.comImgButton6 = new ArtControlLib.comImgButton();
@@ -39,6 +37,10 @@
             this.label42 = new System.Windows.Forms.Label();
             this.cbtn_CheckCorner = new ArtControlLib.comImgButton();
             this.tPage_Recipe = new System.Windows.Forms.TabPage();
+            this.label1 = new System.Windows.Forms.Label();
+            this.comImgButton3 = new ArtControlLib.comImgButton();
+            this.lblEnablePressStation = new System.Windows.Forms.Label();
+            this.comImgButton2 = new ArtControlLib.comImgButton();
             this.cnbPressTime = new ArtControlLib.comNumBox();
             this.lblPressTime = new System.Windows.Forms.Label();
             this.lblNgDischargeMode = new System.Windows.Forms.Label();
@@ -76,8 +78,6 @@
             // tPage_System
             // 
             this.tPage_System.AllowDrop = true;
-            this.tPage_System.Controls.Add(this.lblEnablePressStation);
-            this.tPage_System.Controls.Add(this.comImgButton1);
             this.tPage_System.Controls.Add(this.label6);
             this.tPage_System.Controls.Add(this.label5);
             this.tPage_System.Controls.Add(this.comImgButton6);
@@ -91,35 +91,6 @@
             this.tPage_System.TabIndex = 0;
             this.tPage_System.Text = "System Setting";
             this.tPage_System.UseVisualStyleBackColor = true;
-            // 
-            // lblEnablePressStation
-            // 
-            this.lblEnablePressStation.AutoSize = true;
-            this.lblEnablePressStation.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblEnablePressStation.Location = new System.Drawing.Point(408, 48);
-            this.lblEnablePressStation.Name = "lblEnablePressStation";
-            this.lblEnablePressStation.Size = new System.Drawing.Size(178, 18);
-            this.lblEnablePressStation.TabIndex = 456;
-            this.lblEnablePressStation.Text = "Enable Press Station";
-            // 
-            // comImgButton1
-            // 
-            this.comImgButton1._DefaultStatus = false;
-            this.comImgButton1._ImgBackground = true;
-            this.comImgButton1._ImgFalse = global::ArtEQ.Properties.Resources.No;
-            this.comImgButton1._ImgTrue = global::ArtEQ.Properties.Resources.Yes;
-            this.comImgButton1._IsSaveToIni = true;
-            this.comImgButton1._IsSaveToLog = true;
-            this.comImgButton1._PmtName = ArtData.clsEnum.enuPmtName.Sys_EnablePressStation;
-            this.comImgButton1._PmtType = ArtData.clsEnum.enuPmtType.System;
-            this.comImgButton1._Status = false;
-            this.comImgButton1.BackgroundImage = global::ArtEQ.Properties.Resources.No;
-            this.comImgButton1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.comImgButton1.Location = new System.Drawing.Point(357, 36);
-            this.comImgButton1.Name = "comImgButton1";
-            this.comImgButton1.Size = new System.Drawing.Size(45, 45);
-            this.comImgButton1.TabIndex = 455;
-            this.comImgButton1.UseVisualStyleBackColor = true;
             // 
             // label6
             // 
@@ -210,6 +181,10 @@
             // 
             // tPage_Recipe
             // 
+            this.tPage_Recipe.Controls.Add(this.label1);
+            this.tPage_Recipe.Controls.Add(this.comImgButton3);
+            this.tPage_Recipe.Controls.Add(this.lblEnablePressStation);
+            this.tPage_Recipe.Controls.Add(this.comImgButton2);
             this.tPage_Recipe.Controls.Add(this.cnbPressTime);
             this.tPage_Recipe.Controls.Add(this.lblPressTime);
             this.tPage_Recipe.Controls.Add(this.lblNgDischargeMode);
@@ -236,6 +211,64 @@
             this.tPage_Recipe.TabIndex = 1;
             this.tPage_Recipe.Text = "Recipe Setting";
             this.tPage_Recipe.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(614, 97);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(165, 18);
+            this.label1.TabIndex = 496;
+            this.label1.Text = "Enable AOI Station";
+            // 
+            // comImgButton3
+            // 
+            this.comImgButton3._DefaultStatus = false;
+            this.comImgButton3._ImgBackground = true;
+            this.comImgButton3._ImgFalse = global::ArtEQ.Properties.Resources.No;
+            this.comImgButton3._ImgTrue = global::ArtEQ.Properties.Resources.Yes;
+            this.comImgButton3._IsSaveToIni = true;
+            this.comImgButton3._IsSaveToLog = true;
+            this.comImgButton3._PmtName = ArtData.clsEnum.enuPmtName.Rec_Enable_Aoi;
+            this.comImgButton3._PmtType = ArtData.clsEnum.enuPmtType.Recipe;
+            this.comImgButton3._Status = false;
+            this.comImgButton3.BackgroundImage = global::ArtEQ.Properties.Resources.No;
+            this.comImgButton3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.comImgButton3.Location = new System.Drawing.Point(815, 85);
+            this.comImgButton3.Name = "comImgButton3";
+            this.comImgButton3.Size = new System.Drawing.Size(45, 45);
+            this.comImgButton3.TabIndex = 495;
+            this.comImgButton3.UseVisualStyleBackColor = true;
+            // 
+            // lblEnablePressStation
+            // 
+            this.lblEnablePressStation.AutoSize = true;
+            this.lblEnablePressStation.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblEnablePressStation.Location = new System.Drawing.Point(614, 40);
+            this.lblEnablePressStation.Name = "lblEnablePressStation";
+            this.lblEnablePressStation.Size = new System.Drawing.Size(178, 18);
+            this.lblEnablePressStation.TabIndex = 494;
+            this.lblEnablePressStation.Text = "Enable Press Station";
+            // 
+            // comImgButton2
+            // 
+            this.comImgButton2._DefaultStatus = false;
+            this.comImgButton2._ImgBackground = true;
+            this.comImgButton2._ImgFalse = global::ArtEQ.Properties.Resources.No;
+            this.comImgButton2._ImgTrue = global::ArtEQ.Properties.Resources.Yes;
+            this.comImgButton2._IsSaveToIni = true;
+            this.comImgButton2._IsSaveToLog = true;
+            this.comImgButton2._PmtName = ArtData.clsEnum.enuPmtName.Rec_Enable_Press;
+            this.comImgButton2._PmtType = ArtData.clsEnum.enuPmtType.Recipe;
+            this.comImgButton2._Status = false;
+            this.comImgButton2.BackgroundImage = global::ArtEQ.Properties.Resources.No;
+            this.comImgButton2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.comImgButton2.Location = new System.Drawing.Point(815, 28);
+            this.comImgButton2.Name = "comImgButton2";
+            this.comImgButton2.Size = new System.Drawing.Size(45, 45);
+            this.comImgButton2.TabIndex = 493;
+            this.comImgButton2.UseVisualStyleBackColor = true;
             // 
             // cnbPressTime
             // 
@@ -268,7 +301,7 @@
             0,
             0});
             this.cnbPressTime.Font = new System.Drawing.Font("Verdana", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cnbPressTime.Location = new System.Drawing.Point(525, 35);
+            this.cnbPressTime.Location = new System.Drawing.Point(497, 35);
             this.cnbPressTime.Name = "cnbPressTime";
             this.cnbPressTime.ReadOnly = true;
             this.cnbPressTime.Size = new System.Drawing.Size(67, 26);
@@ -279,7 +312,7 @@
             // lblPressTime
             // 
             this.lblPressTime.AutoSize = true;
-            this.lblPressTime.Location = new System.Drawing.Point(373, 40);
+            this.lblPressTime.Location = new System.Drawing.Point(345, 40);
             this.lblPressTime.Name = "lblPressTime";
             this.lblPressTime.Size = new System.Drawing.Size(113, 16);
             this.lblPressTime.TabIndex = 491;
@@ -325,7 +358,7 @@
             0,
             0});
             this.comNumBox1.Font = new System.Drawing.Font("Verdana", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.comNumBox1.Location = new System.Drawing.Point(186, 352);
+            this.comNumBox1.Location = new System.Drawing.Point(290, 309);
             this.comNumBox1.Name = "comNumBox1";
             this.comNumBox1.ReadOnly = true;
             this.comNumBox1.Size = new System.Drawing.Size(67, 26);
@@ -729,9 +762,11 @@
         private System.Windows.Forms.ComboBox cboNgDischargeMode;
         private ArtControlLib.comNumBox comNumBox1;
         private System.Windows.Forms.Label lblNgDischargeMode;
-        private System.Windows.Forms.Label lblEnablePressStation;
-        private ArtControlLib.comImgButton comImgButton1;
         private ArtControlLib.comNumBox cnbPressTime;
         private System.Windows.Forms.Label lblPressTime;
+        private System.Windows.Forms.Label lblEnablePressStation;
+        private ArtControlLib.comImgButton comImgButton2;
+        private System.Windows.Forms.Label label1;
+        private ArtControlLib.comImgButton comImgButton3;
     }
 }
