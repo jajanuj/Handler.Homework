@@ -3,6 +3,17 @@
 > 新條目加在最上面。每條格式：`## L{編號} [日期] 一行標題`，內文固定三欄：情境／錯誤做法／正確做法，總長 ≤6 行。
 > 動手改程式碼前，先掃一遍標題行。
 
+## L19 [2026-08-26] Enable_Xxx 旗標寫成欄位初始化，只在 singleton 建構當下讀一次 Recipe 值
+
+情境：`AR_AOI_Lane`／`AR_AOI_Station`／`AR_Press_Lane`／`AR_Press_Station` 的 `EnableAoiStation`／
+`EnablePressStation` 原本是 `bool EnableAoiStation = ucParameter.GetValueBool(enuPmtName.Rec_Enable_Aoi);`——
+欄位初始化只在該 AR singleton 第一次被 `new` 出來那一刻讀一次值，之後不管 Recipe 有沒有真的載入完成、
+使用者在 UI 切換過幾次對應的 comImgButton，這個旗標永遠停在建構當下讀到的那個值，不會再更新。
+錯誤做法：把「讀 Recipe 參數」直接寫成欄位初始化，沒意識到這跟屬性(每次存取都重新求值)語意不同——
+這類 singleton 通常建構得比 Recipe 真正載入完成還早，很容易一路卡在預設值。
+正確做法：改成 `=>` 運算式屬性，每次存取都重讀 `ucParameter`。之後新增 `Enable_Xxx` 這類旗標一律用
+屬性，不要用欄位初始化。
+
 ## L18 [2026-08-24] AR_Mag_* 六個檔案的 case 201000 判斷式少了 `!`，跟另一個 bug 互相遮蔽，結批到最後一盤才炸
 
 情境：結批(bIsLotEnd)強制出料時，`NG_Lane` 卡在 `Unload_Waiting`、`NG_Discharge_Magazine` 停在上一輪的

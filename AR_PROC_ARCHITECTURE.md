@@ -7,7 +7,8 @@
 > 建立：2026-08-21(ASM Lane 組裝流程)。更新：2026-08-22(HS Discharge Magazine、Press Lane/Station、AOI Lane/Station、
 > Lane→Lane 交握 WaitPreviousDoneLoad() 不該覆寫的 bug、CanUnload() 下游狀態清單漏掉 Unload_Done 導致死結的 bug、
 > OK Lane／NG Feed·Lane·Discharge Magazine、Sort Arm 分流機制與 NG 出料模式、Tray 格數/Magazine Slot 數改成
-> Recipe 動態值、結批(Lot End)機制)。
+> Recipe 動態值、結批(Lot End)機制)、2026-08-26(ReadyToLoad() 早期訊號 vs WaitNextLoadDone() 真正轉帳，
+> 兩者時間點沒有共用機制保證的隱性耦合)。
 
 ## 核心機制：clsThreadProc + iStepIndex
 
@@ -209,6 +210,29 @@ Lane 從上游接帳時（`BaseLane.ReceiveTrayBillFromPrevious`），依 `Mater
 `ReadyToUnloadToNext()`／`WaitNextLoadDone()`（決定下游準備好了沒），這三個都是「迴圈裡持續檢查、成立前一直
 停在原地」的用法，跟 `WaitPreviousDoneLoad()` 的「單次檢查、檢查完就往下走」用法不一樣，不要照樣造句加了不必要
 的覆寫。
+
+### ⚠️ `ReadyToLoad()` 觸發的是「開始跑模擬」，不是「帳已經到」——跟 `WaitNextLoadDone()` 的接軌沒有共用機制保證
+
+`ReadyToLoad()`（下游 Lane 用，決定何時開始自己的物理入料模擬）跟 `WaitNextLoadDone()`（上游 Lane 用，
+決定何時真的把帳轉過去）是兩個**各自獨立覆寫、只靠寫死的字面值湊巧接得起來**的 hook，不是同一組機制的
+兩端：
+
+- 下游 `ReadyToLoad()`（例如 `Proc_AOI_Lane.cs`）通常只檢查上游 `m_enuAction == Unload_Waiting`——這是
+  上游**剛要開始**出料的早期訊號，出現的當下上游還沒真的動、帳也還沒轉。下游一看到就啟動自己那段全靠
+  計時器／模擬 Sensor 跑的 Load 流程（`case 50100~50999`），這段期間 `m_Temp_Tray_Info.bIsExist` 其實
+  還是 false。
+- 上游 `WaitNextLoadDone()`（例如 `Proc_Press_Lane.cs`）通常檢查下游 `m_enuAction == Load_Done`——**下游
+  自己那段模擬全部跑完**才會成立，上游卡在 `case 60500`（`Unload_Waiting_Sign`）一路等到那一刻，才呼叫
+  `TransferTrayBillToNextLane()` 真的把帳轉過去。
+
+兩段能接得起來、不會出現「下游摸到假資料」的問題，完全是巧合：下游的模擬跑完（`Load_Done`）剛好比它
+自己拿到真帳的時間點還早，所以真帳到的那一刻，下游其他所有條件（`ArrivalSignal`／`IsProcOK()`）也早就
+成立了。**這個先後順序沒有任何共用機制保證，純粹是兩邊各自寫死的字面值（`Unload_Waiting` / `Load_Done`）
+剛好對得上**——以後修改任一邊的 `ReadyToLoad()`／`WaitNextLoadDone()`（尤其是照抄別條 Lane 的範本、換成
+看起來更寬鬆的狀態）之前，要先確認這個先後關係還成不成立，不然下游會在真帳還沒到之前就被判定「可以用
+了」，抓到的是上一輪留下的舊資料。2026-08-26 排查 AOI Lane「畫面顯示 Loading、AR_AOI_Station 卻已經判定
+可以檢測」的疑惑時發現這個耦合，查證後確認實際不是這次問題的成因（真正原因是欄位初始化只讀一次 Recipe
+值，見 `LESSONS.md` L19），但耦合本身確實存在，記錄下來供之後參考。
 
 ## 四個容易漏掉的註冊點
 
