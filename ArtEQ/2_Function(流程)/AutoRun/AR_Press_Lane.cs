@@ -30,7 +30,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         /// <summary>
         /// Recipe是否啟用壓盒站
         /// </summary>
-        bool EnablePressStation = ucParameter.GetValueBool(enuPmtName.Rec_Enable_Press);
+        bool EnablePressStation => ucParameter.GetValueBool(enuPmtName.Rec_Enable_Press);
 
 
         #endregion

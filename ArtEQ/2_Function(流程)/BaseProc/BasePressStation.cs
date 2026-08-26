@@ -63,7 +63,10 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         /// </summary>
         public int PressTime => GetPmt(enuPmtName.Rec_Press_Time);
 
-        public double ElapsedTime => Elapsed(clsCmData.enuSecUnit.MilliSec);
+        /// <summary>
+        /// 壓盒站壓合經過時間(秒)
+        /// </summary>
+        public double ElapsedTime { get; private set; }
 
         /// <summary>
         /// 本站帳料
@@ -95,6 +98,11 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         #endregion
 
         #region Public Methods
+
+        /// <summary>
+        /// 重置壓合站工作時間
+        /// </summary>
+        public void ResetPressTime() => ElapsedTime = 0;
 
         public bool IsProcOK() => !bIsProcessing && m_bIsReady;
 
@@ -182,6 +190,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                 #region 【 初始化完成】壓合站 已就緒
 
                 case 10999:
+                    ResetPressTime();
                     m_enuAction = enuAction.Initial_Done;
                     m_bIsReady = true;
                     bIsProcessing = false;
@@ -244,8 +253,10 @@ namespace ArtEQ._2_Function_流程_.BaseProc
 
                 // 等待壓合時間
                 case 20410:
+                    ElapsedTime = Math.Round(Elapsed(clsCmData.enuSecUnit.Sec), 2);
                     if (IsTimeOut(PressTime, clsCmData.enuSecUnit.MilliSec))
                     {
+                        Stop();
                         iStepIndex = 20500;
                     }
 

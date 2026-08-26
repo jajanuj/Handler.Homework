@@ -1,8 +1,8 @@
-﻿using ArtCommonLib;
+﻿using System;
+using ArtCommonLib;
 using ArtControlLib;
 using ArtEQ.B_Tools;
 using ArtTeach;
-using System;
 using static ArtData.clsEnum;
 
 namespace ArtEQ._2_Function_流程_.BaseProc
@@ -58,7 +58,8 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         /// <summary>
         /// 模擬視覺工作延遲時間 1000 (ms)。
         /// </summary>
-        protected readonly int m_iAoiDelay = 1000;
+        protected int m_iAoiDelay;
+        protected Random m_random = new Random();
 
         /// <summary>
         /// 馬達復歸後，延遲時間 1000 (ms)。
@@ -94,6 +95,11 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         #region Properties
 
         /// <summary>
+        /// 檢測站壓合經過時間(秒)
+        /// </summary>
+        public double ElapsedTime { get; private set; }
+
+        /// <summary>
         /// 本站帳料
         /// </summary>
         public clsTrayInfo m_Temp_Tray_Info { get; set; } = new clsTrayInfo();
@@ -123,6 +129,11 @@ namespace ArtEQ._2_Function_流程_.BaseProc
         #endregion
 
         #region Public Methods
+
+        /// <summary>
+        /// 重置檢測站工作時間
+        /// </summary>
+        public void ResetInspectTime() => ElapsedTime = 0;
 
         public bool IsProcOK() => !bIsProcessing && m_bIsReady;
 
@@ -289,6 +300,7 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                 #region 【 初始化完成】視覺檢測站 已就緒
 
                 case 10999:
+                    ResetInspectTime();
                     m_enuAction = enuAction.Initial_Done;
                     m_bIsReady = true;
                     bIsProcessing = false;
@@ -349,13 +361,17 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                 case 20400:
                     m_enuAction = enuAction.AOI_Working;
                     Restart();
+                    m_iAoiDelay = m_random.Next(500, 1001);
                     iStepIndex = 20410;
                     break;
 
                 // AOI檢測
                 case 20410:
+                    ElapsedTime = Math.Round(Elapsed(clsCmData.enuSecUnit.Sec), 2);
+
                     if (IsTimeOut(m_iAoiDelay, clsCmData.enuSecUnit.MilliSec))
                     {
+                        Stop();
                         iStepIndex = 20500;
                     }
 
@@ -384,12 +400,12 @@ namespace ArtEQ._2_Function_流程_.BaseProc
                     iStepIndex = -1;
                     break;
 
-                #endregion
+                    #endregion
             }
         }
 
         /// <summary>
-        /// 判斷壓合站有無料，是否可以進行取料動作。
+        /// 判斷檢測站有無料，是否可以進行檢測動作。
         /// </summary>
         /// <returns></returns>
         protected virtual bool ReadyToInspect() => AOILane.IsProcOK() && AOILane.m_Temp_Tray_Info.bIsExist && AOILane.ArrivalSignal;

@@ -29,7 +29,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         /// <summary>
         /// Recipe是否啟用檢測站
         /// </summary>
-        bool EnableAoiStation = ucParameter.GetValueBool(enuPmtName.Rec_Enable_Aoi);
+        bool EnableAoiStation => ucParameter.GetValueBool(enuPmtName.Rec_Enable_Aoi);
 
         #endregion
 
@@ -213,6 +213,11 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         #region //===================== Private Helper =====================
 
         /// <summary>
+        /// 檢測站
+        /// </summary>
+        private Proc_AOI_Station AOI_Station() => Proc_AOI_Station.GetSingleton();
+
+        /// <summary>
         /// 本站(AOI流道)
         /// </summary>
         /// <returns></returns>
@@ -284,6 +289,8 @@ namespace ArtEQ._2_Function_流程_.AutoRun
 
             //5. 判斷盤子裡有料的格子是否都已經檢測完成或不啟用檢測站，避免未檢測的半成品被卸走
             rValue &= !AOI_Lane().m_Temp_Tray_Info.AssyRecords.Any(v => v.IsExist && !v.IsAoiInspected) || !EnableAoiStation;
+
+            rValue &= AOI_Station().IsProcOK();
 
             return rValue;
         }

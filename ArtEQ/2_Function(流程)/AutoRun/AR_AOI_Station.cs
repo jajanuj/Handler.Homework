@@ -33,7 +33,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
         /// <summary>
         /// Recipe是否啟用檢測站
         /// </summary>
-        bool EnableAoiStation = ucParameter.GetValueBool(enuPmtName.Rec_Enable_Aoi);
+        bool EnableAoiStation => ucParameter.GetValueBool(enuPmtName.Rec_Enable_Aoi);
 
         #endregion
 
@@ -202,6 +202,7 @@ namespace ArtEQ._2_Function_流程_.AutoRun
             // 1. AOI Lane 帳料 + 到位訊號確認
             rValue &= AOI_Lane().m_Temp_Tray_Info.bIsExist;
             rValue &= AOI_Lane().ArrivalSignal;
+            rValue &= AOI_Lane().IsProcOK();
 
             // 2. Station 流程就緒
             rValue &= Station().IsProcOK();

@@ -136,7 +136,8 @@ namespace ArtEQ._3_UI_介面管理_._1_Operator_操作模式_
 
             UpdateLotEndStatus();
 
-            lblElapsedTime.Text = Proc_Press_Station.GetSingleton().ElapsedTime.ToString();
+            lblPressElapsedTime.Text = Proc_Press_Station.GetSingleton().ElapsedTime.ToString();
+            lblInspectElapsedTime.Text = Proc_AOI_Station.GetSingleton().ElapsedTime.ToString();
         }
 
         private void UpdateLotEndStatus()
